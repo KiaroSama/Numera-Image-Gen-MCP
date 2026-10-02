@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/assets/logo.png" alt="Numera Image-Gen MCP logo" width="220" />
+<img src="docs/assets/logo.png" alt="Numera Image-Gen MCP logo" width="320" />
 
 [![CI](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/workflows/ci.yml)
 [![License GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue)](LICENSE)
