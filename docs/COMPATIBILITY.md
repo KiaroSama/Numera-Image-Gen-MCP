@@ -1,8 +1,9 @@
 # Compatibility evidence
 
 Protocol compatibility is not a measured percentage of all models. Model names do not prove support.
-Every live connection/model/account/size/input mode must be verified separately. Current status before
-final CI is implemented, initial seam-tested; full matrix/coverage results belong in TEST-RESULTS.md.
+Every live connection/model/account/size/input mode must be verified separately. The published baseline
+passed its offline Windows/Linux matrix; resumed acceptance additions are awaiting their final CI.
+Exact versions, coverage and remaining live limitations belong in TEST-RESULTS.md.
 
 | Profile                | Generation                           | Reference/edit route                        | Evidence/limits                                                             |
 | ---------------------- | ------------------------------------ | ------------------------------------------- | --------------------------------------------------------------------------- |
@@ -18,5 +19,7 @@ final CI is implemented, initial seam-tested; full matrix/coverage results belon
 
 Native count>1 requires documented maxCount and actual mapped batch support; not silently repeated.
 PNG/JPEG/WebP originals validated. SVG/animation unsupported. Source references, live/GUI/GPU not-run
-reasons and exact runtime/platform evidence are separate. SDK2.2.0 selected; v1 wire/client negotiation
-requires explicit legacy-client tests before advertising broad older-host compatibility.
+reasons and exact runtime/platform evidence are separate. SDK2.3.0 selected. Local tests verify legacy
+initialize and auto negotiation falls back to legacy on this direct stdio server; a modern-only pin is
+rejected. No modern-only transport support is advertised. Provider signatures are privately retained;
+stateless file-reference editing is supported, conversational continuation replay is not exposed.

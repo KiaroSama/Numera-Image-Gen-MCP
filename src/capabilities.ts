@@ -81,8 +81,13 @@ export function capabilities(connection: Connection, model: string) {
   }
   if (connection.gateway === "9router" && model.startsWith("codex/"))
     refs = "supported";
-  if (connection.adapter === "comfyui")
+  if (connection.adapter === "comfyui") {
     refs = connection.workflow?.bindings.image ? "supported" : "unsupported";
+    masks =
+      connection.workflow?.bindings.mask && connection.edit?.maskPolarity
+        ? "supported"
+        : "unsupported";
+  }
   const override = connection.modelOverrides[model];
   return {
     model: { text_to_image: "unknown", image_to_image: "unknown" },

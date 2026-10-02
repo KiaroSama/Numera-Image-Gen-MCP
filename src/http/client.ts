@@ -3,6 +3,7 @@ import type { Connection } from "../config/schema.js";
 import { credentials } from "../config/credentials.js";
 import { NumeraError, fail } from "../errors.js";
 import { resolveOperationUrl } from "./url.js";
+import { readSse } from "./sse-reader.js";
 export async function boundedBytes(
   response: {
     body: AsyncIterable<Uint8Array> | null;
@@ -97,7 +98,11 @@ export async function apiRequest(
         "Check connection/account/model and inspect its existing job before authorizing a new request.",
       );
     }
-    const bytes = await boundedBytes(response, limit, combined);
+    const bytes =
+      response.headers.get("content-type")?.includes("text/event-stream") &&
+      response.body
+        ? await readSse(response.body, limit, combined)
+        : await boundedBytes(response, limit, combined);
     return {
       bytes,
       mime: response.headers.get("content-type") ?? "",

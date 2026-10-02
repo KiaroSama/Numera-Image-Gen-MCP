@@ -232,7 +232,7 @@ describe("ComfyUI loopback wire and job lifecycle", () => {
         adapter.operation = "edit";
         const prepared = await prepareComfy(adapter, signal);
         const job = await submitComfy(adapter, prepared, signal);
-        expect(job).toEqual({ id: "owned-job", kind: "comfyui" });
+        expect(job).toEqual({ id: "owned-job", kind: "comfyui", warnings: [] });
         expect(uploads).toHaveLength(3);
         for (const upload of uploads) {
           expect(upload.includes(image.bytes)).toBe(true);

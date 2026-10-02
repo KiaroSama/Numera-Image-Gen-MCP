@@ -13,6 +13,12 @@ Runtime dependencies audited. All test files matched automatically by Vitest inc
 Local light checks ran only to drive implementation. Full final matrix is reserved for CI. Generic
 SDK fixture interoperability is not a Claude/Codex GUI test. Synthetic images verify bytes/container/
 metadata/path semantics, not real model quality or editing fidelity. No paid default tests.
+Setup real-entry fixtures verify locked concurrent JSON/TOML registration, backup restoration,
+conservative TOML refusal, five PowerShell7 WhatIf actions and idle-timeout descendant cleanup.
+Native wire-contract fixtures assert method/path/header/body for each protocol, multipart byte fidelity,
+legacy-client negotiation, endpoint descriptors and private continuation state.
+No controlled real-gateway process was run against fake upstreams; gateway-shaped contract fixtures
+must not be called deployed-gateway integration. Interactive DPAPI creation/ACL remains not_run.
 
 Live tests require endpoint/model/number/cost authorization. No existing key authorizes generation.
 GPU actual graph/model/backend and host GUI tests not_run when unavailable. Keep evidence separate

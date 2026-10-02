@@ -104,6 +104,20 @@ export async function loadConfig(
         fail("invalid_configuration", "Invalid request timeout.");
       connection.requestTimeoutMs = n;
     }
+    if (connection.proxy) {
+      const proxy = new URL(connection.proxy.url);
+      if (
+        proxy.username ||
+        proxy.password ||
+        proxy.search ||
+        proxy.hash ||
+        !["http:", "https:"].includes(proxy.protocol)
+      )
+        fail(
+          "invalid_configuration",
+          "Proxy URL must not contain credentials, query or fragments.",
+        );
+    }
     resolveOperationUrl(
       connection.baseUrl,
       connection.baseUrlMode,

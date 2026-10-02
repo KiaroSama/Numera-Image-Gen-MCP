@@ -1,6 +1,9 @@
 # References
 
-Checked2026-10-02. Interfaces and test patterns only; no third-party implementation copied.
+Checked2026-10-03. Interfaces and test patterns only; no third-party implementation copied.
+Resume: SDKv2.3.0 release/protocol-versions documentation read; same direct stdio API and Apache-2.0
+package licensing. Google thinking/signature and OpenRouter endpoint descriptor docs refreshed.
+Current SDK/native source revisions and exact test evidence remain distinct from live availability.
 
 | Source                                                 | Examined revision/license                              | Applied/rejected                                                              |
 | ------------------------------------------------------ | ------------------------------------------------------ | ----------------------------------------------------------------------------- |

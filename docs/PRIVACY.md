@@ -12,7 +12,10 @@ values, prompts/Base64 and original paths by default; DEBUG does not relax redac
 
 Private receipts persist request fingerprints, owned paths and upstream IDs locally. Output bytes,
 logs/config/receipts are excluded from Git/npm artifacts. No automatic gallery/sync/browser launch.
-Private state should reside on owner-controlled local storage. Keep encrypted DPAPI files/current-user
+Private state should reside on owner-controlled local storage. Provider-required thought signatures
+are retained in a separate private state table, bound to connection/account fingerprint/model and not
+returned in tool receipts or logs. No conversational signature replay API is exposed; stateless refs
+remain the portable default. Keep encrypted DPAPI files/current-user
 ACL private; environment values are not encrypted. Portable secret files need private permissions.
 
 One submission policy is local, not a guarantee about upstream gateway retries or billing. Inspect

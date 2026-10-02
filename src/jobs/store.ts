@@ -70,7 +70,8 @@ export class Store {
     this.db.exec(`PRAGMA journal_mode=WAL;PRAGMA synchronous=FULL;
     CREATE TABLE IF NOT EXISTS requests(id TEXT PRIMARY KEY,fingerprint TEXT NOT NULL,identity TEXT NOT NULL,receipt TEXT NOT NULL,owner TEXT,lease INTEGER,cancel INTEGER NOT NULL DEFAULT 0);
     CREATE TABLE IF NOT EXISTS outputs(id TEXT PRIMARY KEY,request_id TEXT NOT NULL,metadata TEXT NOT NULL);
-    CREATE INDEX IF NOT EXISTS output_request ON outputs(request_id);`);
+    CREATE INDEX IF NOT EXISTS output_request ON outputs(request_id);
+    CREATE TABLE IF NOT EXISTS continuation(id TEXT PRIMARY KEY,scope TEXT NOT NULL,value TEXT NOT NULL);`);
   }
   private transaction<T>(fn: () => T): T {
     this.db.exec("BEGIN IMMEDIATE");
@@ -153,13 +154,16 @@ export class Store {
         .prepare("SELECT receipt FROM requests WHERE lease>?")
         .all(Date.now())
         .map((row) => JSON.parse(String(row.receipt)) as Receipt)
-        .filter((r) => r.status === "submitting" || r.status === "running");
+        .filter((r) =>
+          ["submitting", "running", "finalizing"].includes(r.status),
+        );
       if (
         all.length >= global ||
         all.filter((r) => r.connection === connection).length >= perConnection
       )
         return false;
       const r = this.get(id);
+      if (r.status !== "prepared") return false;
       r.status = "submitting";
       this.update(r);
       return true;
@@ -212,6 +216,32 @@ export class Store {
       )
       .all(limit + 1, offset)
       .map((row) => JSON.parse(String(row.metadata)) as Output);
+  }
+  saveContinuation(id: string, scope: string, value: unknown) {
+    this.get(id);
+    const json = JSON.stringify(value);
+    if (Buffer.byteLength(json, "utf8") > 1024 * 1024)
+      fail(
+        "invalid_response",
+        "Continuation metadata exceeds private state limit.",
+      );
+    this.db
+      .prepare(
+        "INSERT INTO continuation VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET scope=excluded.scope,value=excluded.value",
+      )
+      .run(id, scope, json);
+  }
+  continuation(id: string, scope: string): unknown {
+    const row = this.db
+      .prepare("SELECT scope,value FROM continuation WHERE id=?")
+      .get(id);
+    if (!row) return null;
+    if (row.scope !== scope)
+      fail(
+        "permission_denied",
+        "Continuation scope does not match the selected connection/account/model.",
+      );
+    return JSON.parse(String(row.value));
   }
   close() {
     this.db.close();

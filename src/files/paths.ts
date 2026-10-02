@@ -62,8 +62,24 @@ export async function inputFile(
   );
   try {
     const info = await handle.stat();
-    if (!info.isFile() || info.size > limit)
-      fail("input_file_error", "Input is not a bounded regular file.");
+    if (
+      !info.isFile() ||
+      info.size > limit ||
+      info.dev !== before.dev ||
+      info.ino !== before.ino
+    )
+      fail(
+        "input_file_error",
+        "Input changed or is not a bounded regular file.",
+      );
+    const after = await realpath(path).catch(() =>
+      fail("input_file_error", "Input path changed during opening."),
+    );
+    if (
+      after !== canonical ||
+      !allowed.some((root) => root && contained(root, after))
+    )
+      fail("permission_denied", "Input path changed outside allowed roots.");
     const bytes = await handle.readFile();
     if (bytes.length > limit)
       fail("input_file_error", "Input exceeds byte limit.");

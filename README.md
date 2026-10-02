@@ -26,7 +26,8 @@ image work is an explicitly selected tool operation. Named connections, separate
 profiles, native image protocols and configured GPU ComfyUI workflows. No paid POST retries, hidden
 uploads, prompt enhancement or automatic provider/model fallback.
 
-**Status:** initial implementation under final verification. See [test evidence](docs/TEST-RESULTS.md);
+**Status:** published offline-tested baseline; resumed acceptance checks are in final verification.
+See [test evidence](docs/TEST-RESULTS.md);
 no npm publication, all-model support, GUI integration or production-readiness claim.
 
 ## Quick start
@@ -69,7 +70,7 @@ bytes preserved; provider policy/terms still apply. Read [privacy](docs/PRIVACY.
 
 ## Logs and troubleshooting
 
-New UTF8 JSON log per execution: `numera-image-gen-mcp_YYYY-MM-DD_HH-mm-ss_UTC-<pid>.log`, UTC
+New UTF8 JSON log per execution: `numera-image-gen-mcp_YYYY-MM-DD_HH-mm-ss_UTC-<pid>-<uuid>.log`, UTC
 ISO8601 timestamp, INFO/WARNING/ERROR/DEBUG and component. Default directory configured/per-user;
 14-day own runtime-log retention, initialization falls back stderr. Prompts/keys/auth/cookies/Base64/
 signed query data/original paths not logged. DEBUG never relaxes redaction. Attach only sanitized logs.
