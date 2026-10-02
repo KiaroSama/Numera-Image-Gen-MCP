@@ -33,3 +33,11 @@
 *.tsbuildinfo
 /config.local.json
 /inputs/
+
+# Hook Maker: local/private files (auto-managed)
+/.env
+/.env.*
+!/.env.example
+!/.env.sample
+!/.env.template
+!/.env.dist
