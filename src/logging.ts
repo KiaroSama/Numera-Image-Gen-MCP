@@ -42,6 +42,7 @@ export function redact(value: unknown, depth = 0): unknown {
 }
 export class Logger {
   private fd?: number;
+  private readonly runId = randomUUID();
   readonly file?: string;
   constructor(
     directory: string,
@@ -83,11 +84,12 @@ export class Logger {
     if (levels.indexOf(level) < levels.indexOf(this.level)) return;
     const line =
       JSON.stringify({
+        ...(redact(context) as object),
+        run_id: this.runId,
         timestamp: new Date().toISOString(),
         level,
         component,
         message,
-        ...(redact(context) as object),
       }) + "\n";
     if (this.fd !== undefined) {
       try {

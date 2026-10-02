@@ -109,14 +109,57 @@ it(
               status: "completed",
             });
             expect(models).toHaveLength(2);
+            const failed = await call("generate_image", {
+              prompt: "private-error-prompt",
+              request_id: "simple-first",
+            });
+            expect(failed.isError).toBe(true);
           } finally {
             await client.close();
             await transport.close();
           }
-          for (const file of await readdir(join(install, "logs")))
+          const events: Record<string, unknown>[] = [];
+          for (const file of await readdir(join(install, "logs"))) {
+            const text = await readFile(join(install, "logs", file), "utf8");
+            expect(text).not.toContain(key);
+            expect(text).not.toContain("private-error-prompt");
+            expect(text).not.toContain("image 日本語");
+            events.push(
+              ...text
+                .trim()
+                .split("\n")
+                .filter(Boolean)
+                .map((line) => JSON.parse(line)),
+            );
+          }
+          const tools = events.filter((e) => e.component === "tool");
+          expect(
+            tools.some(
+              (e) =>
+                e.message === "Tool failed." &&
+                e.code === "request_id_conflict",
+            ),
+          ).toBe(true);
+          for (const done of tools.filter(
+            (e) => e.message !== "Tool started.",
+          )) {
+            expect(done.duration_ms).toEqual(expect.any(Number));
+            expect(done.run_id).toMatch(/^[a-f0-9-]{36}$/);
             expect(
-              await readFile(join(install, "logs", file), "utf8"),
-            ).not.toContain(key);
+              tools.some(
+                (start) =>
+                  start.call_id === done.call_id &&
+                  start.run_id === done.run_id &&
+                  start.message === "Tool started.",
+              ),
+            ).toBe(true);
+          }
+          expect(
+            tools.some(
+              (e) =>
+                e.tool === "list_models" && e.message === "Tool completed.",
+            ),
+          ).toBe(true);
         },
       );
     }),

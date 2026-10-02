@@ -1,5 +1,6 @@
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/server";
 import { z } from "zod";
+import { randomUUID } from "node:crypto";
 import { requestSchema, type Config } from "../config/schema.js";
 import { Store } from "../jobs/store.js";
 import { Logger } from "../logging.js";
@@ -29,16 +30,35 @@ export function createServer(
         "Discover connection/model capabilities before images. Reuse one request_id per logical operation. Never resubmit unknown outcomes. References require verified forwarding; files are reliable outputs and local paths may not be accessible to remote hosts. Do not replace the host chat model.",
     },
   );
-  const wrap = async (fn: () => Promise<unknown>) => {
+  const wrap = async (tool: string, fn: () => Promise<unknown>) => {
+    const call_id = randomUUID(),
+      started = performance.now();
+    logger.log("INFO", "tool", "Tool started.", { tool, call_id });
     try {
       const value = await fn(),
         structuredContent = value as Record<string, unknown>;
+      logger.log("INFO", "tool", "Tool completed.", {
+        tool,
+        call_id,
+        duration_ms: Math.round(performance.now() - started),
+        warning_count: Array.isArray(structuredContent.warnings)
+          ? structuredContent.warnings.length
+          : 0,
+      });
       return {
         content: [{ type: "text" as const, text: JSON.stringify(value) }],
         structuredContent,
       };
     } catch (e) {
       const value = { error: safeError(e) };
+      logger.log("ERROR", "tool", "Tool failed.", {
+        tool,
+        call_id,
+        duration_ms: Math.round(performance.now() - started),
+        code: value.error.code,
+        stage: value.error.stage,
+        http_status: value.error.http_status,
+      });
       return {
         isError: true,
         content: [{ type: "text" as const, text: JSON.stringify(value) }],
@@ -62,7 +82,7 @@ export function createServer(
       annotations: readAnnotations,
     },
     async ({ probe }, ctx) =>
-      wrap(() => health(config, probe, ctx.mcpReq.signal)),
+      wrap("health_check", () => health(config, probe, ctx.mcpReq.signal)),
   );
   server.registerTool(
     "list_connections",
@@ -74,7 +94,9 @@ export function createServer(
       annotations: readAnnotations,
     },
     async () =>
-      wrap(async () => ({ connections: await listConnections(config) })),
+      wrap("list_connections", async () => ({
+        connections: await listConnections(config),
+      })),
   );
   server.registerTool(
     "list_models",
@@ -92,7 +114,7 @@ export function createServer(
       annotations: readAnnotations,
     },
     async ({ connection, refresh, limit, offset }, ctx) =>
-      wrap(async () => {
+      wrap("list_models", async () => {
         const result = await discovery.list(
           connection,
           refresh,
@@ -118,7 +140,9 @@ export function createServer(
       annotations: readAnnotations,
     },
     async ({ connection, model }, ctx) =>
-      wrap(() => discovery.model(connection, model, ctx.mcpReq.signal)),
+      wrap("get_model_capabilities", () =>
+        discovery.model(connection, model, ctx.mcpReq.signal),
+      ),
   );
   for (const [name, operation] of [
     ["generate_image", "generate"],
@@ -141,7 +165,7 @@ export function createServer(
         },
       },
       async (args, ctx) => {
-        const result = await wrap(() =>
+        const result = await wrap(name, () =>
           generation.run(args, operation, ctx.mcpReq.signal),
         );
         const content: Array<
@@ -219,7 +243,9 @@ export function createServer(
       annotations: readAnnotations,
     },
     async ({ request_id, refresh }, ctx) =>
-      wrap(() => getJob(generation, request_id, refresh, ctx.mcpReq.signal)),
+      wrap("get_job", () =>
+        getJob(generation, request_id, refresh, ctx.mcpReq.signal),
+      ),
   );
   server.registerTool(
     "cancel_job",
@@ -236,7 +262,9 @@ export function createServer(
       },
     },
     async ({ request_id }, ctx) =>
-      wrap(() => cancelJob(config, generation, request_id, ctx.mcpReq.signal)),
+      wrap("cancel_job", () =>
+        cancelJob(config, generation, request_id, ctx.mcpReq.signal),
+      ),
   );
   server.registerTool(
     "list_outputs",
@@ -248,7 +276,7 @@ export function createServer(
       annotations: { ...readAnnotations, openWorldHint: false },
     },
     async ({ limit, offset }) =>
-      wrap(async () => {
+      wrap("list_outputs", async () => {
         const outputs = store.listOutputs(offset, limit);
         return {
           outputs: outputs.slice(0, limit),
@@ -271,7 +299,7 @@ export function createServer(
       annotations: { ...readAnnotations, openWorldHint: false },
     },
     async ({ output_id, preview: withPreview }) => {
-      const result = await wrap(async () => {
+      const result = await wrap("get_output_info", async () => {
         const { output } = await ownedImage(config, store, output_id);
         return { ...output, verified: true };
       });

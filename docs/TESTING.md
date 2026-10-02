@@ -18,6 +18,8 @@ SDK fixture interoperability is not a Claude/Codex GUI test. Synthetic images ve
 metadata/path semantics, not real model quality or editing fidelity. No paid default tests.
 Setup real-entry fixtures verify locked concurrent JSON/TOML registration, backup restoration,
 conservative TOML refusal, five PowerShell7 WhatIf actions and idle-timeout descendant cleanup.
+Logging fixtures verify immutable per-run metadata, closed file handlers, redaction at all levels;
+actual stdio tests assert paired tool start/completion/failure with call IDs/durations and no key/prompt.
 Native wire-contract fixtures assert method/path/header/body for each protocol, multipart byte fidelity,
 legacy-client negotiation, endpoint descriptors and private continuation state.
 No controlled real-gateway process was run against fake upstreams; gateway-shaped contract fixtures

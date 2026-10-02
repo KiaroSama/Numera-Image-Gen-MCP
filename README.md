@@ -104,7 +104,10 @@ bytes preserved; provider policy/terms still apply. Read [privacy](docs/PRIVACY.
 New UTF8 JSON log per execution: `numera-image-gen-mcp_YYYY-MM-DD_HH-mm-ss_UTC-<pid>-<uuid>.log`, UTC
 ISO8601 timestamp, INFO/WARNING/ERROR/DEBUG and component. Default directory configured/per-user;
 14-day own runtime-log retention, initialization falls back stderr. Prompts/keys/auth/cookies/Base64/
-signed query data/original paths not logged. DEBUG never relaxes redaction. Attach only sanitized logs.
+signed query data/original paths not logged. Every accepted tool call records start/completion/failure,
+run_id/call_id correlation, elapsed milliseconds and safe error code/stage; never arguments or raw
+provider bodies. Event timestamp/level/component/run_id cannot be overwritten by context. DEBUG never
+relaxes redaction. Attach only sanitized logs.
 
 Catalog failure is not generation failure. Check route/base prefix/key/model before new authorization.
 A text-only gateway cannot edit just because its model has native vision. Distinguish provider rejection,

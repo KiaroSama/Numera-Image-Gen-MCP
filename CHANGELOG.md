@@ -5,6 +5,7 @@
 Simple private endpoint/key/model-list configuration with friendly display names, portable defaults
 and adjacent-file discovery. Existing advanced settings remain supported. Linux/macOS setup docs,
 macOS CI matrix and new POSIX permission/symlink/process-group assertions. Larger README logo.
+Correlated tool start/completion/failure logs, immutable event/run metadata and safe diagnostic timing.
 No paid/live GUI claim.
 
 ## 0.1.0 - 2026-10-02
