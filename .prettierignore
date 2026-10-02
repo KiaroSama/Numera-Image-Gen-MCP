@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+package-lock.json
+.ai
+.specify
+specs
+.claude
+graphify-out
+.codebase-memory
+outputs
+state
+logs
+.ignoreme
+LICENSE

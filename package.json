@@ -1,0 +1,59 @@
+{
+  "name": "numera-image-gen-mcp",
+  "version": "0.1.0",
+  "description": "Local provider-independent image generation and editing MCP server",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "engines": {
+    "node": ">=24.21.0 <25"
+  },
+  "bin": {
+    "numera-image-gen-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "examples",
+    "scripts",
+    "skills",
+    "docs",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KiaroSama/Numera-Image-Gen-MCP.git"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src tests",
+    "format": "prettier --write src tests scripts examples schemas docs *.json *.md .github",
+    "format:check": "prettier --check src tests scripts examples schemas docs *.json *.md .github",
+    "test": "node scripts/bounded.mjs 180000 45000 node_modules/vitest/vitest.mjs run",
+    "test:unit": "node scripts/bounded.mjs 60000 20000 node_modules/vitest/vitest.mjs run tests/unit",
+    "test:contract": "node scripts/bounded.mjs 90000 30000 node_modules/vitest/vitest.mjs run tests/contract",
+    "test:integration": "node scripts/bounded.mjs 120000 40000 node_modules/vitest/vitest.mjs run tests/integration",
+    "coverage": "node scripts/bounded.mjs 180000 45000 node_modules/vitest/vitest.mjs run --coverage",
+    "check": "node scripts/check.mjs",
+    "smoke": "node scripts/bounded.mjs 20000 10000 scripts/smoke.mjs",
+    "schema": "node scripts/schema.mjs",
+    "package:check": "node scripts/bounded.mjs 120000 40000 scripts/package-check.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.2.0",
+    "sharp": "0.35.5",
+    "undici": "8.11.2",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.2.0",
+    "@types/node": "26.6.4",
+    "@vitest/coverage-v8": "5.0.3",
+    "eslint": "10.11.0",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "5.0.3"
+  }
+}

@@ -1,0 +1,19 @@
+# Privacy boundaries
+
+Image inputs go only to the selected configured gateway/provider/backend, never a convenience public
+upload host. Prompts and original bytes are preserved. Upstream terms/retention still apply; stateless
+native requests do not promise zero provider retention. Generated image rights are separate from code
+license and provider terms; no legal ownership guarantee.
+
+API credentials are connection-scoped; untrusted asset fetches receive none, including redirects.
+Public asset destinations block private/link-local/metadata by default; explicit local origin/path
+allowances are narrow. TLS checks never disabled. Logs omit keys/auth/cookies/tokens/signed query
+values, prompts/Base64 and original paths by default; DEBUG does not relax redaction.
+
+Private receipts persist request fingerprints, owned paths and upstream IDs locally. Output bytes,
+logs/config/receipts are excluded from Git/npm artifacts. No automatic gallery/sync/browser launch.
+Private state should reside on owner-controlled local storage. Keep encrypted DPAPI files/current-user
+ACL private; environment values are not encrypted. Portable secret files need private permissions.
+
+One submission policy is local, not a guarantee about upstream gateway retries or billing. Inspect
+outcome_unknown and existing jobs before authorizing another operation. Cancellation is not refund.
