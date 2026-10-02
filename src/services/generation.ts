@@ -5,6 +5,7 @@ import { requestSchema } from "../config/schema.js";
 import { selectConnection } from "../config/load.js";
 import { credentials } from "../config/credentials.js";
 import { effectiveRequest } from "../capabilities.js";
+import { validateDescriptors } from "./model-policy.js";
 import { buildRequest, normalizeResponse } from "../adapters/index.js";
 import { prepareComfy, submitComfy, waitComfy } from "../adapters/comfyui.js";
 import { apiRequest, apiJson } from "../http/client.js";
@@ -33,9 +34,14 @@ export class Generation {
     source: ImageRequest["reference_images"][number],
     signal: AbortSignal,
   ): Promise<Image> {
-    if (source.type === "output_id")
-      return (await ownedImage(this.config, this.store, source.output_id))
-        .image;
+    if (source.type === "output_id") {
+      const image = (
+        await ownedImage(this.config, this.store, source.output_id)
+      ).image;
+      if (image.bytes.length > this.config.files.maxInputBytes)
+        fail("invalid_input", "Owned output exceeds reference byte limit.");
+      return image;
+    }
     const bytes =
       source.type === "path"
         ? await inputFile(
@@ -66,8 +72,12 @@ export class Generation {
         "invalid_input",
         "Select a model or configure this connection defaultModel.",
       );
-    const request = effectiveRequest(c, original, model),
+    const preliminary = effectiveRequest(c, original, model);
+    const policy = await validateDescriptors(c, model, preliminary, signal);
+    const request = policy.request,
       id = request.request_id ?? randomUUID();
+    if (request.reference_images.length > this.config.files.maxReferences)
+      fail("invalid_input", "Reference count exceeds configured input limit.");
     if (operation === "edit" && !request.reference_images.length)
       fail("invalid_input", "edit_image requires at least one reference.");
     if (request.output_subdirectory) safeRelative(request.output_subdirectory);
@@ -103,6 +113,8 @@ export class Generation {
       ? await this.source(request.mask, combined)
       : undefined;
     if (mask) {
+      if (total + mask.bytes.length > this.config.files.maxAggregateBytes)
+        fail("invalid_input", "Aggregate reference and mask bytes exceeded.");
       if (!references[0])
         fail("invalid_input", "Mask needs a reference image.");
       await validateMask(mask, references[0]);
@@ -118,6 +130,7 @@ export class Generation {
     const built = c.adapter === "comfyui" ? undefined : buildRequest(input);
     const workflow =
       c.adapter === "comfyui" ? await prepareComfy(input, combined) : undefined;
+    const resolvedAuth = await credentials(c);
     const identity = fingerprint({
       connection: name,
       adapter: c.adapter,
@@ -125,6 +138,7 @@ export class Generation {
       origin: new URL(c.baseUrl).origin,
       base: c.baseUrl,
       auth: c.auth,
+      account_fingerprint: fingerprint(resolvedAuth),
     });
     const hash = fingerprint({
       identity,
@@ -156,6 +170,7 @@ export class Generation {
       outputs: [],
       warnings: [
         "Gateway/provider internal retries and fallback are outside Numera control.",
+        ...policy.warnings,
       ],
       deviations: [],
       errors: [],
@@ -204,12 +219,15 @@ export class Generation {
       });
       let normalized: Normalized;
       if (workflow) {
-        receipt.upstream_job = await submitComfy(input, workflow, combined);
+        const submitted = await submitComfy(input, workflow, combined);
+        receipt.upstream_job = { id: submitted.id, kind: submitted.kind };
+        receipt.warnings.push(...submitted.warnings);
         receipt.status = "running";
         receipt.generation_outcome = "running";
         this.store.update(receipt);
         if (!request.wait) return receipt;
         normalized = await waitComfy(c, receipt.upstream_job.id, combined);
+        if (!this.store.claimFinalization(id)) return this.store.get(id);
       } else {
         const response = await apiRequest(
           c,
@@ -247,6 +265,12 @@ export class Generation {
           }
         }
       }
+      if (normalized.continuation)
+        this.store.saveContinuation(
+          id,
+          fingerprint({ identity, model }),
+          normalized.continuation,
+        );
       return await this.finish(receipt, normalized, request, combined);
     } catch (error) {
       const ambiguous =
@@ -271,6 +295,13 @@ export class Generation {
       receipt.generation_outcome = ambiguous
         ? "unknown"
         : receipt.generation_outcome;
+      if (receipt.upstream_job && combined.aborted) {
+        receipt.status = "running";
+        receipt.generation_outcome = "running";
+        receipt.warnings.push(
+          "Local waiting stopped; existing upstream job may still be running. Use get_job, never resubmit.",
+        );
+      }
       this.store.update(receipt);
       this.logger.log("ERROR", "generation", "Request did not complete.", {
         requestId: id,

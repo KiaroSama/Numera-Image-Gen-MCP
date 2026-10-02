@@ -174,6 +174,17 @@ export function createServer(
                   output.output_id,
                 );
                 const p = await preview(image, config);
+                const previews = (receipt.previews ?? []) as Record<
+                  string,
+                  unknown
+                >[];
+                previews.push({
+                  output_id: output.output_id,
+                  width: p.width,
+                  height: p.height,
+                  mime_type: p.mimeType,
+                });
+                receipt.previews = previews;
                 content.push({
                   type: "image",
                   data: p.data,
@@ -265,15 +276,33 @@ export function createServer(
         return { ...output, verified: true };
       });
       if (withPreview && !result.isError) {
-        const { image } = await ownedImage(config, store, output_id),
-          p = await preview(image, config);
-        return {
-          ...result,
-          content: [
-            ...result.content,
-            { type: "image" as const, data: p.data, mimeType: p.mimeType },
-          ],
-        };
+        try {
+          const { image } = await ownedImage(config, store, output_id),
+            p = await preview(image, config);
+          return {
+            ...result,
+            structuredContent: {
+              ...result.structuredContent,
+              preview: {
+                width: p.width,
+                height: p.height,
+                mime_type: p.mimeType,
+              },
+            },
+            content: [
+              ...result.content,
+              { type: "image" as const, data: p.data, mimeType: p.mimeType },
+            ],
+          };
+        } catch (e) {
+          return {
+            ...result,
+            structuredContent: {
+              ...result.structuredContent,
+              preview_error: safeError(e),
+            },
+          };
+        }
       }
       return result;
     },

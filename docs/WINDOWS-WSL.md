@@ -7,7 +7,10 @@ as such, not as testing the owner's exact OS. Local portable dependencies remain
 From any CWD use absolute scripts/setup.ps1; it resolves its source root. Install/Update uses locked
 npm ci/build/smoke, stops on command failures, never silently installs/moves runtimes. Diagnose is
 provider-free. Register/Remove require explicit absolute ClientConfig and only owned entry changes,
-with backups and concurrent-change detection. -WhatIf reports changes without host mutation.
+with backups, an interprocess lock and concurrent-change detection. -WhatIf validates intent without
+build/smoke/host mutation. Safe TOML editing supports bare single-line tables; quoted/array/duplicate/
+multiline/inline MCP forms are refused for manual entry-scoped editing. A stale lock is not stolen.
+Backups allow manual rollback; no automatic rollback action overwrites a changed config.
 No service, startup entry, task, extension or firewall change. No persistent execution-policy change.
 
 Linux: npm ci/build, configure absolute Linux roots and launch Node directly. Persistent WSL source

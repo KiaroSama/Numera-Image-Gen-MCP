@@ -1,21 +1,44 @@
 # Test results
 
-Status2026-10-02: implementation in progress; final CI matrix/coverage not yet run.
+Verified2026-10-02: hosted CI passed on exact code SHA
+`f34afdc3d2832d26a8dd2de864b04f17aa7f2b49`.
+[CI run36949992617](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/36949992617).
 
-| Check                                 | Observed result                                                | Environment                                  |
-| ------------------------------------- | -------------------------------------------------------------- | -------------------------------------------- |
-| Foundation URL/redaction seam         | 13 passed                                                      | local Node24.21.0 Windows11 Enterprise       |
-| Adapter mapping seam                  | 9 passed                                                       | local fixture contracts, no real provider    |
-| Built MCP two-process seam            | 1 passed;10 tools;one POST;exact output bytes                  | real SDK stdio clients + loopback provider   |
-| Provider-free smoke                   | handshake/tools/health passed                                  | built executable                             |
-| Strict typecheck/build/lint           | passed on latest inspected source before final docs/test edits | local toolchain                              |
-| Runtime npm audit                     | 0 vulnerabilities at initial check                             | locked runtime metadata                      |
-| Final Windows/Linux offline matrix    | not_run yet                                                    | pending final integrated CI                  |
-| Coverage85/80 gates                   | unmeasured                                                     | pending final CI                             |
-| Packed clean install/setup merge      | not_run yet                                                    | pending final verification                   |
-| Paid/live gateway/provider generation | not_run                                                        | no endpoint/model/count/cost authorization   |
-| Actual Claude/Codex GUI               | not_run                                                        | no host registration/mutation authorized     |
-| ComfyUI real GPU/checkpoint workflow  | not_run                                                        | no approved installed workflow/model/backend |
-| Windows Server2025 installation       | not_run                                                        | no such test host                            |
+| Check                                     | Observed result                            | Environment                                          |
+| ----------------------------------------- | ------------------------------------------ | ---------------------------------------------------- |
+| Offline suites                            | 237 tests passed across12 files on each OS | hosted ubuntu-latest and windows-latest, Node24.21.0 |
+| Runtime statement coverage                | 90.94 percent on both OSes                 | all first-party src/**/*.ts included                 |
+| Runtime branch coverage                   | Linux90.77 percent;Windows90.67 percent    | gates85 statements/80 branches passed                |
+| Typecheck/lint/build/UTF8/source size     | passed                                     | both CI jobs                                         |
+| Formatting                                | passed                                     | both jobs after explicit LF checkout correction      |
+| Clean packed production install/spaces    | passed,10-tool real-client handshake       | both CI jobs                                         |
+| Runtime dependency audit                  | 0 vulnerabilities reported                 | both CI jobs                                         |
+| Seven review regressions                  | 10 targeted tests passed;included final CI | no review rerun                                      |
+| Real stdio two-process dedup              | passed,one POST/exact output bytes         | loopback fixture, not paid provider                  |
+| Setup JSON/TOML entry merge               | passed                                     | isolated fixtures, not user's host settings          |
+| PowerShell setup WhatIf                   | passed                                     | local Windows11 Enterprise, no changes               |
+| Paid/live gateway/provider generation     | not_run                                    | no endpoint/model/count/cost authorization           |
+| Actual Claude/Codex GUI                   | not_run                                    | no host registration/mutation authorized             |
+| ComfyUI installed GPU/checkpoint workflow | not_run                                    | no approved real backend/workflow                    |
+| Windows Server2025 installation           | not_run                                    | no such test host                                    |
 
-No universal compatibility, production-readiness or model-quality percentage claimed.
+Initial CI failed Windows formatting because Git converted LF to CRLF. Root fix is committed
+.gitattributes; all replacement checks passed. No test weakening or exclusions.
+
+## Resume 2026-10-03
+
+The table above is baseline evidence, not verification of the resumed changes. Resumed implementation
+adds endpoint descriptor validation, ComfyUI graph/enum/link preflight and node-error warnings,
+private continuation metadata, bounded incremental SSE, detached-job finalization coordination,
+maintenance logging and locked fixture-only registration lifecycle. Compatible SDK upgraded2.3.0,
+ESLint10.12.0; TypeScript6.0.3 retained because actual peer range rejects7.0.2.
+
+Local seam checks passed for descriptors/private continuation/stream/workflow/detached jobs and
+protocol negotiation. Setup executor's narrow fixture checks passed. Latest integrated typecheck/lint/
+build/UTF8/format checks passed. Updated full Windows/Linux CI and coverage are pending at this write.
+
+Additional not_run: controlled real gateway processes against fake upstreams, interactive DPAPI/ACL
+creation and exact Windows Server installation. Conversational continuation replay is not exposed;
+stateless reference editing remains default. Direct stdio serves legacy negotiation; modern-only pin
+is rejected and not advertised. Rich ambiguous TOML is refused for manual entry-scoped editing.
+No all-model/quality/production-ready claim.

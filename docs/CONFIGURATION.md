@@ -13,7 +13,7 @@ Environment equivalent list is in `.env.example`; no automatic dotenv loading.
 OPENAI_BASE_URL/KEY/MODEL apply only with --openai-compat, never unrelated connections.
 
 Auth: none for explicitly trusted local backend; bearer or header with exactly one secretEnv,
-secretFile (absolute/private/bounded) or secretDpapiFile (Windows7 PowerShell current-user DPAPI).
+secretFile (absolute/private/bounded) or secretDpapiFile (Windows, PowerShell 7, current-user DPAPI).
 Set auth.origin to destination origin; changing base without changing the origin fails.
 Environment variables are not encrypted. Keep real keys out of checked-in host/config files.
 Run `scripts/protect-secret.ps1 -Path <absolute private path>` interactively only; hidden secret prompt,
@@ -23,6 +23,9 @@ Per-model maxCount/maxReferences/supportedParameters/capabilities overrides requ
 verification. Defaults use snake_case common names. providerOptionKeys permits bounded provider
 options, never credentials/destination/model/prompt/image ownership overrides. Unsupported common
 parameters fail; pixels (`size`), shape (`aspect_ratio`) and tiers (`image_size`) remain distinct.
+Dedicated OpenRouter endpoint descriptors are checked before submission; a compatible endpoint is
+pinned with provider.only and allow_fallbacks=false. Missing descriptors reject explicit requirements;
+a failed/empty catalog reports unknown rather than blacklisting an explicitly selected model.
 
 api-prefix preserves `/api/v1` or reverse-proxy prefixes. origin mode requires origin-only base and
 adds native adapter prefix once. Full endpoints, query keys/credentials/fragments/traversal rejected.

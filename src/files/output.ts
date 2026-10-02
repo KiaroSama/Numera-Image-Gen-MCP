@@ -65,7 +65,20 @@ export async function ownedImage(config: Config, store: Store, id: string) {
     );
   if (!contained(root, path))
     fail("permission_denied", "Owned output path escapes its root.");
-  const image = await inspectImage(await readFile(path), config);
+  const file = await open(path, "r");
+  let bytes: Buffer;
+  try {
+    const info = await file.stat();
+    if (!info.isFile() || info.size > config.files.maxOutputBytes)
+      fail(
+        "output_file_error",
+        "Owned output exceeds bounded regular-file limits.",
+      );
+    bytes = await file.readFile();
+  } finally {
+    await file.close();
+  }
+  const image = await inspectImage(bytes, config);
   if (image.sha256 !== output.sha256)
     fail("output_file_error", "Owned output bytes changed after storage.");
   return { output, image };

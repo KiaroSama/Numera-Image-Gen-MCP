@@ -6,6 +6,7 @@ export function normalize(c: Connection, raw: unknown): Normalized {
   const value = record(raw);
   const images: ResultItem[] = [];
   const warnings: string[] = [];
+  const signatures: unknown[] = [];
   const push = (v: unknown) => {
     const item = record(v);
     if (typeof item.b64_json === "string" && item.b64_json)
@@ -27,6 +28,13 @@ export function normalize(c: Connection, raw: unknown): Normalized {
         warnings.push(`Candidate ended with ${String(item.finishReason)}.`);
       for (const p of array(item.content ? record(item.content).parts : [])) {
         const part = record(p);
+        if (typeof part.thoughtSignature === "string")
+          signatures.push({
+            part_index: array(
+              item.content ? record(item.content).parts : [],
+            ).indexOf(p),
+            signature: part.thoughtSignature,
+          });
         if (part.thought === true) continue;
         if (part.inlineData) {
           const inline = record(part.inlineData);
@@ -59,6 +67,8 @@ export function normalize(c: Connection, raw: unknown): Normalized {
       );
     for (const step of array(value.steps)) {
       const s = record(step);
+      if (s.type === "thought" && typeof s.signature === "string")
+        signatures.push({ step_type: "thought", signature: s.signature });
       if (s.type !== "model_output") continue;
       for (const content of array(s.content)) {
         const part = record(content);
@@ -129,6 +139,7 @@ export function normalize(c: Connection, raw: unknown): Normalized {
     upstreamModel: typeof value.model === "string" ? value.model : null,
     upstreamId: typeof value.id === "string" ? value.id : undefined,
     usage: value.usage,
+    continuation: signatures.length ? { signatures } : undefined,
     warnings,
   };
 }

@@ -19,6 +19,10 @@
 | Comfy workflow/bindings/upload/history/view/GPU guard      | tests/contract/comfyui.test.ts                                  |
 | Live/GUI/GPU installed-host checks                         | not_run; separate authorization/fixtures needed                 |
 
-Read TEST-RESULTS.md for actually executed evidence, not just test existence. Remaining source-review
-branches, packing/setup/asset tests are added before the final integrated CI pass; matrix presence alone
-is not a passing coverage claim.
+Read TEST-RESULTS.md for executed evidence, not just test existence. Additional resumed contracts:
+wire-contracts.test.ts (exact native HTTP), capability-descriptors.test.ts (endpoint requirements),
+workflow-validation/workflow-branches (graph/node errors), incremental-stream (bounded frames),
+continuation (private scope), detached-jobs (recovery), negotiation (actual protocol era), logging and
+setup real-entry fixtures. Matrix presence alone is not a passing coverage claim.
+Real gateway processes against controlled upstreams, interactive DPAPI/ACL, real GUI/GPU/live providers
+and Windows Server installation remain unverified and are not substituted by fixtures.

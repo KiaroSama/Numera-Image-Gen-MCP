@@ -5,6 +5,7 @@ import { apiJson, apiRequest } from "../http/client.js";
 import { array, record, fail } from "../errors.js";
 import type { AdapterInput, Normalized } from "./types.js";
 import type { Connection } from "../config/schema.js";
+import { validateGraph } from "./workflow-validation.js";
 export function validateWorkflow(input: AdapterInput) {
   const workflow = input.connection.workflow;
   if (!workflow)
@@ -66,6 +67,7 @@ export async function prepareComfy(input: AdapterInput, signal: AbortSignal) {
   const prepared = validateWorkflow(input),
     c = input.connection;
   const info = record(await apiJson(c, "object_info", "", {}, signal));
+  validateGraph(prepared.graph, prepared.workflow, info);
   for (const value of Object.values(prepared.graph)) {
     const node = record(value);
     if (!info[String(node.class_type)])
@@ -89,7 +91,7 @@ export async function submitComfy(
   input: AdapterInput,
   prepared: Awaited<ReturnType<typeof prepareComfy>>,
   signal: AbortSignal,
-): Promise<{ id: string; kind: string }> {
+): Promise<{ id: string; kind: string; warnings: string[] }> {
   const c = input.connection;
   for (const [index, image] of input.references.entries()) {
     const binding = index === 0 ? "image" : `image_${index + 1}`;
@@ -178,7 +180,16 @@ export async function submitComfy(
       "ComfyUI submission has no recoverable prompt ID.",
       "submission",
     );
-  return { id: result.prompt_id, kind: "comfyui" };
+  return {
+    id: result.prompt_id,
+    kind: "comfyui",
+    warnings: Object.keys(record(result.node_errors ?? {})).length
+      ? [
+          "ComfyUI accepted only valid workflow branches; rejected node IDs: " +
+            Object.keys(record(result.node_errors)).join(", "),
+        ]
+      : [],
+  };
 }
 export async function comfyStatus(
   c: Connection,

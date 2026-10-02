@@ -8,6 +8,7 @@ import {
   unlinkSync,
 } from "node:fs";
 import { join } from "node:path";
+import { randomUUID } from "node:crypto";
 export const levels = ["DEBUG", "INFO", "WARNING", "ERROR"] as const;
 export type Level = (typeof levels)[number];
 const sensitive =
@@ -56,7 +57,7 @@ export class Logger {
         .slice(0, 19);
       this.file = join(
         directory,
-        `numera-image-gen-mcp_${stamp}_UTC-${process.pid}.log`,
+        `numera-image-gen-mcp_${stamp}_UTC-${process.pid}-${randomUUID()}.log`,
       );
       this.fd = openSync(this.file, "ax", 0o600);
       for (const name of readdirSync(directory)) {

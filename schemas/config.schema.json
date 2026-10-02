@@ -24,7 +24,12 @@
         "level": {
           "default": "INFO",
           "type": "string",
-          "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]
+          "enum": [
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR"
+          ]
         },
         "logPrompts": {
           "default": false,
@@ -38,7 +43,12 @@
           "maximum": 9007199254740991
         }
       },
-      "required": ["directory", "level", "logPrompts", "retentionDays"],
+      "required": [
+        "directory",
+        "level",
+        "logPrompts",
+        "retentionDays"
+      ],
       "additionalProperties": false
     },
     "files": {
@@ -67,7 +77,10 @@
                 "pattern": "^\\/.*"
               }
             },
-            "required": ["origin", "pathPrefix"],
+            "required": [
+              "origin",
+              "pathPrefix"
+            ],
             "additionalProperties": false
           }
         },
@@ -142,7 +155,10 @@
     "returnMode": {
       "default": "files",
       "type": "string",
-      "enum": ["files", "files_and_preview"]
+      "enum": [
+        "files",
+        "files_and_preview"
+      ]
     },
     "connections": {
       "type": "object",
@@ -171,7 +187,10 @@
           },
           "gateway": {
             "type": "string",
-            "enum": ["omniroute", "9router"]
+            "enum": [
+              "omniroute",
+              "9router"
+            ]
           },
           "baseUrl": {
             "type": "string",
@@ -180,14 +199,21 @@
           "baseUrlMode": {
             "default": "api-prefix",
             "type": "string",
-            "enum": ["api-prefix", "origin"]
+            "enum": [
+              "api-prefix",
+              "origin"
+            ]
           },
           "auth": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "enum": ["none", "bearer", "header"]
+                "enum": [
+                  "none",
+                  "bearer",
+                  "header"
+                ]
               },
               "secretEnv": {
                 "type": "string"
@@ -205,7 +231,9 @@
                 "type": "string"
               }
             },
-            "required": ["type"],
+            "required": [
+              "type"
+            ],
             "additionalProperties": false
           },
           "gatewayVersion": {
@@ -337,7 +365,10 @@
                   "type": "string"
                 }
               },
-              "required": ["defaults", "capabilities"],
+              "required": [
+                "defaults",
+                "capabilities"
+              ],
               "additionalProperties": false
             }
           },
@@ -346,7 +377,11 @@
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": ["multipart", "json", "generation"]
+                "enum": [
+                  "multipart",
+                  "json",
+                  "generation"
+                ]
               },
               "encoding": {
                 "type": "string",
@@ -370,10 +405,19 @@
               },
               "maskPolarity": {
                 "type": "string",
-                "enum": ["transparent-edit", "white-edit", "black-edit"]
+                "enum": [
+                  "transparent-edit",
+                  "white-edit",
+                  "black-edit"
+                ]
               }
             },
-            "required": ["mode", "encoding", "maxReferences", "masks"],
+            "required": [
+              "mode",
+              "encoding",
+              "maxReferences",
+              "masks"
+            ],
             "additionalProperties": false
           },
           "chatImageOutput": {
@@ -391,7 +435,9 @@
                 "type": "string"
               }
             },
-            "required": ["url"],
+            "required": [
+              "url"
+            ],
             "additionalProperties": false
           },
           "workflow": {
@@ -419,7 +465,10 @@
                       "type": "string"
                     }
                   },
-                  "required": ["node", "input"],
+                  "required": [
+                    "node",
+                    "input"
+                  ],
                   "additionalProperties": false
                 }
               },
@@ -435,7 +484,12 @@
                 "type": "boolean"
               }
             },
-            "required": ["graph", "bindings", "outputNodes", "requireGpu"],
+            "required": [
+              "graph",
+              "bindings",
+              "outputNodes",
+              "requireGpu"
+            ],
             "additionalProperties": false
           }
         },

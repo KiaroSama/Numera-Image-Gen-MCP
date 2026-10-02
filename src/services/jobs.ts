@@ -22,7 +22,9 @@ export async function getJob(
     return receipt;
   const [, c] = selectConnection(generation.config, receipt.connection),
     job = receipt.upstream_job,
-    combined = signal ?? AbortSignal.timeout(c.requestTimeoutMs);
+    combined = signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(c.requestTimeoutMs)])
+      : AbortSignal.timeout(c.requestTimeoutMs);
   const result =
     job.kind === "comfyui"
       ? await comfyStatus(c, job.id, combined)
