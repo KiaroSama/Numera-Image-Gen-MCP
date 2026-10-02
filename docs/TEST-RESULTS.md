@@ -87,3 +87,14 @@ Windows coverage90.17 statements/88.56 branches; Linux/macOS89.67/88.26. Build/t
 nativeSharp/SQLite/stdio, packed clean production install and audit0 passed on all three platforms.
 No IntelMac/GUI/live provider entitlement claim. Owned supervisors reported cleanup_verified=true.
 Merged logo/task branches removed; only incompatible failing DependabotTS7 branch/PR remains unmerged.
+
+## Strong logging delta2026-10-03
+
+Final runtime `69816338da5bde6b6d0dda194b754322c344b32a` passed
+[CI37079856441](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37079856441) on all3OS.
+Windows287 passed/3 POSIX skipped,90.21 statements/88.58 branches; Linux/macOS289 passed/1DPAPI skipped,
+89.71 statements/88.28 branches.26filesdiscovered25pass1platformskip. Build/lint/types/UTF8/format,
+packed native production install/audit0 passed. Logging cases assert immutable run/event metadata,
+paired real tool start/success/error, duration/call correlation, released handlers and no key/prompt.
+No raw provider body or arbitrary exception stack logged; safe error code/stage retained.
+Earlier platform proof above remains valid history, not the latest runtime SHA.
