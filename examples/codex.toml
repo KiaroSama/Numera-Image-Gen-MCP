@@ -1,0 +1,6 @@
+[mcp_servers.numera-image-gen]
+command = "G:/Program Files/nodejs/node.exe"
+args = ["G:/Program Files/Portable/Scripts/Numera Image-Gen MCP/dist/index.js"]
+startup_timeout_sec = 10
+tool_timeout_sec = 360
+env = { NUMERA_CONFIG = "G:/Program Files/Portable/Scripts/Numera Image-Gen MCP/config.local.json" }

@@ -1,0 +1,61 @@
+{
+  "enabled": false,
+  "adapter": "comfyui",
+  "baseUrl": "http://127.0.0.1:8188",
+  "baseUrlMode": "origin",
+  "auth": { "type": "none" },
+  "maxConcurrentRequests": 1,
+  "workflow": {
+    "requireGpu": true,
+    "graph": {
+      "1": {
+        "class_type": "CheckpointLoaderSimple",
+        "inputs": {
+          "ckpt_name": "OWNER_SELECTED_INSTALLED_CHECKPOINT.safetensors"
+        }
+      },
+      "2": {
+        "class_type": "CLIPTextEncode",
+        "inputs": { "text": "", "clip": ["1", 1] }
+      },
+      "3": {
+        "class_type": "CLIPTextEncode",
+        "inputs": { "text": "", "clip": ["1", 1] }
+      },
+      "4": {
+        "class_type": "EmptyLatentImage",
+        "inputs": { "width": 512, "height": 512, "batch_size": 1 }
+      },
+      "5": {
+        "class_type": "KSampler",
+        "inputs": {
+          "model": ["1", 0],
+          "positive": ["2", 0],
+          "negative": ["3", 0],
+          "latent_image": ["4", 0],
+          "seed": 1,
+          "steps": 20,
+          "cfg": 7,
+          "sampler_name": "euler",
+          "scheduler": "normal",
+          "denoise": 1
+        }
+      },
+      "6": {
+        "class_type": "VAEDecode",
+        "inputs": { "samples": ["5", 0], "vae": ["1", 2] }
+      },
+      "7": {
+        "class_type": "SaveImage",
+        "inputs": { "images": ["6", 0], "filename_prefix": "Numera" }
+      }
+    },
+    "bindings": {
+      "prompt": { "node": "2", "input": "text" },
+      "negative_prompt": { "node": "3", "input": "text" },
+      "seed": { "node": "5", "input": "seed" },
+      "count": { "node": "4", "input": "batch_size" }
+    },
+    "outputNodes": ["7"]
+  }
+}

@@ -1,0 +1,476 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "defaultConnection": {
+      "type": "string"
+    },
+    "outputDir": {
+      "type": "string"
+    },
+    "stateDir": {
+      "type": "string"
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "directory": {
+          "type": "string"
+        },
+        "level": {
+          "default": "INFO",
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]
+        },
+        "logPrompts": {
+          "default": false,
+          "type": "boolean",
+          "const": false
+        },
+        "retentionDays": {
+          "default": 14,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": ["directory", "level", "logPrompts", "retentionDays"],
+      "additionalProperties": false
+    },
+    "files": {
+      "type": "object",
+      "properties": {
+        "allowedInputRoots": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assetAllowances": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "origin": {
+                "type": "string",
+                "format": "uri"
+              },
+              "pathPrefix": {
+                "type": "string",
+                "format": "starts_with",
+                "pattern": "^\\/.*"
+              }
+            },
+            "required": ["origin", "pathPrefix"],
+            "additionalProperties": false
+          }
+        },
+        "maxInputBytes": {
+          "default": 20971520,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "maxOutputBytes": {
+          "default": 52428800,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "maxAggregateBytes": {
+          "default": 104857600,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "maxPixels": {
+          "default": 64000000,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "maxReferences": {
+          "default": 14,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 32
+        },
+        "previewMaxBytes": {
+          "default": 262144,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        },
+        "previewMaxDimension": {
+          "default": 512,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "allowedInputRoots",
+        "assetAllowances",
+        "maxInputBytes",
+        "maxOutputBytes",
+        "maxAggregateBytes",
+        "maxPixels",
+        "maxReferences",
+        "previewMaxBytes",
+        "previewMaxDimension"
+      ],
+      "additionalProperties": false
+    },
+    "maxConcurrentRequests": {
+      "default": 4,
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 32
+    },
+    "maxQueuedRequests": {
+      "default": 16,
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 128
+    },
+    "returnMode": {
+      "default": "files",
+      "type": "string",
+      "enum": ["files", "files_and_preview"]
+    },
+    "connections": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]{1,64}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "default": true,
+            "type": "boolean"
+          },
+          "adapter": {
+            "type": "string",
+            "enum": [
+              "openai-images",
+              "gemini",
+              "gemini-interactions",
+              "openai-responses",
+              "openrouter-images",
+              "chat-images",
+              "comfyui"
+            ]
+          },
+          "gateway": {
+            "type": "string",
+            "enum": ["omniroute", "9router"]
+          },
+          "baseUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "baseUrlMode": {
+            "default": "api-prefix",
+            "type": "string",
+            "enum": ["api-prefix", "origin"]
+          },
+          "auth": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["none", "bearer", "header"]
+              },
+              "secretEnv": {
+                "type": "string"
+              },
+              "secretFile": {
+                "type": "string"
+              },
+              "secretDpapiFile": {
+                "type": "string"
+              },
+              "header": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string"
+              }
+            },
+            "required": ["type"],
+            "additionalProperties": false
+          },
+          "gatewayVersion": {
+            "type": "string"
+          },
+          "defaultModel": {
+            "type": "string",
+            "minLength": 1
+          },
+          "orchestrationModel": {
+            "type": "string"
+          },
+          "allowedModels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deniedModels": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "paths": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "query": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "defaults": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "extensions": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {}
+          },
+          "providerOptionKeys": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requestTimeoutMs": {
+            "default": 300000,
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 3600000
+          },
+          "discoveryTimeoutMs": {
+            "default": 15000,
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 60000
+          },
+          "maxConcurrentRequests": {
+            "default": 2,
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 16
+          },
+          "modelOverrides": {
+            "default": {},
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "defaults": {
+                  "default": {},
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "capabilities": {
+                  "default": {},
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {}
+                },
+                "maxReferences": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 32
+                },
+                "maxCount": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 10
+                },
+                "supportedParameters": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "evidence": {
+                  "type": "string"
+                }
+              },
+              "required": ["defaults", "capabilities"],
+              "additionalProperties": false
+            }
+          },
+          "edit": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["multipart", "json", "generation"]
+              },
+              "encoding": {
+                "type": "string",
+                "enum": [
+                  "image",
+                  "image[]",
+                  "images",
+                  "image_urls",
+                  "input_references"
+                ]
+              },
+              "maxReferences": {
+                "default": 1,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 32
+              },
+              "masks": {
+                "default": false,
+                "type": "boolean"
+              },
+              "maskPolarity": {
+                "type": "string",
+                "enum": ["transparent-edit", "white-edit", "black-edit"]
+              }
+            },
+            "required": ["mode", "encoding", "maxReferences", "masks"],
+            "additionalProperties": false
+          },
+          "chatImageOutput": {
+            "default": false,
+            "type": "boolean"
+          },
+          "proxy": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "secretEnv": {
+                "type": "string"
+              }
+            },
+            "required": ["url"],
+            "additionalProperties": false
+          },
+          "workflow": {
+            "type": "object",
+            "properties": {
+              "graph": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {}
+              },
+              "bindings": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "node": {
+                      "type": "string"
+                    },
+                    "input": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["node", "input"],
+                  "additionalProperties": false
+                }
+              },
+              "outputNodes": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "requireGpu": {
+                "default": true,
+                "type": "boolean"
+              }
+            },
+            "required": ["graph", "bindings", "outputNodes", "requireGpu"],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "enabled",
+          "adapter",
+          "baseUrl",
+          "baseUrlMode",
+          "auth",
+          "deniedModels",
+          "paths",
+          "query",
+          "defaults",
+          "extensions",
+          "providerOptionKeys",
+          "requestTimeoutMs",
+          "discoveryTimeoutMs",
+          "maxConcurrentRequests",
+          "modelOverrides",
+          "chatImageOutput"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "outputDir",
+    "stateDir",
+    "logging",
+    "files",
+    "maxConcurrentRequests",
+    "maxQueuedRequests",
+    "returnMode",
+    "connections"
+  ],
+  "additionalProperties": false
+}

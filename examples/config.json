@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "defaultConnection": "omniroute-local",
+  "outputDir": "G:/Program Files/Portable/Scripts/Numera Image-Gen MCP/outputs",
+  "stateDir": "G:/Program Files/Portable/Scripts/Numera Image-Gen MCP/state",
+  "logging": {
+    "directory": "G:/Program Files/Portable/Scripts/Numera Image-Gen MCP/logs",
+    "level": "INFO",
+    "logPrompts": false
+  },
+  "files": {
+    "allowedInputRoots": [
+      "G:/Program Files/Portable/Scripts/Numera Image-Gen MCP/inputs"
+    ]
+  },
+  "connections": {
+    "omniroute-local": {
+      "adapter": "openai-images",
+      "gateway": "omniroute",
+      "gatewayVersion": "release/v3.8.52",
+      "baseUrl": "http://127.0.0.1:20100/v1",
+      "baseUrlMode": "api-prefix",
+      "auth": {
+        "type": "bearer",
+        "secretEnv": "OMNIROUTE_API_KEY",
+        "origin": "http://127.0.0.1:20100"
+      },
+      "defaultModel": "antigravity/gemini-3.1-flash-image",
+      "modelOverrides": {
+        "antigravity/gemini-3.1-flash-image": {
+          "defaults": { "aspect_ratio": "1:1", "image_size": "1K" }
+        }
+      }
+    },
+    "nine-router-local": {
+      "enabled": false,
+      "adapter": "openai-images",
+      "gateway": "9router",
+      "baseUrl": "http://127.0.0.1:20128/v1",
+      "auth": {
+        "type": "bearer",
+        "secretEnv": "NINEROUTER_API_KEY",
+        "origin": "http://127.0.0.1:20128"
+      }
+    },
+    "openai-direct": {
+      "enabled": false,
+      "adapter": "openai-images",
+      "baseUrl": "https://api.openai.com/v1",
+      "auth": {
+        "type": "bearer",
+        "secretEnv": "OPENAI_API_KEY",
+        "origin": "https://api.openai.com"
+      },
+      "edit": {
+        "mode": "multipart",
+        "encoding": "image",
+        "maxReferences": 1,
+        "masks": true,
+        "maskPolarity": "transparent-edit"
+      }
+    },
+    "gemini-direct": {
+      "enabled": false,
+      "adapter": "gemini",
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
+      "auth": {
+        "type": "header",
+        "header": "x-goog-api-key",
+        "secretEnv": "GEMINI_API_KEY",
+        "origin": "https://generativelanguage.googleapis.com"
+      }
+    },
+    "gemini-interactions": {
+      "enabled": false,
+      "adapter": "gemini-interactions",
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
+      "auth": {
+        "type": "header",
+        "header": "x-goog-api-key",
+        "secretEnv": "GEMINI_API_KEY",
+        "origin": "https://generativelanguage.googleapis.com"
+      }
+    },
+    "openai-responses": {
+      "enabled": false,
+      "adapter": "openai-responses",
+      "baseUrl": "https://api.openai.com/v1",
+      "orchestrationModel": "SELECT_SUPPORTED_CHAT_MODEL",
+      "auth": {
+        "type": "bearer",
+        "secretEnv": "OPENAI_API_KEY",
+        "origin": "https://api.openai.com"
+      }
+    },
+    "openrouter-direct": {
+      "enabled": false,
+      "adapter": "openrouter-images",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "auth": {
+        "type": "bearer",
+        "secretEnv": "OPENROUTER_API_KEY",
+        "origin": "https://openrouter.ai"
+      }
+    },
+    "chat-images": {
+      "enabled": false,
+      "adapter": "chat-images",
+      "chatImageOutput": true,
+      "baseUrl": "https://gateway.example/v1",
+      "auth": {
+        "type": "bearer",
+        "secretEnv": "CHAT_IMAGES_API_KEY",
+        "origin": "https://gateway.example"
+      }
+    }
+  }
+}

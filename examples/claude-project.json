@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "numera-image-gen": {
+      "type": "stdio",
+      "command": "G:/Program Files/nodejs/node.exe",
+      "args": [
+        "G:/Program Files/Portable/Scripts/Numera Image-Gen MCP/dist/index.js"
+      ],
+      "env": {
+        "NUMERA_CONFIG": "G:/Program Files/Portable/Scripts/Numera Image-Gen MCP/config.local.json"
+      }
+    }
+  }
+}
