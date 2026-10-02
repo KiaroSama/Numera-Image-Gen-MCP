@@ -37,13 +37,14 @@ export async function credentials(
         "DPAPI requires an absolute Windows secret file.",
       );
     const script =
-      '$ErrorActionPreference="Stop"; $s=Get-Content -LiteralPath $env:NUMERA_DPAPI_FILE -Raw -Encoding utf8 | ConvertTo-SecureString; $p=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($s); try {[Console]::Out.Write([Runtime.InteropServices.Marshal]::PtrToStringBSTR($p))} finally {[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($p)}';
+      '$ErrorActionPreference="Stop"; [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false); $s=Get-Content -LiteralPath $env:NUMERA_DPAPI_FILE -Raw -Encoding utf8 | ConvertTo-SecureString; $p=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($s); try {[Console]::Out.Write([Runtime.InteropServices.Marshal]::PtrToStringBSTR($p))} finally {[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($p)}';
     try {
       const result = await promisify(execFile)(
         "pwsh",
         ["-NoProfile", "-NonInteractive", "-Command", script],
         {
           windowsHide: true,
+          encoding: "utf8",
           timeout: 10000,
           maxBuffer: 65536,
           env: { ...env, NUMERA_DPAPI_FILE: auth.secretDpapiFile },

@@ -17,7 +17,10 @@ secretFile (absolute/private/bounded) or secretDpapiFile (Windows, PowerShell 7,
 Set auth.origin to destination origin; changing base without changing the origin fails.
 Environment variables are not encrypted. Keep real keys out of checked-in host/config files.
 Run `scripts/protect-secret.ps1 -Path <absolute private path>` interactively only; hidden secret prompt,
-no overwrites, user-scoped DPAPI and ACL restriction. Portable alternative: private0600 secret file.
+no overwrites, user-scoped DPAPI and ACL restriction. The decryption subprocess explicitly emits
+UTF-8 so non-ASCII values round-trip independently of the Windows console codepage.
+Portable alternative: private0600 secret file. See PRACTICAL-TESTING.md for read-only readiness;
+missing credentials are a blocker, not permission to read another application's private store.
 
 Per-model maxCount/maxReferences/supportedParameters/capabilities overrides require actual contract
 verification. Defaults use snake_case common names. providerOptionKeys permits bounded provider

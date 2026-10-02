@@ -48,3 +48,22 @@ creation and exact Windows Server installation. Conversational continuation repl
 stateless reference editing remains default. Direct stdio serves legacy negotiation; modern-only pin
 is rejected and not advertised. Rich ambiguous TOML is refused for manual entry-scoped editing.
 No all-model/quality/production-ready claim.
+
+## Practical preparation 2026-10-03
+
+New readiness CLI and persistent GET-only/blocked-state fixtures added; integrated hosted CI for this
+change must be checked separately from the earlier260-test baseline. No full suite was repeated locally.
+Local light seam: real SDK readiness success fixture passed; actual Windows DPAPI same-user protection,
+restricted ACL/decryption, corrupt ciphertext and no-overwrite fixture passed. The Unicode fixture first
+failed with Japanese becoming???; explicit PowerShell UTF-8 output fixed the shared credential reader.
+Native typecheck/build/lint passed at that stage; final integrated checks remain required.
+
+Actual owner's local connection:10-tool protocol, writable storage, missing OMNIROUTE_API_KEY -> exit2.
+Bounded unauthenticated GET to local20100/v1/models returned401. No private gateway state was read,
+no paid POST/upload, host registration or model install was performed. No listeners20128/8188 observed.
+Practical commands/requirements and distinction from paid/GUI/GPU proof: PRACTICAL-TESTING.md.
+Controlled real gateway fake-upstream integration remains blocked without a fully isolated writable
+artifact and network confinement; shared DATA_DIR does not isolate Next.js cache writes. No docker/
+podman available in the inspected PATH; shared user gateway is left untouched.
+Actual interactive/other-user DPAPI, paid providers, GUI host, real GPU workflow and Server2025 remain
+not_run. Ready-to-run preparation is not a claim that these missing scenarios were executed.

@@ -24,5 +24,8 @@ wire-contracts.test.ts (exact native HTTP), capability-descriptors.test.ts (endp
 workflow-validation/workflow-branches (graph/node errors), incremental-stream (bounded frames),
 continuation (private scope), detached-jobs (recovery), negotiation (actual protocol era), logging and
 setup real-entry fixtures. Matrix presence alone is not a passing coverage claim.
-Real gateway processes against controlled upstreams, interactive DPAPI/ACL, real GUI/GPU/live providers
-and Windows Server installation remain unverified and are not substituted by fixtures.
+Practical readiness public CLI: tests/integration/readiness.test.ts checks actual SDK tools, GET-only
+probe, blocked credentials/catalog/model and safe summaries. Actual Windows same-user DPAPI/ACL:
+tests/integration/dpapi.test.ts uses a non-secret prompt substitute, real protection/reader and Unicode.
+Real gateway processes against controlled upstreams, actual interactive credential input, other-user
+DPAPI denial, real GUI/GPU/live providers and Windows Server remain separate unverified scenarios.

@@ -45,6 +45,8 @@ connections. Set each connection's declared secret source privately. Set absolut
 Launch built `dist/index.js` with an absolute Node executable in your MCP client. Default stdio stdout
 is exclusively protocol; logs go stderr/files. `npm run smoke` checks local handshake/tools/health
 without contacting a provider. Setup: [scripts/setup.ps1](scripts/setup.ps1), `-WhatIf` supported.
+Read-only connection readiness and real-test prerequisites: [Practical testing](docs/PRACTICAL-TESTING.md).
+The readiness CLI never generates images; missing declared credentials fails with exit2.
 
 ## Protocols and tools
 
