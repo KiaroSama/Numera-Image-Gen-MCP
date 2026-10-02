@@ -26,8 +26,9 @@ image work is an explicitly selected tool operation. Named connections, separate
 profiles, native image protocols and configured GPU ComfyUI workflows. No paid POST retries, hidden
 uploads, prompt enhancement or automatic provider/model fallback.
 
-**Status:** published offline-tested implementation;260 tests pass on hosted Windows/Linux.
-Runtime coverage:89.55 percent statements, at least87.89 percent branches.
+**Status:** published offline-tested implementation;265 Windows tests and264 Linux tests pass
+(one Windows-only DPAPI case skipped on Linux). Runtime coverage: at least89.55 percent statements
+and87.97 percent branches.
 See [test evidence](docs/TEST-RESULTS.md);
 no npm publication, all-model support, GUI integration or production-readiness claim.
 

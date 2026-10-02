@@ -51,12 +51,17 @@ No all-model/quality/production-ready claim.
 
 ## Practical preparation 2026-10-03
 
-New readiness CLI and persistent GET-only/blocked-state fixtures added; integrated hosted CI for this
-change must be checked separately from the earlier260-test baseline. No full suite was repeated locally.
+Final practical code SHA `62d955611845c0b1d1a67cff609430c5b5a5130d` passed
+[CI37074134568](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37074134568).
+Windows:265 tests/23 files;90.06 percent statements,88.28 percent branches. Linux:264 passed,
+1 Windows-only DPAPI test visibly skipped;22 files passed/1 skipped,89.55 statements,87.97 branches.
+Build/typecheck/lint/UTF-8/format, clean packed production install and audit0 passed on both OSes.
+New readiness CLI and GET-only/blocked-state fixtures passed in that matrix. No full suite repeated locally.
 Local light seam: real SDK readiness success fixture passed; actual Windows DPAPI same-user protection,
 restricted ACL/decryption, corrupt ciphertext and no-overwrite fixture passed. The Unicode fixture first
 failed with Japanese becoming???; explicit PowerShell UTF-8 output fixed the shared credential reader.
-Native typecheck/build/lint passed at that stage; final integrated checks remain required.
+Native typecheck/build/lint passed locally; final integrated checks passed in the exact-SHA CI above.
+All bounded owners reported cleanup_verified=true; local PID/creation-time sweep found zero survivors.
 
 Actual owner's local connection:10-tool protocol, writable storage, missing OMNIROUTE_API_KEY -> exit2.
 Bounded unauthenticated GET to local20100/v1/models returned401. No private gateway state was read,
