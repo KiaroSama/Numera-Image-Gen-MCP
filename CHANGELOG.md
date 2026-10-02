@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased - 2026-10-03
+
+Simple private endpoint/key/model-list configuration with friendly display names, portable defaults
+and adjacent-file discovery. Existing advanced settings remain supported. Linux/macOS setup docs,
+macOS CI matrix and new POSIX permission/symlink/process-group assertions. Larger README logo.
+No paid/live GUI claim.
+
 ## 0.1.0 - 2026-10-02
 
 Initial local stdio image orchestration implementation with named connections, protocol-specific

@@ -72,3 +72,12 @@ artifact and network confinement; shared DATA_DIR does not isolate Next.js cache
 podman available in the inspected PATH; shared user gateway is left untouched.
 Actual interactive/other-user DPAPI, paid providers, GUI host, real GPU workflow and Server2025 remain
 not_run. Ready-to-run preparation is not a claim that these missing scenarios were executed.
+
+## Simple setup and platform delta2026-10-03
+
+Compact endpoint/key/models configuration added with local file defaults and display-only model names.
+Local narrow load/catalog/actual stdio seams passed; original native IDs and bytes survive, key stays
+out of receipts/logs and duplicate request does not POST again. Full final hosted Windows/Linux/macOS
+matrix is required for this delta; the earlier code SHA above does not verify these new changes.
+Mac matrix includes nativeSharp/SQLite/stdio and packed production installation; no IntelMac/GUI/live
+provider entitlement claim. Exact final CI evidence is recorded after the run.

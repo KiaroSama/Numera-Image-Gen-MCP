@@ -1,10 +1,29 @@
 # Configuration
 
-Copy `examples/config.json` to an ignored local configuration; set an absolute `NUMERA_CONFIG`.
-Generated schema: `schemas/config.schema.json`. Paths are examples, not portable defaults.
-Default config location: Windows `%LOCALAPPDATA%/Numera/ImageGen/config.json`; Linux
-`$XDG_CONFIG_HOME/numera-image-gen/config.json` (fallback `~/.config`). Output/state/log/input roots
-must be absolute. Each connection has independent adapter/base/prefix/auth/model/defaults/policy.
+## Simple setup (Windows, Linux, macOS)
+
+Save `config.local.json` next to package.json: api_endpoint, api_key and models:[{id,name}].
+Template examples/simple-config.json; input schema schemas/simple-config.schema.json. First model
+is default, exact IDs remain unchanged, name is a display label. Default profile omniroute;
+optional profile9router/openai-images selects those Images-compatible contracts, not native APIs.
+No DPAPI/PowerShell/env setup required. Private inline key is plaintext: keep file ignored/out of
+packages, restrict access (0600 on Linux/macOS, current-user ACL on Windows), never share it.
+Default output/state/log/input directories sit beside that selected file, independent of CWD.
+Save and reconnect the server to apply changes; no automatic paid operation or live hot reload.
+Configured model listing is offline/unverified; refresh supplements provider facts, not entitlement.
+Duplicate exactIDs, empty labels/key, unsafe endpoint and unknown fields reject before provider I/O.
+
+Config selection: explicit --config > NUMERA_CONFIG > adjacent package config.local.json > per-user
+config.json. Per-user: Windows %LOCALAPPDATA%/Numera/ImageGen; Linux/macOS
+$XDG_CONFIG_HOME/numera-image-gen (fallback ~/.config/numera-image-gen). Explicit missing/invalid file
+fails without silently choosing another. Do not create a user config inside node_modules for packed
+installs: select your own private file with --config or NUMERA_CONFIG.
+
+## Advanced configuration
+
+Existing examples/config.json/schemaVersion1 remains supported, with schemas/config.schema.json.
+Advanced output/state/log/input roots must be absolute; each named connection has independent
+adapter/base/prefix/auth/model/defaults/policy. Use native adapters or explicit edit/workflow settings here.
 
 Precedence: supported CLI flags, namespaced Numera environment, selected JSON, safe defaults.
 CLI: --config, --default-connection, --output-dir, --state-dir, --log-dir, --log-level,
@@ -12,7 +31,7 @@ CLI: --config, --default-connection, --output-dir, --state-dir, --log-dir, --log
 Environment equivalent list is in `.env.example`; no automatic dotenv loading.
 OPENAI_BASE_URL/KEY/MODEL apply only with --openai-compat, never unrelated connections.
 
-Auth: none for explicitly trusted local backend; bearer or header with exactly one secretEnv,
+Auth: none for explicitly trusted local backend; bearer or header with exactly one private apiKey, secretEnv,
 secretFile (absolute/private/bounded) or secretDpapiFile (Windows, PowerShell 7, current-user DPAPI).
 Set auth.origin to destination origin; changing base without changing the origin fails.
 Environment variables are not encrypted. Keep real keys out of checked-in host/config files.

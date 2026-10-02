@@ -5,6 +5,7 @@ export const support = z.enum(["supported", "unsupported", "unknown"]);
 export const authSchema = z
   .object({
     type: z.enum(["none", "bearer", "header"]),
+    apiKey: z.string().min(1).max(65536).optional(),
     secretEnv: z.string().optional(),
     secretFile: z.string().optional(),
     secretDpapiFile: z.string().optional(),
@@ -30,6 +31,17 @@ export const connectionSchema = z
     auth: authSchema,
     gatewayVersion: z.string().optional(),
     defaultModel: z.string().min(1).optional(),
+    configuredModels: z
+      .array(
+        z
+          .object({
+            id: z.string().min(1).max(300),
+            name: z.string().min(1).max(100),
+          })
+          .strict(),
+      )
+      .max(100)
+      .default([]),
     orchestrationModel: z.string().optional(),
     allowedModels: z.array(z.string()).optional(),
     deniedModels: z.array(z.string()).default([]),

@@ -2,7 +2,9 @@
 
 Protocol compatibility is not a measured percentage of all models. Model names do not prove support.
 Every live connection/model/account/size/input mode must be verified separately. The published baseline
-and resumed acceptance additions passed their offline Windows/Linux matrix (260 tests per OS).
+and resumed acceptance additions have separate offline evidence. Compact config covers the three
+Images-compatible profiles; native protocols still use advanced config. Linux/macOS do not require
+DPAPI. Hosted matrix now includes macOS with specific POSIX boundary assertions.
 Exact versions, coverage and remaining live limitations belong in TEST-RESULTS.md.
 
 | Profile                | Generation                           | Reference/edit route                        | Evidence/limits                                                             |

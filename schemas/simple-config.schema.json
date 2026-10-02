@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "api_endpoint": {
+      "type": "string",
+      "format": "uri"
+    },
+    "api_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "models": {
+      "minItems": 1,
+      "maxItems": 100,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": ["id", "name"],
+        "additionalProperties": false
+      }
+    },
+    "profile": {
+      "default": "omniroute",
+      "type": "string",
+      "enum": ["omniroute", "9router", "openai-images"]
+    }
+  },
+  "required": ["api_endpoint", "api_key", "models", "profile"],
+  "additionalProperties": false
+}

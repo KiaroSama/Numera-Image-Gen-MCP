@@ -1,10 +1,15 @@
-import { readFile } from "node:fs/promises";
+import { readFile, access } from "node:fs/promises";
 import { homedir } from "node:os";
 import { isAbsolute, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { expandSimple } from "./simple.js";
 import { parseArgs } from "node:util";
 import { configSchema, type Config, type Connection } from "./schema.js";
 import { fail } from "../errors.js";
 import { resolveOperationUrl } from "../http/url.js";
+export const localConfigPath = fileURLToPath(
+  new URL("../../config.local.json", import.meta.url),
+);
 export function userRoot(env: NodeJS.ProcessEnv = process.env) {
   return process.platform === "win32"
     ? join(env.LOCALAPPDATA ?? homedir(), "Numera", "ImageGen")
@@ -33,8 +38,16 @@ export async function loadConfig(
     },
     strict: true,
   });
-  const root = userRoot(env),
-    file = values.config ?? env.NUMERA_CONFIG ?? join(root, "config.json");
+  const root = userRoot(env);
+  let file = values.config ?? env.NUMERA_CONFIG;
+  if (!file) {
+    try {
+      await access(localConfigPath);
+      file = localConfigPath;
+    } catch {
+      file = join(root, "config.json");
+    }
+  }
   if (!isAbsolute(file))
     fail("invalid_configuration", "NUMERA_CONFIG must be absolute.");
   let raw: Record<string, unknown>;
@@ -64,6 +77,15 @@ export async function loadConfig(
       );
     }
   }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw))
+    fail("invalid_configuration", "Configuration must be a JSON object.");
+  if (
+    raw &&
+    typeof raw === "object" &&
+    !Array.isArray(raw) &&
+    ("api_endpoint" in raw || "api_key" in raw)
+  )
+    raw = expandSimple(raw, file);
   const get = (flag: string, key: string) =>
     values[flag as keyof typeof values] ?? env[key];
   for (const [field, flag, key] of [
@@ -98,6 +120,20 @@ export async function loadConfig(
   const config = parsed.data;
   const timeout = get("request-timeout-ms", "NUMERA_REQUEST_TIMEOUT_MS");
   for (const connection of Object.values(config.connections)) {
+    if (
+      connection.auth.apiKey !== undefined &&
+      (!connection.auth.apiKey.trim() ||
+        /[\r\n\x00]/.test(connection.auth.apiKey))
+    )
+      fail(
+        "invalid_configuration",
+        "Inline credential must be nonempty and cannot contain control characters.",
+      );
+    if (
+      new Set(connection.configuredModels.map((m) => m.id)).size !==
+      connection.configuredModels.length
+    )
+      fail("invalid_configuration", "Configured model IDs must be unique.");
     if (timeout !== undefined) {
       const n = Number(timeout);
       if (!Number.isInteger(n) || n < 1 || n > 3600000)
@@ -134,6 +170,7 @@ export async function loadConfig(
     if (
       connection.auth.type !== "none" &&
       [
+        connection.auth.apiKey,
         connection.auth.secretEnv,
         connection.auth.secretFile,
         connection.auth.secretDpapiFile,

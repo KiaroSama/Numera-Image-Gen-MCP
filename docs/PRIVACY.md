@@ -17,6 +17,9 @@ are retained in a separate private state table, bound to connection/account fing
 returned in tool receipts or logs. No conversational signature replay API is exposed; stateless refs
 remain the portable default. Keep encrypted DPAPI files/current-user
 ACL private; environment values are not encrypted. Portable secret files need private permissions.
+Compact config permits an explicitly owner-selected plaintext api_key in the private local file.
+No key enters public receipts/catalogs/logs; storage binds an account fingerprint, not plaintext.
+Do not put this file inside sync/public backup/package roots. DPAPI remains optional on Windows.
 
 One submission policy is local, not a guarantee about upstream gateway retries or billing. Inspect
 outcome_unknown and existing jobs before authorizing another operation. Cancellation is not refund.

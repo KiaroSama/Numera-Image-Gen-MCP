@@ -47,3 +47,6 @@ npm publication and public releases require separate authorization. Unavailable 
 2026-10-02: owner corrected local root (spaced name), required moving all work/preserving assets and
 removing empty wrong root. Completed relocation.
 2026-10-02: owner requested GitHub About and topics; descriptive metadata and12 matching topics verified.
+2026-10-03: owner requested simple one-file endpoint/key/multiple model IDs with display names,
+merging completed side branches/larger logo, Linux/macOS usability and new platform-specific CI tests.
+Inline key is private-only; defaults replace mandatory wizard/path/env setup, not privacy/protocol checks.

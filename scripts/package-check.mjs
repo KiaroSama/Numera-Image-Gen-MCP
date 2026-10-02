@@ -38,7 +38,7 @@ await maintenance("package-check", async (log) => {
       : Object.values(manifest)[0];
     for (const file of packed.files) {
       if (
-        /(?:^|\/)(?:\.ai|\.specify|specs|\.claude|\.ignoreme|secrets\.md|state|outputs|logs|node_modules)(?:\/|$)|(?:^|\/)\.env(?:$|\.)/.test(
+        /(?:^|\/)(?:\.ai|\.specify|specs|\.claude|\.ignoreme|secrets\.md|config\.local\.json|state|outputs|logs|node_modules)(?:\/|$)|(?:^|\/)\.env(?:$|\.)/.test(
           file.path,
         )
       )

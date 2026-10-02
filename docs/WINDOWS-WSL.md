@@ -1,4 +1,4 @@
-# Windows and WSL/Linux
+# Windows, Linux, WSL and macOS
 
 Primary development environment Windows11 Enterprise, Node24.21.0/npm12.0.2/PowerShell7. Windows
 Server2025 Datacenter support is a target, not an installation claim. Hosted Windows CI is labeled
@@ -13,7 +13,13 @@ multiline/inline MCP forms are refused for manual entry-scoped editing. A stale 
 Backups allow manual rollback; no automatic rollback action overwrites a changed config.
 No service, startup entry, task, extension or firewall change. No persistent execution-policy change.
 
-Linux: npm ci/build, configure absolute Linux roots and launch Node directly. Persistent WSL source
+Linux/macOS: install Node24.21.0, run npm ci and npm run build, save the same compact config.local.json
+next to package.json, launch the absolute dist/index.js using Node. No PowerShell, DPAPI or Windows
+path setup is required. Default roots are beside the selected config. Restrict plaintext-key file
+permissions to0600. Use actual absolute node/config paths in client entries. Native dependency and
+packed-install coverage runs on hosted macOS as well as Linux/Windows; read TEST-RESULTS.md for evidence.
+
+Linux: Persistent WSL source
 copy convention /srv/projects/numera-image-gen-mcp; Windows G: examples are not Linux paths.
 Windows files may be /mnt/g/... only when mount exists. The process running MCP determines path
 semantics. localhost may differ between WSL/Windows depending on networking mode; configure reachable

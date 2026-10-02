@@ -189,6 +189,11 @@
                 "type": "string",
                 "enum": ["none", "bearer", "header"]
               },
+              "apiKey": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 65536
+              },
               "secretEnv": {
                 "type": "string"
               },
@@ -214,6 +219,28 @@
           "defaultModel": {
             "type": "string",
             "minLength": 1
+          },
+          "configuredModels": {
+            "default": [],
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                }
+              },
+              "required": ["id", "name"],
+              "additionalProperties": false
+            }
           },
           "orchestrationModel": {
             "type": "string"
@@ -445,6 +472,7 @@
           "baseUrl",
           "baseUrlMode",
           "auth",
+          "configuredModels",
           "deniedModels",
           "paths",
           "query",

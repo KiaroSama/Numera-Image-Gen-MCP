@@ -4,7 +4,12 @@ import { apiJson } from "../http/client.js";
 import { array, record, safeError } from "../errors.js";
 import { capabilities } from "../capabilities.js";
 export type Catalog = {
-  models: { id: string; metadata: Record<string, unknown> }[];
+  models: {
+    id: string;
+    name?: string;
+    configured?: boolean;
+    metadata: Record<string, unknown>;
+  }[];
   complete: boolean;
   warnings: unknown[];
   cached: boolean;
@@ -22,8 +27,27 @@ export class Discovery {
       old = this.cache.get(id);
     if (!refresh && old && old.until > Date.now())
       return { ...old.catalog, cached: true };
+    const configured = c.configuredModels.map((m) => ({
+      ...m,
+      configured: true,
+      metadata: {
+        source: "configured",
+        account_availability: "unknown",
+        generation_verified: false,
+      },
+    }));
+    if (!refresh && configured.length)
+      return {
+        models: configured,
+        complete: true,
+        warnings: [
+          "Configured model list only; provider availability is unverified. Use refresh for provider discovery.",
+        ],
+        cached: false,
+        checked_at: new Date().toISOString(),
+      };
     const result: Catalog = {
-      models: [],
+      models: configured,
       complete: true,
       warnings: [],
       cached: false,
@@ -80,8 +104,10 @@ export class Discovery {
               item.type !== "image")
           )
             continue;
-          if (!result.models.some((m) => m.id === model))
-            result.models.push({ id: model, metadata: item });
+          const existing = result.models.find((m) => m.id === model);
+          if (existing)
+            existing.metadata = { ...existing.metadata, advertised: item };
+          else result.models.push({ id: model, metadata: item });
         }
         if (c.gateway === "omniroute" && operation === route) {
           operation = "models";
@@ -143,7 +169,14 @@ export class Discovery {
           signal,
         );
     } catch {}
-    return { connection: id, model_id: model, ...cap, advertised };
+    return {
+      connection: id,
+      model_id: model,
+      display_name:
+        c.configuredModels.find((m) => m.id === model)?.name ?? null,
+      ...cap,
+      advertised,
+    };
   }
 }
 export function connectionPrefix(c: Connection) {

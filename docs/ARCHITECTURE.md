@@ -3,7 +3,9 @@
 Stdio SDK transport -> schema-validated tools -> application services -> pure adapter mapping ->
 bounded HTTP -> normalization -> validated atomic outputs/transactional receipts.
 
-`config/` owns schema/precedence/secrets. `adapters/` owns native wire contracts; tools never construct
+`config/` owns schema/precedence/secrets. Compact config expands into the same advanced connection
+contract; it adds no second transport or generation path. Configured model names are presentation only,
+exact IDs remain submission identity. Adjacent config discovery is module-relative, never caller CWD. `adapters/` owns native wire contracts; tools never construct
 provider payloads. `services/` orchestrates readiness/discovery/generation/recovery. `jobs/store.ts`
 uses Node SQLite WAL/FULL transactions for request-ID uniqueness, admission and owned output index.
 `files/` validates signatures/decode/pixels/masks/roots and preserves original bytes. `http/` separates

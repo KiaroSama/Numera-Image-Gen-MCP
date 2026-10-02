@@ -19,6 +19,14 @@
 | Comfy workflow/bindings/upload/history/view/GPU guard      | tests/contract/comfyui.test.ts                                  |
 | Live/GUI/GPU installed-host checks                         | not_run; separate authorization/fixtures needed                 |
 
+POSIX-specific Linux/macOS: tests/integration/posix-platform.test.ts asserts0600/0644 credential
+permissions, native Unicode paths, confined symlinks and bounded real process-group cleanup.
+
+Simple setup: tests/unit/simple-config.test.ts validates private key/model IDs/names/portable roots
+and configured vs refreshed catalogs; tests/integration/simple-config.test.ts launches actual stdio
+from another CWD with adjacent saved compact file, exact first/explicit model forwarding, output bytes,
+no replay and no key in protocol/logs. Hosted matrix also exercises macOS native dependencies/package.
+
 Read TEST-RESULTS.md for executed evidence, not just test existence. Additional resumed contracts:
 wire-contracts.test.ts (exact native HTTP), capability-descriptors.test.ts (endpoint requirements),
 workflow-validation/workflow-branches (graph/node errors), incremental-stream (bounded frames),

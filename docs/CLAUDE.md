@@ -1,5 +1,10 @@
 # Claude clients
 
+One-time host registration is still required: a saved config does not install an MCP server into
+Claude automatically. After registration, only edit endpoint/key/models in config.local.json and
+reconnect. Adjacent config is found automatically; explicit config path remains supported. On Linux/
+macOS use actual absolute node and dist paths, not the Windows example. No plaintext key in host entry.
+
 Local stdio does not change the host's chat model. `examples/claude-project.json` shows the .mcp.json
 shape; `examples/claude-desktop.json` shows Desktop's distinct local MCP shape. Replace Node path
 with the installed absolute executable and use an absolute built entrypoint/config. Never replace

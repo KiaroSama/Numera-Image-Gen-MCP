@@ -7,7 +7,10 @@ project-owned temp roots; loopback external boundaries only, finally cleanup sto
 
 npm run package:check validates allowlisted npm artifact and a production-only clean install in a
 path with spaces using a real MCP client. npm run smoke performs provider-free handshake/tools/health.
-Hosted CI Windows/Linux on Node24.21.0; Windows hosted is not Windows11 Enterprise/Server2025 proof.
+New tests/integration/posix-platform.test.ts runs on Linux/macOS: owner-only0600 secrets vs0644,
+Unicode native config paths, symlink escape rejection and actual bounded POSIX process-group cleanup.
+Windows skips those three OS-specific assertions; DPAPI remains its separate Windows-only assertion.
+Common compact/stdio/packed tests run on every OS. Hosted CI Windows/Linux/macOS on Node24.21.0; Windows hosted is not Windows11 Enterprise/Server2025 proof.
 Runtime dependencies audited. All test files matched automatically by Vitest include; no hand-list gap.
 
 Local light checks ran only to drive implementation. Full final matrix is reserved for CI. Generic

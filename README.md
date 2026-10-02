@@ -34,18 +34,45 @@ no npm publication, all-model support, GUI integration or production-readiness c
 
 ## Quick start
 
-Node24.21.0/npm required; PowerShell7 recommended on Windows.
+Windows, Linux and macOS: Node24.21.0/npm required. PowerShell/DPAPI are optional Windows features,
+not prerequisites for ordinary setup. In the checkout, install once:
 
-```powershell
+```bash
 npm ci
+```
+
+```bash
 npm run build
 ```
 
-Copy `examples/config.json` to `config.local.json`; adjust absolute roots and enable only intended
-connections. Set each connection's declared secret source privately. Set absolute NUMERA_CONFIG.
-Launch built `dist/index.js` with an absolute Node executable in your MCP client. Default stdio stdout
-is exclusively protocol; logs go stderr/files. `npm run smoke` checks local handshake/tools/health
-without contacting a provider. Setup: [scripts/setup.ps1](scripts/setup.ps1), `-WhatIf` supported.
+Save `config.local.json` next to package.json with just these fields:
+
+```json
+{
+  "api_endpoint": "http://127.0.0.1:20100/v1",
+  "api_key": "YOUR_PRIVATE_API_KEY",
+  "models": [
+    { "id": "YOUR_EXACT_MODEL_ID", "name": "My image model" },
+    { "id": "ANOTHER_EXACT_MODEL_ID", "name": "Second image model" }
+  ]
+}
+```
+
+Launch the absolute `dist/index.js` using Node in your MCP client. Numera automatically finds this
+adjacent config, regardless of client CWD. Save changes and reconnect the server. No environment
+variables, credential wizard or storage-path setup required. First listed model is the default;
+select others by exact ID. Names are labels, not routing aliases. All listed models appear without
+a provider call; `list_models` with `refresh:true` additionally checks upstream discovery.
+
+Default profile is OmniRoute. Add `"profile":"9router"` or `"profile":"openai-images"` for those
+Images-compatible endpoints. Native Gemini/Responses/OpenRouter/ComfyUI use the existing
+[advanced config](docs/CONFIGURATION.md); endpoint/key/model cannot identify different wire protocols.
+Default outputs/state/logs/inputs are next to the config. Keep this plaintext-key file private:
+git-ignored and excluded from packages; Linux/macOS restrict it to owner access (`chmod 600`).
+Never paste keys in chat or commit them. [Simple template](examples/simple-config.json).
+
+Stdout is exclusively MCP traffic; logs go stderr/files. `npm run smoke` checks local handshake/tools/
+health without a provider. Optional Windows [setup.ps1](scripts/setup.ps1) supports `-WhatIf`.
 Read-only connection readiness and real-test prerequisites: [Practical testing](docs/PRACTICAL-TESTING.md).
 The readiness CLI never generates images; missing declared credentials fails with exit2.
 
@@ -68,7 +95,7 @@ bytes preserved; provider policy/terms still apply. Read [privacy](docs/PRIVACY.
 ## Documentation
 
 [Configuration](docs/CONFIGURATION.md) · [OmniRoute](docs/OMNIROUTE.md) · [9router](docs/9ROUTER.md) ·
-[Claude](docs/CLAUDE.md) · [Codex](docs/CODEX.md) · [Windows/WSL](docs/WINDOWS-WSL.md) ·
+[Claude](docs/CLAUDE.md) · [Codex](docs/CODEX.md) · [Windows/WSL](docs/WINDOWS-WSL.md) · [Linux/macOS](docs/LINUX-MACOS.md) ·
 [Architecture](docs/ARCHITECTURE.md) · [Testing](docs/TESTING.md) · [Requirements](docs/REQUIREMENTS.md) ·
 [References](docs/REFERENCES.md)
 

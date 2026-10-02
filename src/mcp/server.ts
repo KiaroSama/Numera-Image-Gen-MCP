@@ -80,7 +80,7 @@ export function createServer(
     "list_models",
     {
       description:
-        "Read bounded paginated model catalogs, with completeness and cached evidence. A failed catalog does not prove explicit models unavailable.",
+        "List configured model IDs/names without network when present; refresh additionally discovers bounded provider catalogs with evidence. A failed catalog does not prove explicit models unavailable.",
       inputSchema: z
         .object({
           connection: z.string().optional(),

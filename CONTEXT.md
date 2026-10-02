@@ -28,5 +28,11 @@ _Avoid_: Guaranteed successful generation.
 **Owned output**: An image Numera saved and can verify by its own identifier and bytes.
 _Avoid_: Arbitrary local file.
 
+**Configured model**: An exact model identifier selected by the owner; listing it does not prove account access.
+_Avoid_: Automatically discovered entitlement.
+
+**Display name**: A readable label for a configured model; not a substitute for its native identifier.
+_Avoid_: Routing alias, model fallback.
+
 **Local cancellation**: Stopping Numera's waiting, distinct from upstream cancellation or refund.
 _Avoid_: Refund confirmation.

@@ -11,7 +11,8 @@ export async function credentials(
   const auth = connection.auth;
   if (auth.type === "none") return {};
   let key: string | undefined;
-  if (auth.secretEnv) key = env[auth.secretEnv];
+  if (auth.apiKey !== undefined) key = auth.apiKey;
+  else if (auth.secretEnv) key = env[auth.secretEnv];
   else if (auth.secretFile) {
     if (!isAbsolute(auth.secretFile))
       fail("invalid_configuration", "Secret file path must be absolute.");

@@ -10,5 +10,11 @@ await maintenance("schema", async (log) => {
     JSON.stringify(z.toJSONSchema(configSchema), null, 2) + "\n",
     "utf8",
   );
-  log.emit("INFO", "Configuration schema generated.");
+  const { simpleConfigSchema } = await import("../dist/config/simple.js");
+  await writeFile(
+    join(projectRoot, "schemas/simple-config.schema.json"),
+    JSON.stringify(z.toJSONSchema(simpleConfigSchema), null, 2) + "\n",
+    "utf8",
+  );
+  log.emit("INFO", "Configuration schemas generated.");
 });

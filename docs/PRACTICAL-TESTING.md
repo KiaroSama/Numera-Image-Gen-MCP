@@ -9,7 +9,7 @@ errors, catalog/model strings, credentials and config paths are excluded from it
 Use the existing bounded owner (90-second wall / 20-second idle ceiling):
 
 ```bash
-node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "C:/projects/numera-image-gen-mcp/config.local.json" --connection omniroute-local --probe
+node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "C:/projects/numera-image-gen-mcp/config.local.json" --connection default --probe
 ```
 
 The shown configuration path is the owner's Windows checkout, not a portable default. On other
@@ -23,7 +23,11 @@ Exit2: readiness blocked. Exit1: invalid invocation/configuration or maintenance
 connection_ready=null means not probed; generation_verified is always false. Catalog visibility and
 configured forwarding evidence do not prove account entitlement, cost, output quality or editing.
 
-## Local observation, 2026-10-03
+Compact setup uses connection name default and private api_key in config.local.json; no environment
+or DPAPI steps are required. Advanced config retains independent existing secret sources. Reconnect
+after saving. The first configured model defaults; display labels never replace exact model IDs.
+
+## Earlier local observation, 2026-10-03
 
 Windows11 Enterprise, Node24.21.0. Private local config was prepared from the existing example with
 only OmniRoute enabled, installed gateway version3.8.51, absolute project storage/input roots,
@@ -33,8 +37,8 @@ A separate bounded unauthenticated GET /v1/models returned401 from the already-r
 on20100. No generation was submitted and no private gateway credential store was inspected.
 No listener was found on20128 or8188 at inspection; this is not proof software is uninstalled.
 
-Before a real catalog probe, supply the declared key privately in the shell/process that runs the
-command, or explicitly configure its supported private-file/current-user DPAPI source. Never paste
+Before a real catalog probe, set api_key privately in the compact config, or use the declared
+secret source for advanced config. Never paste
 keys into prompts, tool arguments, source, screenshots or public host config. No automatic dotenv
 loading. Existing Desktop processes do not inherit a newly set terminal environment.
 

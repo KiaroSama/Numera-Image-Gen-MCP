@@ -1,5 +1,9 @@
 # Codex clients
 
+Compact config needs no host env key: register the absolute Node/dist entry once, then save
+config.local.json beside package.json and reconnect. Optional explicit NUMERA_CONFIG still works.
+Linux/macOS use actual absolute native node/dist/config paths; no PowerShell required.
+
 Current docs https://developers.openai.com/codex/mcp.md describe shared config.toml for local CLI,
 desktop and IDE clients; trusted project scope also possible. Use examples/codex.toml as one entry,
 not a replacement for the existing file. Preserve model/permission/server settings and comments.
