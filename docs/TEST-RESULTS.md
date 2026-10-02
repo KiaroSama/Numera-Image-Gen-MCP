@@ -77,7 +77,13 @@ not_run. Ready-to-run preparation is not a claim that these missing scenarios we
 
 Compact endpoint/key/models configuration added with local file defaults and display-only model names.
 Local narrow load/catalog/actual stdio seams passed; original native IDs and bytes survive, key stays
-out of receipts/logs and duplicate request does not POST again. Full final hosted Windows/Linux/macOS
-matrix is required for this delta; the earlier code SHA above does not verify these new changes.
-Mac matrix includes nativeSharp/SQLite/stdio and packed production installation; no IntelMac/GUI/live
-provider entitlement claim. Exact final CI evidence is recorded after the run.
+out of receipts/logs and duplicate request does not POST again. Final code SHA
+`5fba8adbbf3b3f0c9c9d6391ddf42b5ed3ec7489` passed
+[CI37078653969](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37078653969).
+Windows286 passed/3 POSIX-only skipped; Linux/macOS288 passed/1 Windows DPAPI skipped.26 files
+are discovered;25 passed/1 platform-only file skipped per OS. Linux/macOS3 new native platform
+assertions passed (0600/0644 private credentials, symlink containment, owned process-group cleanup).
+Windows coverage90.17 statements/88.56 branches; Linux/macOS89.67/88.26. Build/type/lint/UTF8/format,
+nativeSharp/SQLite/stdio, packed clean production install and audit0 passed on all three platforms.
+No IntelMac/GUI/live provider entitlement claim. Owned supervisors reported cleanup_verified=true.
+Merged logo/task branches removed; only incompatible failing DependabotTS7 branch/PR remains unmerged.
