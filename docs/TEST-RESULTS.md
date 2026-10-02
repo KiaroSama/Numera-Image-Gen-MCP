@@ -35,7 +35,13 @@ ESLint10.12.0; TypeScript6.0.3 retained because actual peer range rejects7.0.2.
 
 Local seam checks passed for descriptors/private continuation/stream/workflow/detached jobs and
 protocol negotiation. Setup executor's narrow fixture checks passed. Latest integrated typecheck/lint/
-build/UTF8/format checks passed. Updated full Windows/Linux CI and coverage are pending at this write.
+build/UTF8/format checks passed. Updated full CI passed on code SHA
+`f640606e664ef1c397e7e5758fd70bf5c045d58c`:
+[run37068503319](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37068503319).
+Both OSes:260 tests across21 files;89.55 percent runtime statements,87.89 percent Windows branches /
+87.97 percent Linux branches. Clean packed installation, formatting, build and audit passed;
+0 runtime advisories. Every bounded supervisor reported cleanup_verified=true.
+An earlier resumed run failed generated-schema formatting only; formatted schema replacement passed.
 
 Additional not_run: controlled real gateway processes against fake upstreams, interactive DPAPI/ACL
 creation and exact Windows Server installation. Conversational continuation replay is not exposed;

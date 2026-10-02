@@ -2,7 +2,7 @@
 
 Protocol compatibility is not a measured percentage of all models. Model names do not prove support.
 Every live connection/model/account/size/input mode must be verified separately. The published baseline
-passed its offline Windows/Linux matrix; resumed acceptance additions are awaiting their final CI.
+and resumed acceptance additions passed their offline Windows/Linux matrix (260 tests per OS).
 Exact versions, coverage and remaining live limitations belong in TEST-RESULTS.md.
 
 | Profile                | Generation                           | Reference/edit route                        | Evidence/limits                                                             |
