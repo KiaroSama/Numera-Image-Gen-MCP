@@ -18,6 +18,26 @@ export function editingRequest(
     );
   if (request.edit_region && request.mask)
     fail("invalid_input", "Choose edit_region or an explicit mask, not both.");
+  if (request.upscale) {
+    if (
+      operation !== "edit" ||
+      request.reference_images.length !== 1 ||
+      request.mask ||
+      request.edit_region ||
+      request.target_language ||
+      request.count !== 1 ||
+      !request.size ||
+      !/^[1-9]\d{0,7}x[1-9]\d{0,7}$/.test(request.size)
+    )
+      fail(
+        "invalid_input",
+        "Upscale requires edit_image, exactly one reference/output, a numeric size and no mask, region or translation.",
+      );
+    return {
+      ...request,
+      prompt: `${request.prompt}\n\nUpscale the reference image to ${request.size}. Enhance fine details while preserving composition, objects, colors and text. Do not add or remove objects.`,
+    };
+  }
   if (!request.target_language) return request;
   return {
     ...request,

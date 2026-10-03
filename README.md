@@ -534,14 +534,16 @@ verified limits. Edit sources are typed output_id/path/url/data_url objects; no 
 
 Saved originals provide owned IDs, paths, actual MIME/dimensions/bytes/alpha/SHA256. Optional bounded
 previews are derivatives. Local paths are not automatically accessible to cloud hosts. Prompts/input
-bytes preserved unless explicit in-image translation instructions are requested; provider policy/terms still apply. Read [privacy](docs/PRIVACY.md).
+bytes preserved unless explicit in-image translation or upscale instructions are requested; provider policy/terms still apply. Read [privacy](docs/PRIVACY.md).
 
 ## Image-to-image, comic and selected-region editing
 
 Use edit_image with approved reference_images for image-to-image/comic edits and authorized watermark removal. Add target_language
 for translation replacing text inside the image; add edit_region={x,y,width,height} for an absolute
 pixel rectangle on the first reference. A verified native mask route is required for region editing.
-Unsupported masks/parameters fail before submission. No local output resizing is performed.
+Use upscale=true with one reference and a larger numeric size to ask the same image model for a
+higher-resolution edit; verified reference/size support is required, and actual size deviations remain
+visible. Unsupported masks/parameters fail before submission. No local output resizing is performed.
 [Examples, coordinate rules and limitations](docs/IMAGE-EDITING.md). Actual translation quality needs
 a real authorized sample; offline wire/mask tests are not semantic proof.
 

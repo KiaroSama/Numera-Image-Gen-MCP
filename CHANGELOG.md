@@ -15,6 +15,9 @@ Env configuration and validated save-without-restart model updates, with immutab
 snapshots and endpoint/account-bound recovery. Explicit in-image translation and rectangular native
 mask editing reuse the existing edit tool; original bytes and native dimensions remain unchanged.
 
+Explicit model-based upscale through existing reference editing, with larger-size input validation
+and honest output deviations; no local resizing or automatic provider fallback.
+
 ## 0.1.0 - 2026-10-02
 
 Initial local stdio image orchestration implementation with named connections, protocol-specific

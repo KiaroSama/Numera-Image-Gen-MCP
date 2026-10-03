@@ -46,7 +46,11 @@ export async function getJob(
       result,
       requestSchema.parse({
         prompt: "recovered",
-        ...receipt.output_requirements,
+        ...Object.fromEntries(
+          Object.entries(receipt.output_requirements ?? {}).filter(
+            ([key]) => key !== "upscale_source",
+          ),
+        ),
       }),
       combined,
     );

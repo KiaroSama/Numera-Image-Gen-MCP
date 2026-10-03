@@ -188,6 +188,7 @@ export const requestSchema = z
     provider_options: options.default({}),
     reference_images: z.array(sourceSchema).max(32).default([]),
     mask: sourceSchema.optional(),
+    upscale: z.boolean().optional(),
     edit_region: z
       .object({
         x: z.number().int().nonnegative().max(64000000),

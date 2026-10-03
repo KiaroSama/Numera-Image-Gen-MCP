@@ -50,6 +50,7 @@ export type Receipt = {
   output_requirements?: {
     count: number;
     size?: string;
+    upscale_source?: { width: number; height: number };
     output_format?: "png" | "jpeg" | "webp";
     background?: string;
     output_subdirectory?: string;

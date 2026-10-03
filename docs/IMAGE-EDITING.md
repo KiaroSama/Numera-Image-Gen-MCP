@@ -74,6 +74,32 @@ masks. If it does not, report that limitation rather than changing providers or 
 fallback. The model reconstructs covered pixels; removal quality and unchanged outside pixels are not
 guaranteed. Inspect the saved result, and keep the original source.
 
+## Upscale through your selected image model
+
+Call edit_image with `upscale: true`, exactly one approved reference, a preservation prompt and
+numeric `size`, such as `2048x2048` for a1024x1024 source. Both target dimensions must not shrink,
+at least one must grow, and the target must fit configured pixel limits. Masks/regions/translation
+cannot be combined with this mode. Numera appends explicit preservation/detail instructions and
+uses the same selected model's verified edit route, never a local resize or another provider.
+
+```json
+{
+  "prompt": "Preserve the subject, composition and colors.",
+  "upscale": true,
+  "size": "2048x2048",
+  "reference_images": [
+    { "type": "output_id", "output_id": "REPLACE_WITH_OWNED_OUTPUT_UUID" }
+  ],
+  "request_id": "native-upscale-001"
+}
+```
+
+The selected route must support references and that native size. Unknown forwarding fails before
+submission. A returned image not enlarged beyond the source, or differing from requested dimensions,
+is partial with a deviation; no local resizing hides it. This is model-based re-rendering, not a
+dedicated super-resolution engine. Fine-detail accuracy/pixel preservation and quality improvement
+are not guaranteed. Keep the source and visually compare the result.
+
 ## Native dimensions only
 
 Use size for provider-supported pixel dimensions (for example1024x1024), aspect_ratio for native shapes,

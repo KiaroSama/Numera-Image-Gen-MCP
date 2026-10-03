@@ -111,6 +111,22 @@ export class Generation {
         fail("invalid_input", "Aggregate reference bytes exceeded.");
       references.push(image);
     }
+    let upscaleSource: { width: number; height: number } | undefined;
+    if (request.upscale) {
+      const [width, height] = request.size!.split("x").map(Number);
+      const source = references[0]!;
+      if (
+        width! * height! > this.config.files.maxPixels ||
+        width! < source.width ||
+        height! < source.height ||
+        (width === source.width && height === source.height)
+      )
+        fail(
+          "invalid_input",
+          "Upscale size must enlarge the reference without shrinking either dimension and fit the pixel limit.",
+        );
+      upscaleSource = { width: source.width, height: source.height };
+    }
     const mask = request.mask
       ? await this.source(request.mask, combined)
       : request.edit_region
@@ -175,6 +191,7 @@ export class Generation {
       output_requirements: {
         count: request.count,
         size: request.size,
+        upscale_source: upscaleSource,
         output_format: request.output_format,
         background: request.background,
         output_subdirectory: request.output_subdirectory,
@@ -379,6 +396,16 @@ export class Generation {
         )
           receipt.deviations.push(
             `Output ${index} dimensions differ from requested size.`,
+          );
+        const source = receipt.output_requirements?.upscale_source;
+        if (
+          source &&
+          (image.width < source.width ||
+            image.height < source.height ||
+            (image.width === source.width && image.height === source.height))
+        )
+          receipt.deviations.push(
+            `Output ${index} was not upscaled beyond the reference dimensions.`,
           );
         if (request.background === "transparent" && !image.alpha)
           receipt.deviations.push(`Output ${index} has no alpha channel.`);
