@@ -108,8 +108,11 @@ Open config.local.json in a text editor and replace the endpoint, key and exact 
 
 The endpoint is your chosen HTTP(S) API prefix: hosted, localhost or reverse-proxy, not a fixed port.
 For example, https://api.openai.com/v1 or your own /api/v1; do not include /responses or
-/images/generations. Default profile is generic openai-images. Explicitly select
-`"profile":"omniroute"` or `"profile":"9router"` when using those gateways.
+/images/generations. The default is generic openai-images, not an OmniRoute-specific connection. Any gateway exposing
+compatible Images operations can use its own api_endpoint/api_key; a chat-only API is insufficient.
+For gateway-specific forwarding/discovery behavior, explicitly select
+`"profile":"omniroute"` or `"profile":"9router"` when using those gateways. Both use your chosen
+endpoint and key; neither requires a fixed port or an installed copy on the Numera host.
 
 Format/size/quality are optional per-model defaults; explicit tool arguments override them. Use only
 settings supported by your selected API/model; omit them for provider defaults. First listed model
@@ -138,8 +141,7 @@ a server. Use absolute native paths. Never put the API key in the host entry.
 #### Claude Desktop (Windows example)
 
 Open **Settings → Developer → Edit Config**. Add this member inside the existing mcpServers object,
-keeping every other server. The example uses the tested Windows checkout; replace both paths if your
-clone is elsewhere. Forward slashes work in Windows JSON and avoid backslash escaping.
+keeping every other server. These are neutral example paths; replace them with your actual absolute paths. Forward slashes work in Windows JSON and avoid backslash escaping.
 
 ```json
     "numera-image-gen": {
@@ -183,7 +185,7 @@ From the built checkout on Linux/macOS:
 claude mcp add --transport stdio --scope user numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/config.local.json"
 ```
 
-Windows PowerShell, using the tested paths (replace them for your installation):
+Windows PowerShell, using neutral example paths (replace them for your installation):
 
 ```powershell
 claude mcp add --transport stdio --scope user numera-image-gen -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js' --config 'C:/projects/numera-image-gen-mcp/config.local.json'
@@ -204,10 +206,182 @@ For Windows or manual TOML configuration, merge [the Codex entry](examples/codex
 existing config, replace the paths and keep tool_timeout_sec=360 for long image operations.
 See [Codex setup](docs/CODEX.md).
 
+#### Codex: manual configuration
+
+Add this table to ~/.codex/config.toml (or a trusted project's .codex/config.toml), preserving existing
+tables. All paths below are neutral examples; replace them with your actual paths:
+
+```toml
+[mcp_servers.numera-image-gen]
+command = "C:/tools/node/node.exe"
+args = ["C:/projects/numera-image-gen-mcp/dist/index.js", "--config", "C:/projects/numera-image-gen-mcp/config.local.json"]
+startup_timeout_sec = 10
+tool_timeout_sec = 360
+```
+
+Codex CLI, desktop and IDE extension share host configuration. Check with `codex mcp list` and start
+a new session. [Official Codex MCP documentation](https://developers.openai.com/codex/mcp).
+
+#### Kiro
+
+Merge the following into .kiro/settings/mcp.json for the workspace, or ~/.kiro/settings/mcp.json for
+all workspaces. Enable MCP support in Kiro settings, save and check that the server reconnects:
+
+```json
+{
+  "mcpServers": {
+    "numera-image-gen": {
+      "command": "C:/tools/node/node.exe",
+      "args": [
+        "C:/projects/numera-image-gen-mcp/dist/index.js",
+        "--config",
+        "C:/projects/numera-image-gen-mcp/config.local.json"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
+```
+
+Keep generation/edit approvals enabled; do not auto-approve all tools just to connect.
+[Official Kiro configuration](https://kiro.dev/docs/mcp/configuration/).
+
+#### Cursor
+
+Merge this into .cursor/mcp.json for the project or ~/.cursor/mcp.json globally. Enable the server in
+Cursor's Customize/MCP page and check its tool list:
+
+```json
+{
+  "mcpServers": {
+    "numera-image-gen": {
+      "type": "stdio",
+      "command": "C:/tools/node/node.exe",
+      "args": [
+        "C:/projects/numera-image-gen-mcp/dist/index.js",
+        "--config",
+        "C:/projects/numera-image-gen-mcp/config.local.json"
+      ]
+    }
+  }
+}
+```
+
+[Official Cursor MCP documentation](https://cursor.com/docs/context/mcp).
+
+#### Hermes Agent
+
+Add this server under the existing mcp_servers map in ~/.hermes/config.yaml. This is Hermes Agent
+by Nous Research, not an unrelated product named Hermes:
+
+```yaml
+mcp_servers:
+  numera-image-gen:
+    command: "C:/tools/node/node.exe"
+    args:
+      - "C:/projects/numera-image-gen-mcp/dist/index.js"
+      - "--config"
+      - "C:/projects/numera-image-gen-mcp/config.local.json"
+```
+
+Restart the Hermes session/gateway that should load it, or use its supported /reload-mcp command.
+Ask for list_models before authorizing generation. Do not paste the private API key into Hermes config.
+[Official Hermes MCP documentation](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp/).
+
+#### OpenCode
+
+Merge this into project opencode.json/opencode.jsonc or global ~/.config/opencode/opencode.json.
+OpenCode uses a command array under mcp, not a Claude-style mcpServers object:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "numera-image-gen": {
+      "type": "local",
+      "command": [
+        "C:/tools/node/node.exe",
+        "C:/projects/numera-image-gen-mcp/dist/index.js",
+        "--config",
+        "C:/projects/numera-image-gen-mcp/config.local.json"
+      ],
+      "enabled": true,
+      "timeout": 10000
+    }
+  }
+}
+```
+
+The shown timeout bounds tool discovery, not image-generation duration. Check `opencode mcp list`.
+[Official MCP guide](https://opencode.ai/docs/mcp-servers/) and [config locations](https://opencode.ai/docs/config/).
+
+#### VS Code / GitHub Copilot
+
+The current portable workspace format is .mcp.json, using mcpServers; reuse the complete Claude Code
+project entry with neutral paths. User-wide portable configuration is ~/.copilot/mcp-config.json.
+For existing VS Code-native .vscode/mcp.json, the top-level key is servers instead:
+
+```json
+{
+  "servers": {
+    "numera-image-gen": {
+      "type": "stdio",
+      "command": "C:/tools/node/node.exe",
+      "args": [
+        "C:/projects/numera-image-gen-mcp/dist/index.js",
+        "--config",
+        "C:/projects/numera-image-gen-mcp/config.local.json"
+      ]
+    }
+  }
+}
+```
+
+Use MCP: Add Server or MCP: Open User Configuration, trust the reviewed local executable, start the
+server and enable its tools in Agent chat. Remote workspaces run the command on their configured host:
+Windows paths cannot launch a process on a Linux container.
+[Official VS Code guide](https://code.visualstudio.com/docs/copilot/customization/mcp-servers).
+
+#### Gemini CLI
+
+For Gemini CLI installations, add a server to ~/.gemini/settings.json (user) or .gemini/settings.json
+(project). Availability of Gemini CLI versus newer Antigravity tooling depends on your account:
+
+```json
+{
+  "mcpServers": {
+    "numera-image-gen": {
+      "command": "C:/tools/node/node.exe",
+      "args": [
+        "C:/projects/numera-image-gen-mcp/dist/index.js",
+        "--config",
+        "C:/projects/numera-image-gen-mcp/config.local.json"
+      ],
+      "timeout": 360000,
+      "trust": false
+    }
+  }
+}
+```
+
+Restart/reconnect and inspect /mcp; keep trust:false so billable operations require approval.
+[Official Gemini CLI MCP documentation](https://geminicli.com/docs/tools/mcp-server/).
+
+These are configuration instructions verified against official documentation, not claims that every
+client GUI was practically tested. On Linux/macOS replace the example Windows Node/project paths with
+absolute POSIX paths. Do not set an MCP URL to the provider's api_endpoint: Numera's transport is stdio.
+
 ### 5. Verify the connection and generate your first image
 
 In your client ask: **Call Numera health_check, list_connections and list_models. Do not generate yet.**
-Configured models are listed offline; refresh:true queries the selected catalog without generation.
+Ask: **Show the image models configured in Numera as a table of display name and exact model ID.
+Call list_models with refresh=false; do not generate.**
+
+The agent receives the configured id/name pairs through MCP and can display them to you without
+reading the private key or config file. Pass limit/offset to list_models when the list spans pages.
+Configured models are listed offline; refresh:true additionally queries the selected catalog and can
+include unconfigured provider models. A listed ID does not prove account entitlement.
 For a direct read-only check from the checkout on Linux/macOS:
 
 ```bash

@@ -9,9 +9,7 @@
     "logPrompts": false
   },
   "files": {
-    "allowedInputRoots": [
-      "C:/projects/numera-image-gen-mcp/inputs"
-    ]
+    "allowedInputRoots": ["C:/projects/numera-image-gen-mcp/inputs"]
   },
   "connections": {
     "omniroute-local": {

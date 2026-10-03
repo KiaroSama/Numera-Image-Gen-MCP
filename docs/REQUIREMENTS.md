@@ -6,8 +6,7 @@ Owner assignment dated 2026-10-02; this is a faithful public requirements summar
 
 Personal provider-independent TypeScript image generation/editing MCP server, executable/package
 `numera-image-gen-mcp`, registration `numera-image-gen`, GPL-3.0-only. Keep host chat model unchanged.
-Target repository https://github.com/KiaroSama/Numera-Image-Gen-MCP. Owner-corrected development root:
-`C:/projects/numera-image-gen-mcp`.
+Target repository https://github.com/KiaroSama/Numera-Image-Gen-MCP. Example checkout location: `C:/projects/numera-image-gen-mcp`; use your own absolute paths.
 
 ## Required release contracts
 

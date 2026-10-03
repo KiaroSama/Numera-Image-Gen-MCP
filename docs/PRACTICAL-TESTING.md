@@ -12,7 +12,7 @@ Use the existing bounded owner (90-second wall / 20-second idle ceiling):
 node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "C:/projects/numera-image-gen-mcp/config.local.json" --connection default --probe
 ```
 
-The shown configuration path is the owner's Windows checkout, not a portable default. On other
+The shown configuration path is a neutral Windows example, not a portable default. On other
 machines replace it with the actual absolute configuration. Omit --probe for provider-free local
 checks. Add --model <exact catalog ID> for a scoped capability call; the command never selects a
 model for generation. Model presence is checked only in the first bounded catalog page (up to100);
