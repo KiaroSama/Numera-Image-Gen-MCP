@@ -2,8 +2,8 @@
 
 Protocol compatibility is not a measured percentage of all models. Model names do not prove support.
 Every live connection/model/account/size/input mode must be verified separately. The published baseline
-and resumed acceptance additions have separate offline evidence. Compact config covers the three
-Images-compatible profiles; native protocols still use advanced config. Linux/macOS do not require
+and resumed acceptance additions have separate offline evidence. Compact config covers generic Images, explicit OmniRoute/9router and Responses with a separate
+orchestration_model; other native protocols use advanced config. Linux/macOS do not require
 DPAPI. Hosted matrix now includes macOS with specific POSIX boundary assertions.
 Exact versions, coverage and remaining live limitations belong in TEST-RESULTS.md.
 

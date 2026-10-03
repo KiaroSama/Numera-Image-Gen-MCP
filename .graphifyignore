@@ -19,3 +19,5 @@ secrets.md
 .ignoreme/
 explain-AI.md
 .git/
+config.local.json
+inputs/
