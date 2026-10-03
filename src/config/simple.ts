@@ -11,9 +11,19 @@ export const simpleConfigSchema = z
           .object({
             id: z.string().min(1).max(300),
             name: z.string().min(1).max(100),
-            output_format: z.enum(["png", "jpeg", "webp"]).optional(),
-            size: z.string().min(1).max(100).regex(/\S/).optional(),
-            quality: z.string().min(1).max(100).regex(/\S/).optional(),
+            enabled: z.boolean().default(true),
+            output_format: z
+              .enum(["png", "jpeg", "webp"])
+              .nullable()
+              .optional(),
+            size: z.string().min(1).max(100).regex(/\S/).nullable().optional(),
+            quality: z
+              .string()
+              .min(1)
+              .max(100)
+              .regex(/\S/)
+              .nullable()
+              .optional(),
           })
           .strict(),
       )
@@ -54,6 +64,9 @@ export function expandSimple(
       "invalid_configuration",
       "orchestration_model is required only for the openai-responses profile.",
     );
+  const models = c.models.filter((m) => m.enabled);
+  if (!models.length)
+    fail("invalid_configuration", "Enable at least one configured model.");
   const root = dirname(file);
   return {
     schemaVersion: 1,
@@ -75,12 +88,17 @@ export function expandSimple(
           apiKey: c.api_key,
           origin: new URL(c.api_endpoint).origin,
         },
-        defaultModel: c.models[0]!.id,
-        configuredModels: c.models.map(({ id, name }) => ({ id, name })),
+        defaultModel: models[0]!.id,
+        deniedModels: c.models.filter((m) => !m.enabled).map((m) => m.id),
+        configuredModels: models.map(({ id, name }) => ({ id, name })),
         modelOverrides: Object.fromEntries(
-          c.models.map(({ id, name: _name, ...defaults }) => [
+          models.map(({ id, name: _name, enabled: _enabled, ...defaults }) => [
             id,
-            { defaults },
+            {
+              defaults: Object.fromEntries(
+                Object.entries(defaults).filter(([, value]) => value != null),
+              ),
+            },
           ]),
         ),
       },

@@ -3,15 +3,28 @@
   "api_key": "REPLACE_WITH_YOUR_API_KEY",
   "models": [
     {
-      "id": "YOUR_EXACT_IMAGE_MODEL_ID",
-      "name": "My image model",
-      "output_format": "png",
-      "size": "1024x1024",
-      "quality": "medium"
+      "id": "YOUR_EXACT_IMAGE_MODEL_ID_1",
+      "name": "Image model 1",
+      "enabled": true,
+      "output_format": null,
+      "size": null,
+      "quality": null
     },
     {
-      "id": "ANOTHER_EXACT_IMAGE_MODEL_ID",
-      "name": "Second image model"
+      "id": "YOUR_EXACT_IMAGE_MODEL_ID_2",
+      "name": "Image model 2",
+      "enabled": false,
+      "output_format": null,
+      "size": null,
+      "quality": null
+    },
+    {
+      "id": "YOUR_EXACT_IMAGE_MODEL_ID_3",
+      "name": "Image model 3",
+      "enabled": false,
+      "output_format": null,
+      "size": null,
+      "quality": null
     }
   ]
 }

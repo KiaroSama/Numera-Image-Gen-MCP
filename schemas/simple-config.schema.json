@@ -28,21 +28,46 @@
             "minLength": 1,
             "maxLength": 100
           },
+          "enabled": {
+            "default": true,
+            "type": "boolean"
+          },
           "output_format": {
-            "type": "string",
-            "enum": ["png", "jpeg", "webp"]
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["png", "jpeg", "webp"]
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "size": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "pattern": "\\S"
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "quality": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "pattern": "\\S"
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": ["id", "name"],

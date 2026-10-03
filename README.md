@@ -92,16 +92,32 @@ Open config.local.json in a text editor and replace the endpoint, key and exact 
 ```json
 {
   "api_endpoint": "https://YOUR_API_HOST/YOUR_API_PREFIX",
-  "api_key": "YOUR_PRIVATE_API_KEY",
+  "api_key": "REPLACE_WITH_YOUR_API_KEY",
   "models": [
     {
-      "id": "YOUR_EXACT_MODEL_ID",
-      "name": "My image model",
-      "output_format": "png",
-      "size": "1024x1024",
-      "quality": "medium"
+      "id": "YOUR_EXACT_IMAGE_MODEL_ID_1",
+      "name": "Image model 1",
+      "enabled": true,
+      "output_format": null,
+      "size": null,
+      "quality": null
     },
-    { "id": "ANOTHER_EXACT_MODEL_ID", "name": "Second image model" }
+    {
+      "id": "YOUR_EXACT_IMAGE_MODEL_ID_2",
+      "name": "Image model 2",
+      "enabled": false,
+      "output_format": null,
+      "size": null,
+      "quality": null
+    },
+    {
+      "id": "YOUR_EXACT_IMAGE_MODEL_ID_3",
+      "name": "Image model 3",
+      "enabled": false,
+      "output_format": null,
+      "size": null,
+      "quality": null
+    }
   ]
 }
 ```
@@ -114,9 +130,13 @@ For gateway-specific forwarding/discovery behavior, explicitly select
 `"profile":"omniroute"` or `"profile":"9router"` when using those gateways. Both use your chosen
 endpoint and key; neither requires a fixed port or an installed copy on the Numera host.
 
+Each of the three template slots has enabled/output_format/size/quality. Set the exact ID/name and
+enabled:true when activating an extra slot; enabled:false slots are excluded from the configured
+model list and cannot be submitted. At least one model must be enabled. Null output fields mean
+provider defaults and are not sent to the API; replace null with a supported value when needed.
 Format/size/quality are optional per-model defaults; explicit tool arguments override them. Use only
 settings supported by your selected API/model; omit them for provider defaults. First listed model
-is the default; select others by exact ID. Names are display labels, not routing aliases.
+is the default among enabled slots; select others by exact ID. Names are display labels, not routing aliases.
 
 For Responses use [simple-responses.json](examples/simple-responses.json): profile openai-responses
 plus a separate orchestration_model. The selected image model/settings form one image_generation tool;

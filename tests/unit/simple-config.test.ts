@@ -105,6 +105,7 @@ it.each([
   { models: [{ id: "image", name: "Image", size: " " }] },
   { models: [{ id: "image", name: "Image", quality: "x".repeat(101) }] },
   { tools: [{ type: "image_generation" }] },
+  { models: [{ id: "disabled", name: "Disabled", enabled: false }] },
 ])(
   "rejects unsafe compact configuration without exposing key %j",
   async (change) =>
@@ -258,4 +259,53 @@ it("loads per-model settings and separate Responses orchestration without inferr
       },
     });
     expect(c.gateway).toBeUndefined();
+  }));
+
+it("disabled model slots stay out of the default and catalog, null settings use provider defaults", async () =>
+  workspace(async (root) => {
+    const file = join(root, "config.json");
+    await writeFile(
+      file,
+      JSON.stringify({
+        ...compact,
+        models: [
+          {
+            id: "unused/one",
+            name: "Unused",
+            enabled: false,
+            output_format: null,
+            size: null,
+            quality: null,
+          },
+          {
+            id: "real/model",
+            name: "Real 日本語",
+            enabled: true,
+            output_format: null,
+            size: null,
+            quality: null,
+          },
+          {
+            id: "unused/two",
+            name: "Unused two",
+            enabled: false,
+            output_format: null,
+            size: null,
+            quality: null,
+          },
+        ],
+      }),
+      "utf8",
+    );
+    const config = await loadConfig(["--config", file], {});
+    const [, c] = selectConnection(config);
+    expect(c.defaultModel).toBe("real/model");
+    expect(c.configuredModels).toEqual([
+      { id: "real/model", name: "Real 日本語" },
+    ]);
+    expect(c.modelOverrides["real/model"]?.defaults).toEqual({});
+    expect(c.deniedModels).toEqual(["unused/one", "unused/two"]);
+    expect(
+      (await new Discovery(config).list()).models.map((m) => m.id),
+    ).toEqual(["real/model"]);
   }));

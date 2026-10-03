@@ -67,3 +67,11 @@ Use separate query map for safe non-secret fields. Proxy is explicit connection-
 `files.assetAllowances` may narrowly allow origin/path-prefix local asset servers; configured local API
 trust is not inherited by asset URLs. Defaults: input20MiB, output50MiB, aggregate100MiB,64M pixels,
 14 references, preview512px/256KiB. Connection/model limits may be stricter.
+
+## Consistent model slots
+
+Compact templates provide three slots with id/name/enabled/output_format/size/quality. enabled defaults
+to true for existing configs. Extra example slots are disabled until you fill an exact ID and enable
+them. Disabled IDs are denied and excluded from configured catalog/default selection. At least one
+slot must be enabled; first enabled model is default. null size/quality/output_format means provider
+default and is omitted from the actual payload. Keys remain optional for backward compatibility.
