@@ -130,6 +130,70 @@ Active jobs retain their original connection; reload never submits or retries an
 Storage/logging/input-root/global-policy changes and the bounded 64-snapshot limit require restart.
 Legacy compact and advanced JSON remain supported for existing installations.
 
+#### What each .env field means
+
+Values may be quoted as in [.env.example](.env.example). An empty value (`""`) means unset, not
+`auto` or zero. Boolean fields accept exactly `"true"` or `"false"`; `yes`, `1` and `0` are invalid.
+Keep key names unchanged: unknown keys and duplicate assignments reject the saved configuration.
+
+**Connection and API protocol**
+
+| Field                 | Purpose                                                                                                                                                                                                                         | Required / default                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `API_ENDPOINT`        | Your image API's HTTP(S) base prefix, such as `https://gateway.example/v1`. Numera appends the operation path. Do not include `/images/generations`, `/images/edits` or `/responses`.                                           | Required. No fixed host or port.                                                    |
+| `API_KEY`             | Private credential for that endpoint. Gemini profiles send `x-goog-api-key`; other compact profiles send bearer authentication. Never paste a real key into host config, prompts or public files.                               | Required, nonblank, without newline/NUL.                                            |
+| `PROFILE`             | Selects the actual API contract. Accepted: `openai-images`, `omniroute`, `9router`, `openai-responses`, `gemini`, `gemini-interactions`, `openrouter-images`. Gateway profiles use Images with their specific forwarding rules. | Empty/omitted: `openai-images`. Choose the protocol your endpoint actually exposes. |
+| `ORCHESTRATION_MODEL` | Exact conversation-model ID that drives a Responses request. It is separate from the image model selected through `MODEL_n_ID`.                                                                                                 | Required for `openai-responses`; leave empty for every other profile.               |
+
+**Model slots: replace `n` with 1, 2, 3, ... up to 100**
+
+The same six fields apply to every slot. Slots are ordered numerically; the first enabled model is the
+default. A nonempty slot needs both ID and NAME, including disabled placeholders. At least one model
+must be enabled, and IDs must be unique. A configured model is not proof of account entitlement.
+
+| Field                   | Purpose                                                                                                                                             | Required / default                                                  |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `MODEL_n_ID`            | Exact provider model ID sent to the API, including any required provider prefix.                                                                    | Required for a nonempty slot; up to300 characters.                  |
+| `MODEL_n_NAME`          | Friendly name the agent displays through `list_models`. It does not change routing.                                                                 | Required for a nonempty slot; up to100 characters.                  |
+| `MODEL_n_ENABLED`       | Enables the slot. `false` hides it from configured listing and denies its ID for submission.                                                        | Empty/omitted: `true`. Template slots2 and3 explicitly use `false`. |
+| `MODEL_n_OUTPUT_FORMAT` | Default output format: `png`, `jpeg` or `webp`, only if the selected route supports it.                                                             | Empty: provider default, nothing sent.                              |
+| `MODEL_n_SIZE`          | Default native pixel dimensions, for example `1024x1024`, if accepted by that API/model. Numera does not resize the returned original to match.     | Empty: provider default; nonblank values up to100 characters.       |
+| `MODEL_n_QUALITY`       | Default native quality value, for example `auto`, `low`, `medium` or `high` on models supporting those values. It is not a universal quality scale. | Empty: provider default; nonblank values up to100 characters.       |
+
+Explicit image-tool arguments override these model defaults. Native Gemini uses `aspect_ratio` and
+`image_size` tool arguments instead of Images-style SIZE/QUALITY; generateContent does not accept a
+requested output format. Unsupported settings fail rather than silently disappearing.
+
+**Optional reference-editing contract**
+
+These fields describe a verified Images input contract, not a switch that grants the model editing
+capability. Leave all five empty for generation-only use or when your route has not been verified.
+Native protocols may already carry references independently; these fields cannot add native mask
+support to an adapter that does not implement it. Any nonempty edit setting requires `EDIT_MODE`.
+
+| Field                 | Purpose                                                                                                                                                                                                                            | Required / default                                      |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `EDIT_MODE`           | `multipart`: upload reference bytes to `/images/edits`; `json`: inline references in JSON to `/images/edits`; `generation`: inline references through `/images/generations`. Explicit gateway contracts may override this mapping. | Empty: no explicit Images edit contract.                |
+| `EDIT_ENCODING`       | Reference field shape expected by the route: `image`, `image[]`, `images`, `image_urls` or `input_references`. For multipart, use `image` or `image[]`; JSON/generation must match the provider's documented field.                | Required when EDIT_MODE is set.                         |
+| `EDIT_MAX_REFERENCES` | Maximum reference count declared for the edit contract; other route/model limits can be stricter.                                                                                                                                  | Integer1–32; empty:1.                                   |
+| `EDIT_MASKS`          | Declares verified mask forwarding. `true` alone cannot bypass an adapter/gateway restriction.                                                                                                                                      | Empty: `false`.                                         |
+| `EDIT_MASK_POLARITY`  | Which mask pixels are editable: `transparent-edit` = transparent pixels; `white-edit` = white pixels; `black-edit` = black pixels. Must match the provider.                                                                        | Needed for mask/rectangle editing; no inferred default. |
+
+For a verified standard Images edit/mask route, a typical setup is:
+
+```dotenv
+EDIT_MODE="multipart"
+EDIT_ENCODING="image"
+EDIT_MAX_REFERENCES="1"
+EDIT_MASKS="true"
+EDIT_MASK_POLARITY="transparent-edit"
+```
+
+Do not enable this example blindly on a gateway. `edit_region` and `target_language` belong to
+`edit_image` tool arguments, not .env fields. [Editing examples](docs/IMAGE-EDITING.md) and
+[advanced configuration](docs/CONFIGURATION.md) explain route limits and additional JSON settings.
+Save .env and call `list_models` again to apply a valid change; no image is submitted just by saving.
+
 ### 4. Register Numera in your MCP client
 
 Choose one client below. Registration happens once; saving application config alone does not register
