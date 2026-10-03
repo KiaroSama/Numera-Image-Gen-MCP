@@ -124,3 +124,15 @@ decode/dimensions/SHA256 matched receipt and visual inspection showed the reques
 Provider/client operation10.99s, outer owner12.53s, cleanup_verified=true. No retry/fallback or host
 configuration mutation. Output retained locally and delivered; no real key, private endpoint or image
 is published. This proves only one selected model/generation; editing/other routes remain untested.
+
+## Portable client and model-slot verification2026-10-03
+
+Final code SHA `1dbd9797696c4b30757d014dc9111113e6da7180` passed
+[CI37088483026](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37088483026).
+Windows299 passed/3 POSIX skipped,90.28 statements/88.63 branches; Linux/macOS301 passed/1 DPAPI
+skipped,89.79/88.33. Types/lint/build/UTF8/format, native packed installation and audit0 passed.
+Active/disabled model slots and null-as-provider-default assertions passed. Actual read-only SDK
+list_models returned the active configured name/ID without generation. Client configuration snippets
+were parsed and checked against official docs; new client GUIs were not executed. Public examples
+use neutral paths; source runtime preserved during the scoped historical path replacement, before
+the separate model-slot change. Earlier run links remain historical evidence on their original SHAs.

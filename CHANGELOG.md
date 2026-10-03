@@ -8,7 +8,9 @@ macOS CI matrix and new POSIX permission/symlink/process-group assertions. Large
 Correlated tool start/completion/failure logs, immutable event/run metadata and safe diagnostic timing.
 Selectable arbitrary API prefix, generic Images default and optional compact Responses profile with
 separate orchestration model. Per-model output format/size/quality defaults and public root template.
-No paid/live GUI claim.
+Three consistent model slots with inactive placeholders and nullable provider-default settings.
+Neutral public paths and setup instructions for Codex, Kiro, Cursor, Hermes, OpenCode and other MCP
+clients. One authorized real Images generation verified; no all-model/editing/GUI claim.
 
 ## 0.1.0 - 2026-10-02
 
