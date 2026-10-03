@@ -1,6 +1,8 @@
 {
   "api_endpoint": "https://YOUR_API_HOST/YOUR_API_PREFIX",
   "api_key": "REPLACE_WITH_YOUR_API_KEY",
+  "profile": "openai-responses",
+  "orchestration_model": "YOUR_EXACT_ORCHESTRATION_MODEL_ID",
   "models": [
     {
       "id": "YOUR_EXACT_IMAGE_MODEL_ID",
@@ -8,10 +10,6 @@
       "output_format": "png",
       "size": "1024x1024",
       "quality": "medium"
-    },
-    {
-      "id": "ANOTHER_EXACT_IMAGE_MODEL_ID",
-      "name": "Second image model"
     }
   ]
 }

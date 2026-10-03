@@ -45,14 +45,21 @@ npm ci
 npm run build
 ```
 
-Save `config.local.json` next to package.json with just these fields:
+Copy [config.local.json.example](config.local.json.example) to `config.local.json` next to package.json.
+Replace the endpoint, key and exact model IDs:
 
 ```json
 {
-  "api_endpoint": "http://127.0.0.1:20100/v1",
+  "api_endpoint": "https://YOUR_API_HOST/YOUR_API_PREFIX",
   "api_key": "YOUR_PRIVATE_API_KEY",
   "models": [
-    { "id": "YOUR_EXACT_MODEL_ID", "name": "My image model" },
+    {
+      "id": "YOUR_EXACT_MODEL_ID",
+      "name": "My image model",
+      "output_format": "png",
+      "size": "1024x1024",
+      "quality": "medium"
+    },
     { "id": "ANOTHER_EXACT_MODEL_ID", "name": "Second image model" }
   ]
 }
@@ -64,9 +71,18 @@ variables, credential wizard or storage-path setup required. First listed model 
 select others by exact ID. Names are labels, not routing aliases. All listed models appear without
 a provider call; `list_models` with `refresh:true` additionally checks upstream discovery.
 
-Default profile is OmniRoute. Add `"profile":"9router"` or `"profile":"openai-images"` for those
-Images-compatible endpoints. Native Gemini/Responses/OpenRouter/ComfyUI use the existing
-[advanced config](docs/CONFIGURATION.md); endpoint/key/model cannot identify different wire protocols.
+The endpoint is your chosen HTTP(S) API prefix: hosted, localhost or reverse-proxy, not a fixed port.
+For example, `https://api.openai.com/v1` or your own `/api/v1`; do not include `/responses` or
+`/images/generations`. Default profile is generic `openai-images`. Explicitly select
+`"profile":"omniroute"` or `"profile":"9router"` when using those gateways.
+
+Format/size/quality are optional per-model defaults, not hardcoded; explicit tool arguments override
+them. Use only settings supported by your selected API/model; omit them for provider defaults.
+For Responses, use [simple-responses.json](examples/simple-responses.json):
+`"profile":"openai-responses"` plus a separate `orchestration_model`. The selected image model and
+its settings form one `tools:[{type:"image_generation",model,...}]`; the orchestration model is the
+top-level request model. Arbitrary raw `tools` configuration is not accepted. Other native protocols
+use [advanced config](docs/CONFIGURATION.md); an endpoint alone cannot identify its wire protocol.
 Default outputs/state/logs/inputs are next to the config. Keep this plaintext-key file private:
 git-ignored and excluded from packages; Linux/macOS restrict it to owner access (`chmod 600`).
 Never paste keys in chat or commit them. [Simple template](examples/simple-config.json).

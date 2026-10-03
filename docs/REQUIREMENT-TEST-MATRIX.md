@@ -37,3 +37,9 @@ probe, blocked credentials/catalog/model and safe summaries. Actual Windows same
 tests/integration/dpapi.test.ts uses a non-secret prompt substitute, real protection/reader and Unicode.
 Real gateway processes against controlled upstreams, actual interactive credential input, other-user
 DPAPI denial, real GUI/GPU/live providers and Windows Server remain separate unverified scenarios.
+
+Selectable endpoint/settings: compact tests cover custom deployment prefixes, generic default and
+explicit gateway selection, Responses orchestration vs image model, exact output_format/size/quality
+defaults and explicit overrides. Package check asserts root config.local.json.example inclusion,
+valid public templates and private config exclusion. Synthetic8x6 image intentionally reports partial
+when requested dimensions differ; originals remain unchanged.

@@ -98,3 +98,12 @@ packed native production install/audit0 passed. Logging cases assert immutable r
 paired real tool start/success/error, duration/call correlation, released handlers and no key/prompt.
 No raw provider body or arbitrary exception stack logged; safe error code/stage retained.
 Earlier platform proof above remains valid history, not the latest runtime SHA.
+
+## Selectable settings delta2026-10-03
+
+Local narrow checks: generic default red/green, compact per-model settings red/green, actual SDK stdio
+Images and Responses defaults/override contracts passed. Tiny fixture dimensions deliberately differ
+requested size, correctly yielding partial while saved originals match. New public root template and
+Responses example are checked by packed installation in final hosted CI; previous logging run above
+is not evidence for this new code. Incompatible TypeScript7 bot update was closed without merging,
+its remote branch deleted; compiler6.0.3 retained under the verified eslint peer constraint.

@@ -27,18 +27,40 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 100
+          },
+          "output_format": {
+            "type": "string",
+            "enum": ["png", "jpeg", "webp"]
+          },
+          "size": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "\\S"
+          },
+          "quality": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "\\S"
           }
         },
         "required": ["id", "name"],
         "additionalProperties": false
       }
     },
-    "profile": {
-      "default": "omniroute",
+    "orchestration_model": {
       "type": "string",
-      "enum": ["omniroute", "9router", "openai-images"]
+      "minLength": 1,
+      "maxLength": 300,
+      "pattern": "\\S"
+    },
+    "profile": {
+      "default": "openai-images",
+      "type": "string",
+      "enum": ["omniroute", "9router", "openai-images", "openai-responses"]
     }
   },
-  "required": ["api_endpoint", "api_key", "models", "profile"],
+  "required": ["api_endpoint", "api_key", "models"],
   "additionalProperties": false
 }

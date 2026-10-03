@@ -11,14 +11,18 @@ export const simpleConfigSchema = z
           .object({
             id: z.string().min(1).max(300),
             name: z.string().min(1).max(100),
+            output_format: z.enum(["png", "jpeg", "webp"]).optional(),
+            size: z.string().min(1).max(100).regex(/\S/).optional(),
+            quality: z.string().min(1).max(100).regex(/\S/).optional(),
           })
           .strict(),
       )
       .min(1)
       .max(100),
+    orchestration_model: z.string().min(1).max(300).regex(/\S/).optional(),
     profile: z
-      .enum(["omniroute", "9router", "openai-images"])
-      .default("omniroute"),
+      .enum(["omniroute", "9router", "openai-images", "openai-responses"])
+      .default("openai-images"),
   })
   .strict();
 export function expandSimple(
@@ -42,6 +46,14 @@ export function expandSimple(
       "invalid_configuration",
       "Key and model IDs/names must be nonempty; model IDs must be unique.",
     );
+  if (
+    (c.profile === "openai-responses") !==
+    (c.orchestration_model !== undefined)
+  )
+    fail(
+      "invalid_configuration",
+      "orchestration_model is required only for the openai-responses profile.",
+    );
   const root = dirname(file);
   return {
     schemaVersion: 1,
@@ -52,8 +64,11 @@ export function expandSimple(
     files: { allowedInputRoots: [join(root, "inputs")] },
     connections: {
       default: {
-        adapter: "openai-images",
-        ...(c.profile === "openai-images" ? {} : { gateway: c.profile }),
+        adapter: c.profile === "openai-responses" ? c.profile : "openai-images",
+        orchestrationModel: c.orchestration_model,
+        ...(["omniroute", "9router"].includes(c.profile)
+          ? { gateway: c.profile }
+          : {}),
         baseUrl: c.api_endpoint,
         auth: {
           type: "bearer",
@@ -61,7 +76,13 @@ export function expandSimple(
           origin: new URL(c.api_endpoint).origin,
         },
         defaultModel: c.models[0]!.id,
-        configuredModels: c.models,
+        configuredModels: c.models.map(({ id, name }) => ({ id, name })),
+        modelOverrides: Object.fromEntries(
+          c.models.map(({ id, name: _name, ...defaults }) => [
+            id,
+            { defaults },
+          ]),
+        ),
       },
     },
   };

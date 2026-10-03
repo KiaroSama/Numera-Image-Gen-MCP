@@ -32,18 +32,38 @@ it(
           expect(req.headers.authorization).toBe(`Bearer ${key}`);
           const body = JSON.parse((await requestBody(req)).toString("utf8"));
           models.push(body.model);
+          expect(req.url).toBe("/custom/api/v1/images/generations");
           expect(body.prompt).toBe("image 日本語");
+          expect(body.size).toBe(
+            body.model === "custom/exact-one" ? "1024x1024" : "1536x1024",
+          );
+          expect(body.quality).toBe(
+            body.model === "custom/exact-one" ? "medium" : "high",
+          );
+          expect(body.output_format).toBe("png");
           json(res, { data: [{ b64_json: png.toString("base64") }] });
         },
         async (origin) => {
           await writeFile(
             join(install, "config.local.json"),
             JSON.stringify({
-              api_endpoint: `${origin}/v1`,
+              api_endpoint: `${origin}/custom/api/v1`,
               api_key: key,
               models: [
-                { id: "custom/exact-one", name: "First friendly name" },
-                { id: "custom/exact-two", name: "Second 日本語" },
+                {
+                  id: "custom/exact-one",
+                  name: "First friendly name",
+                  size: "1024x1024",
+                  quality: "medium",
+                  output_format: "png",
+                },
+                {
+                  id: "custom/exact-two",
+                  name: "Second 日本語",
+                  size: "512x512",
+                  quality: "low",
+                  output_format: "jpeg",
+                },
               ],
             }),
             { encoding: "utf8", mode: 0o600 },
@@ -86,13 +106,16 @@ it(
               prompt: "image 日本語",
               model: "custom/exact-two",
               request_id: "simple-second",
+              size: "1536x1024",
+              quality: "high",
+              output_format: "png",
             });
             expect(a.structuredContent).toMatchObject({
-              status: "completed",
+              status: "partial",
               requested_model: "custom/exact-one",
             });
             expect(b.structuredContent).toMatchObject({
-              status: "completed",
+              status: "partial",
               requested_model: "custom/exact-two",
             });
             expect(models).toEqual(["custom/exact-one", "custom/exact-two"]);
@@ -106,7 +129,7 @@ it(
               request_id: "simple-first",
             });
             expect(duplicate.structuredContent).toMatchObject({
-              status: "completed",
+              status: "partial",
             });
             expect(models).toHaveLength(2);
             const failed = await call("generate_image", {
@@ -160,6 +183,112 @@ it(
                 e.tool === "list_models" && e.message === "Tool completed.",
             ),
           ).toBe(true);
+        },
+      );
+    }),
+  20000,
+);
+
+it(
+  "compact Responses sends one selected image tool with configured defaults and explicit overrides",
+  async () =>
+    workspace(async (root) => {
+      const png = await imageBytes();
+      let posts = 0;
+      await server(
+        async (req, res) => {
+          posts++;
+          expect(req.url).toBe("/deployment/v1/responses");
+          const body = JSON.parse((await requestBody(req)).toString("utf8"));
+          expect(body.model).toBe("opaque/orchestrator");
+          expect(body.input[0].content).toEqual([
+            { type: "input_text", text: "Responses 日本語" },
+          ]);
+          expect(body.tools).toEqual([
+            {
+              type: "image_generation",
+              action: "generate",
+              model: "opaque/image",
+              output_format: "png",
+              size: posts === 1 ? "1024x1024" : "1536x1024",
+              quality: posts === 1 ? "medium" : "high",
+            },
+          ]);
+          expect(body.tool_choice).toEqual({ type: "image_generation" });
+          json(res, {
+            output: [
+              {
+                type: "image_generation_call",
+                status: "completed",
+                result: png.toString("base64"),
+              },
+            ],
+          });
+        },
+        async (origin) => {
+          const file = join(root, "config.json");
+          await writeFile(
+            file,
+            JSON.stringify({
+              api_endpoint: `${origin}/deployment/v1`,
+              api_key: "synthetic-responses-key",
+              profile: "openai-responses",
+              orchestration_model: "opaque/orchestrator",
+              models: [
+                {
+                  id: "opaque/image",
+                  name: "Friendly",
+                  output_format: "png",
+                  size: "1024x1024",
+                  quality: "medium",
+                },
+              ],
+            }),
+            "utf8",
+          );
+          const transport = new StdioClientTransport({
+            command: process.execPath,
+            args: [resolve("dist/index.js"), "--config", file],
+            env: { PATH: process.env.PATH ?? "" },
+            stderr: "pipe",
+          });
+          const client = new Client({
+            name: "responses-config-fixture",
+            version: "1",
+          });
+          try {
+            await client.connect(transport);
+            transport.stderr?.on("data", () => {});
+            for (const [id, args] of [
+              ["defaults", {}],
+              ["override", { size: "1536x1024", quality: "high" }],
+            ] as const) {
+              const result = await client.callTool(
+                {
+                  name: "generate_image",
+                  arguments: {
+                    prompt: "Responses 日本語",
+                    request_id: id,
+                    ...args,
+                  },
+                },
+                { timeout: 10000 },
+              );
+              expect(result.isError).not.toBe(true);
+              expect(result.structuredContent).toMatchObject({
+                requested_model: "opaque/image",
+                status: "partial",
+              });
+              const outputs = (
+                result.structuredContent as { outputs: { path: string }[] }
+              ).outputs;
+              expect(await readFile(outputs[0]!.path)).toEqual(png);
+            }
+            expect(posts).toBe(2);
+          } finally {
+            await client.close();
+            await transport.close();
+          }
         },
       );
     }),

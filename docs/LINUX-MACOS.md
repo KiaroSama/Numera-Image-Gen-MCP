@@ -13,9 +13,10 @@ npm ci
 npm run build
 ```
 
-Save config.local.json next to package.json, using examples/simple-config.json as a template. Only
+Save config.local.json next to package.json, using the public root config.local.json.example as a template. Only
 api_endpoint, api_key and models:[{id,name}] are required. Use your actual image API prefix and exact
-model IDs; no Windows paths. Default gateway profileomniroute; optional9router/openai-images.
+model IDs; no Windows paths. Default profile openai-images; explicit omniroute/9router or openai-responses with separate
+orchestration_model. Optional per-model output_format/size/quality need no code edit.
 First model is default, display names do not change native IDs. Outputs/state/logs/inputs are local
 folders beside the file. Keep plaintext API key private, never commit/sync/share it:
 

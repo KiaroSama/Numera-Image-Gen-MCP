@@ -6,6 +6,8 @@ Simple private endpoint/key/model-list configuration with friendly display names
 and adjacent-file discovery. Existing advanced settings remain supported. Linux/macOS setup docs,
 macOS CI matrix and new POSIX permission/symlink/process-group assertions. Larger README logo.
 Correlated tool start/completion/failure logs, immutable event/run metadata and safe diagnostic timing.
+Selectable arbitrary API prefix, generic Images default and optional compact Responses profile with
+separate orchestration model. Per-model output format/size/quality defaults and public root template.
 No paid/live GUI claim.
 
 ## 0.1.0 - 2026-10-02

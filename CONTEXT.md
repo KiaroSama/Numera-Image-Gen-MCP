@@ -36,3 +36,9 @@ _Avoid_: Routing alias, model fallback.
 
 **Local cancellation**: Stopping Numera's waiting, distinct from upstream cancellation or refund.
 _Avoid_: Refund confirmation.
+
+**Image settings**: Selected model defaults for output format, dimensions and quality; explicit operation settings take precedence.
+_Avoid_: Hardcoded output policy.
+
+**Orchestration model**: The model directing a Responses operation, distinct from its image-generation model.
+_Avoid_: Image model alias.

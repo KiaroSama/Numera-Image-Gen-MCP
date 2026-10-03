@@ -28,12 +28,12 @@ it("loads endpoint, private key and named models with portable defaults", async 
     const [name, c] = selectConnection(config);
     expect(name).toBe("default");
     expect(c).toMatchObject({
-      gateway: "omniroute",
       adapter: "openai-images",
       baseUrl: compact.api_endpoint,
       defaultModel: "antigravity/opaque-image",
       configuredModels: compact.models,
     });
+    expect(c.gateway).toBeUndefined();
     expect(config.outputDir).toBe(join(root, "outputs"));
     expect(config.stateDir).toBe(join(root, "state"));
     expect(config.logging.directory).toBe(join(root, "logs"));
@@ -98,6 +98,13 @@ it.each([
   { api_endpoint: "http://localhost/v1?key=fixture" },
   { extra: true },
   { profile: "guessed" },
+  { profile: "openai-responses" },
+  { orchestration_model: "unused" },
+  { profile: "openai-responses", orchestration_model: " " },
+  { models: [{ id: "image", name: "Image", output_format: "gif" }] },
+  { models: [{ id: "image", name: "Image", size: " " }] },
+  { models: [{ id: "image", name: "Image", quality: "x".repeat(101) }] },
+  { tools: [{ type: "image_generation" }] },
 ])(
   "rejects unsafe compact configuration without exposing key %j",
   async (change) =>
@@ -114,7 +121,7 @@ it.each([
     }),
 );
 
-it.each(["9router", "openai-images"])(
+it.each(["omniroute", "9router", "openai-images"])(
   "supports explicit %s profile and CLI overrides",
   async (profile) =>
     workspace(async (root) => {
@@ -126,7 +133,7 @@ it.each(["9router", "openai-images"])(
       );
       expect(config.outputDir).toBe(join(root, "override"));
       expect(selectConnection(config)[1].gateway).toBe(
-        profile === "9router" ? "9router" : undefined,
+        profile === "openai-images" ? undefined : profile,
       );
     }),
 );
@@ -210,4 +217,45 @@ it("advanced configs reject competing secret sources and duplicate configured mo
         code: "invalid_configuration",
       });
     }
+  }));
+
+it("loads per-model settings and separate Responses orchestration without inferring a gateway", async () =>
+  workspace(async (root) => {
+    const file = join(root, "config.json");
+    await writeFile(
+      file,
+      JSON.stringify({
+        ...compact,
+        api_endpoint: "https://images.example.net/custom/api/v1",
+        profile: "openai-responses",
+        orchestration_model: "custom/orchestrator",
+        models: [
+          {
+            id: "opaque/image",
+            name: "Image",
+            output_format: "webp",
+            size: "1536x1024",
+            quality: "high",
+          },
+        ],
+      }),
+      "utf8",
+    );
+    const [, c] = selectConnection(await loadConfig(["--config", file], {}));
+    expect(c).toMatchObject({
+      adapter: "openai-responses",
+      baseUrl: "https://images.example.net/custom/api/v1",
+      orchestrationModel: "custom/orchestrator",
+      configuredModels: [{ id: "opaque/image", name: "Image" }],
+      modelOverrides: {
+        "opaque/image": {
+          defaults: {
+            output_format: "webp",
+            size: "1536x1024",
+            quality: "high",
+          },
+        },
+      },
+    });
+    expect(c.gateway).toBeUndefined();
   }));

@@ -3,9 +3,20 @@
 ## Simple setup (Windows, Linux, macOS)
 
 Save `config.local.json` next to package.json: api_endpoint, api_key and models:[{id,name}].
-Template examples/simple-config.json; input schema schemas/simple-config.schema.json. First model
-is default, exact IDs remain unchanged, name is a display label. Default profile omniroute;
-optional profile9router/openai-images selects those Images-compatible contracts, not native APIs.
+Public root template: [config.local.json.example](../config.local.json.example); input schema
+schemas/simple-config.schema.json. First model is default, exact IDs remain unchanged, name is a
+display label. api_endpoint is any valid HTTP(S) API prefix, including custom deployment paths, not
+a fixed localhost address. Do not append full operation endpoints. Default profile openai-images;
+optional omniroute/9router select those explicit gateway contracts.
+
+Each model can optionally set output_format (png/jpeg/webp), size and quality (nonblank strings up to
+100 characters, native provider values). They become per-model defaults; explicit tool arguments win.
+Omit a field to keep its provider default. Unsupported gateway options fail rather than disappear.
+For Responses use [simple-responses.json](../examples/simple-responses.json), profile openai-responses
+and orchestration_model (nonblank exact ID up to300 characters). This separate model drives the
+Responses request; selected image ID/settings drive its single image_generation tool.
+orchestration_model is rejected on other compact profiles to prevent silently ignored config.
+Raw tools arrays/unknown fields are rejected; no hidden extra submissions.
 No DPAPI/PowerShell/env setup required. Private inline key is plaintext: keep file ignored/out of
 packages, restrict access (0600 on Linux/macOS, current-user ACL on Windows), never share it.
 Default output/state/log/input directories sit beside that selected file, independent of CWD.

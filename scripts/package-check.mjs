@@ -36,6 +36,8 @@ await maintenance("package-check", async (log) => {
     const packed = Array.isArray(manifest)
       ? manifest[0]
       : Object.values(manifest)[0];
+    if (!packed.files.some((file) => file.path === "config.local.json.example"))
+      throw new Error("Public configuration template missing from package.");
     for (const file of packed.files) {
       if (
         /(?:^|\/)(?:\.ai|\.specify|specs|\.claude|\.ignoreme|secrets\.md|config\.local\.json|state|outputs|logs|node_modules)(?:\/|$)|(?:^|\/)\.env(?:$|\.)/.test(
@@ -75,6 +77,21 @@ await maintenance("package-check", async (log) => {
     );
     const bin = join(root, "node_modules/numera-image-gen-mcp/dist/index.js");
     await readFile(bin);
+    const { simpleConfigSchema } = await import("../dist/config/simple.js");
+    for (const template of [
+      "config.local.json.example",
+      "examples/simple-config.json",
+      "examples/simple-responses.json",
+    ]) {
+      const value = JSON.parse(
+        await readFile(
+          join(root, "node_modules/numera-image-gen-mcp", template),
+          "utf8",
+        ),
+      );
+      if (!simpleConfigSchema.safeParse(value).success)
+        throw new Error("Packaged configuration template is invalid.");
+    }
     transport = new StdioClientTransport({
       command: process.execPath,
       args: [bin],
