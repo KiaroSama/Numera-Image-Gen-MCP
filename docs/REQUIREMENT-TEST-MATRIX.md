@@ -45,3 +45,5 @@ valid public templates and private config exclusion. Synthetic8x6 image intentio
 when requested dimensions differ; originals remain unchanged.
 
 Env/live configuration: env-config.test.ts covers strict UTF-8 parsing, duplicate/unknown assignments, native profiles/edit settings and fixed-policy rejection. config-reload.test.ts covers last-good save, retained identity/ambiguous transport recovery and immutable in-flight operations; env-stdio.test.ts verifies the actual built stdio entrypoint from another CWD. image-editing.test.ts covers exact reference bytes, translation instructions, rectangle PNG alpha/color polarities and pre-submission invalid-region/mask conflicts. These fixtures do not prove live translation quality.
+
+Dimension discovery: tests/contract/dimensions.test.ts verifies native ratio/tier/pixel presets, unknown-model honesty and selected-route restrictions without image submission. Large Base64 boundary: tests/unit/images.test.ts covers a valid4MiB round trip, malformed padding/alphabet and byte-limit rejection.

@@ -300,7 +300,7 @@ it(
       );
       const q = (value: string) => "'" + value.replaceAll("'", "''") + "'";
       const command = `$ErrorActionPreference='Stop'; foreach($file in @(${["common.ps1", "setup.ps1", "protect-secret.ps1"].map((name) => q(join(scripts, name))).join(",")})) { $tokens=$null; $errors=$null; [System.Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)|Out-Null; if($errors.Count){throw 'PowerShell syntax invalid'} }; foreach($action in @('Install','Update','Diagnose','Register','Remove')) { & ${q(join(fixtureScripts, "setup.ps1"))} -ProjectRoot ${q(root)} -ClientConfig ${q(file)} -NumeraConfig ${q(join(root, "config.json"))} -Action $action -WhatIf; if($LASTEXITCODE -and $LASTEXITCODE -ne 0){exit $LASTEXITCODE} }`;
-      const result = await cli(root, fixture, [command]);
+      const result = await cli(root, fixture, [command], [12000, 10000]);
       expect(result.code, result.stderr).toBe(0);
       expect(await readFile(file, "utf8")).toBe('{"retained":true}');
       expect(

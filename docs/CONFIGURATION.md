@@ -94,6 +94,24 @@ credentials/destination/model/prompt/image overrides. Pixels (size), shape (aspe
 (image_size) are distinct; unsupported parameters fail, never disappear. Dedicated OpenRouter endpoint
 descriptors pin compatible provider.only with allow_fallbacks=false; failed discovery means unknown.
 
+## Dimension discovery
+
+`get_model_capabilities` returns `dimensions.preset_aspect_ratios` as a built-in suggestion catalog;
+`presets_are_model_support=false` prevents treating every listed ratio as universally accepted.
+`model_support` contains sourced native ratios, tiers, exact pixel sizes and `custom_dimensions.status`.
+For unsupported/unknown native custom sizes it explains why; unknown model IDs have null native lists.
+`route_support` separately reports request fields accepted by Numera, documented gateway tier limits
+and the local max_pixels ceiling. These facts do not establish account entitlement or actual output.
+
+The Gemini3.1 Flash Image native table includes14 ratios and0.5K/1K/2K/4K. For16:9 these produce
+688x384/1376x768/2752x1536/5504x3072. Aspect labels and native pixels are discrete; do not calculate
+exact dimensions from a ratio label or interpret4K as a universal video size. OmniRoute Antigravity
+accepts only1K/2K/4K tiers through `image_size`; `size` is a gateway aspect lookup. Generic Images
+accepts `size` but not undeclared ratio/tier fields; selecting a model does not change its profile.
+For custom widthxheight, use only a route/model with a verified pixel contract and stay within local
+pixel limits. Always inspect actual saved dimensions/deviations; no hidden resize or provider fallback.
+Official source: https://ai.google.dev/gemini-api/docs/image-generation#aspect-ratios-and-image-size .
+
 api-prefix preserves reverse-proxy prefixes; origin mode requires an origin-only base and adds the
 native prefix once. Full operation URLs, credentials/query/fragments/traversal reject. Proxy is explicit
 connection-scoped. Asset URL trust is independent of API trust. Defaults: input20MiB, output50MiB,

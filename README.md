@@ -547,6 +547,20 @@ visible. Unsupported masks/parameters fail before submission. No local output re
 [Examples, coordinate rules and limitations](docs/IMAGE-EDITING.md). Actual translation quality needs
 a real authorized sample; offline wire/mask tests are not semantic proof.
 
+## Ratios, resolutions and custom dimensions
+
+Ask the agent to call `get_model_capabilities` for the exact model. Its `dimensions` result includes
+built-in ratio presets, sourced model-native ratios/tiers/pixel sizes, custom-size support status and
+separate selected-route parameter acceptance. Presets alone are suggestions, not support claims.
+Unknown model IDs have unknown native dimensions rather than invented universal4K support.
+
+For documented Gemini3.1 Flash Image,14 ratios include1:1,16:9,9:16,3:2,2:3 and21:9; native tiers
+are0.5K/1K/2K/4K. The complete per-ratio pixel table is returned by the tool.4K16:9 maps to5504x3072,
+not3840x2160. The examined OmniRoute path accepts1K/2K/4K but not0.5K; generic Images does not accept
+undeclared `aspect_ratio`/`image_size`. Arbitrary custom pixels are not a native Gemini contract:
+select a documented ratio+tier, or use an independently verified custom-size model. Numera never
+silently resizes output to match. [Dimension selection details](docs/CONFIGURATION.md#dimension-discovery).
+
 ## Documentation
 
 [Configuration](docs/CONFIGURATION.md) · [OmniRoute](docs/OMNIROUTE.md) · [9router](docs/9ROUTER.md) ·

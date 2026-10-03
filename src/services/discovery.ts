@@ -3,6 +3,7 @@ import { selectConnection } from "../config/load.js";
 import { apiJson } from "../http/client.js";
 import { array, record, safeError } from "../errors.js";
 import { capabilities } from "../capabilities.js";
+import { imageDimensions } from "./image-dimensions.js";
 export type Catalog = {
   models: {
     id: string;
@@ -175,6 +176,7 @@ export class Discovery {
       display_name:
         c.configuredModels.find((m) => m.id === model)?.name ?? null,
       ...cap,
+      dimensions: imageDimensions(c, model, this.config.files),
       advertised,
     };
   }

@@ -201,7 +201,7 @@ export function createServer(
     "get_model_capabilities",
     {
       description:
-        "Separate model capability, gateway forwarding, account availability and verification evidence for one model.",
+        "List ratio presets, documented model resolution tiers/pixel sizes and custom-dimension status; separate selected-route forwarding, account availability and verification evidence for one model.",
       inputSchema: z
         .object({ connection: z.string().optional(), model: z.string().min(1) })
         .strict(),
