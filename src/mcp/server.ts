@@ -223,7 +223,7 @@ export function createServer(
         description:
           operation === "generate"
             ? "Submit one authorized image generation, saving validated original files. Reuse request_id for duplicates; never retry an unknown outcome."
-            : "Edit with at least one approved reference through a known input route. Unsupported references/masks fail before submission; no paid fallback.",
+            : "Image-to-image, comic editing, in-image translation and authorized watermark removal. Provide reference_images and an explicit prompt; edit_region={x,y,width,height} selects a pixel rectangle on the first reference and requires native mask support. target_language requests in-image translation. Unsupported references/masks fail before submission; no paid fallback.",
         inputSchema: requestSchema,
         outputSchema,
         annotations: {

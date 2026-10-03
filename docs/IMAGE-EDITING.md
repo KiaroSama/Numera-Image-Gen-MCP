@@ -48,6 +48,32 @@ A mask is the provider's edit boundary, not a guarantee it preserves every outsi
 references can support whole-image editing/translation but this adapter has no native mask contract.
 Known OmniRoute/9router Antigravity image-input forwarding limitations still apply; no silent fallback.
 
+## Remove an authorized watermark
+
+For images you own or have permission to modify, call edit_image with a precise removal prompt and
+edit_region enclosing the watermark. No separate tool, automatic watermark detector or extra upload
+is needed. Example for a source at least1000x650 pixels:
+
+```json
+{
+  "prompt": "Remove only the watermark inside the selected region. Reconstruct the background texture naturally and preserve the rest of the image.",
+  "request_id": "watermark-removal-001",
+  "reference_images": [
+    {
+      "type": "path",
+      "path": "C:/projects/numera-image-gen-mcp/inputs/owned-image.png"
+    }
+  ],
+  "edit_region": { "x": 800, "y": 550, "width": 200, "height": 100 }
+}
+```
+
+Replace the example coordinates with the actual watermark bounds; never guess dimensions or silently
+omit the region. Call get_model_capabilities first: the selected route must support references and
+masks. If it does not, report that limitation rather than changing providers or submitting a whole-image
+fallback. The model reconstructs covered pixels; removal quality and unchanged outside pixels are not
+guaranteed. Inspect the saved result, and keep the original source.
+
 ## Native dimensions only
 
 Use size for provider-supported pixel dimensions (for example1024x1024), aspect_ratio for native shapes,

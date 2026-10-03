@@ -474,7 +474,7 @@ bytes preserved unless explicit in-image translation instructions are requested;
 
 ## Image-to-image, comic and selected-region editing
 
-Use edit_image with approved reference_images for image-to-image/comic edits. Add target_language
+Use edit_image with approved reference_images for image-to-image/comic edits and authorized watermark removal. Add target_language
 for translation replacing text inside the image; add edit_region={x,y,width,height} for an absolute
 pixel rectangle on the first reference. A verified native mask route is required for region editing.
 Unsupported masks/parameters fail before submission. No local output resizing is performed.

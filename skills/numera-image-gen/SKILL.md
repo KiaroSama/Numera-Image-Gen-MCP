@@ -17,5 +17,12 @@ description: Generate or edit images through an installed Numera MCP connection;
 6. For running/unknown outcomes call get_job, never blindly regenerate. cancel_job may stop local
    waiting without upstream cancellation or refund. Ask for new authorization before another submission.
 
+For authorized watermark removal, use edit_image with the user's precise removal prompt, an approved
+reference_images source and edit_region={x,y,width,height} enclosing the mark on the first image.
+Verify actual dimensions and native mask support; never guess coordinates, drop the mask or switch
+providers silently. Preserve the original source and inspect reconstruction quality. Only modify images
+the user owns or has permission to edit. For comic translation, target_language requests replacement
+inside the image, not separate text output.
+
 No credentials belong in tool arguments. Respect host permissions and configured input roots.
 The server works without this optional skill.

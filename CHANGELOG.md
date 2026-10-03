@@ -21,3 +21,5 @@ Initial local stdio image orchestration implementation with named connections, p
 adapters, capability evidence, persistent request receipts, validated owned outputs and bounded
 previews. Includes PowerShell/client examples, offline contracts and packaging verification.
 No npm publication or live-provider/GUI/GPU verification claimed.
+
+Agent-visible watermark removal guidance uses the existing edit prompt and selected native mask region.

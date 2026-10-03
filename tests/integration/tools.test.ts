@@ -43,6 +43,12 @@ it("executes every tool with schemas, resource bytes and bounded previews", asyn
         const [a, b] = InMemoryTransport.createLinkedPair();
         try {
           await Promise.all([app.server.connect(b), client.connect(a)]);
+          const catalog = await client.listTools({}, { timeout: 5000 });
+          const editing = catalog.tools.find(
+            (tool) => tool.name === "edit_image",
+          );
+          expect(editing?.description).toContain("watermark");
+          expect(editing?.description).toContain("edit_region");
           for (const [name, args] of [
             ["health_check", { probe: true }],
             ["list_connections", {}],
