@@ -195,3 +195,17 @@ showing the requested bicycle/cactus. The fourth `antigravity/gemini-3-pro-image
 one actual generation returned HTTP404, no image and no retry. Configured labels do not establish
 upstream model identity or availability. Source research confirmed that the examined Antigravity
 Images path drops references; image2image/upscale is still blocked pending verified gateway support.
+
+## Final dimension-discovery correction verification2026-10-03
+
+Final runtime SHA `c105640bf374b23c7ee0ebcbd5d2fe8eb9406d77` passed
+[CI37143898313](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37143898313).
+Windows332 passed/3 POSIX skips,90.63 statements/88.93 branches; Linux/macOS334 passed/1 DPAPI skip,
+90.22/88.68.32 suites discovered,31 passed/1 platform skip. Types/lint/build/UTF8/format,
+production-only packed templates/native dependencies/stdio and runtime audit0 passed all3OS.
+Dimension fixtures verify14 native ratios,56 pixel presets, unknown-model honesty and gateway tier
+restrictions; actual built stdio lookup returned them without generation. Large Base64 regression
+passed. Previous run37142452444 failed only the Linux cold-PowerShell WhatIf idle6s deadline; its
+native child10s bound was longer than the supervising idle limit. The specific idle budget now10s,
+wall12s/native10s unchanged, with all assertions and cleanup preserved. No retries/skips masked it.
+No full suite was duplicated locally; all bounded runners reported verified cleanup.
