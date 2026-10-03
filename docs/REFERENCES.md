@@ -34,3 +34,8 @@ never establish absence. OmniRoute source confirms text-only Antigravity and Cod
 integration or live entitlement tests. Node docs autonomous fetch robots blocked, official source used.
 Canonical GPL3 text fetched from pinned ComfyUI LICENSE after gnu.org connection timeout; complete text
 unchanged. Popularity/coverage/benchmarks from references are not Numera facts.
+
+Anthropic-compatible research2026-10-03: officialMessages/vision and SDKoutput ContentBlock union
+https://github.com/anthropics/anthropic-sdk-typescript/blob/d49bdab458000bcdffe77bd84b03293f31824fb3/src/resources/messages/messages.ts distinguishimageinput fromoutput. OmniRoute3.8.51 buildc1e30b7/pinnedc1e30b7676975feb298b49eff6ff58923c04b89e
+Messages route->chat guard and responseTranslator.ts#L736 dropimagearrays; no claimedMessagesimageadapter.
+No upstreamcodecopied, no sharedgatewaymutation or additionalpaidrequest.

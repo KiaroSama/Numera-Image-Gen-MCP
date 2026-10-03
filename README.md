@@ -31,11 +31,35 @@ Windows297 tests pass/3 POSIX-only skipped; Linux/macOS299 pass/1 Windows-only D
 Runtime coverage: at least89.74 percent statements and88.31 percent branches.
 See [test evidence](docs/TEST-RESULTS.md);
 no npm publication, all-model support, GUI integration or production-readiness claim.
+One owner-authorized real generation also succeeded on2026-10-03 through the configured Images API:
+JPEG1024×1024, saved bytes/hash verified. This is one model/generation, not editing/all-provider proof.
 
-## Quick start
+## Installation and setup
 
-Windows, Linux and macOS: Node24.21.0/npm required. PowerShell/DPAPI are optional Windows features,
-not prerequisites for ordinary setup. In the checkout, install once:
+### 1. Install prerequisites and get the project
+
+Install [Node.js](https://nodejs.org/en/download) >=24.21.0 and <25, npm (bundled with Node), and
+[Git](https://git-scm.com/downloads). Use the native build for Windows, Linux or macOS.
+PowerShell7 is needed only for optional Windows setup/DPAPI scripts. There is no published npm
+release: use this repository rather than an unverified similarly named npm package.
+
+```bash
+git clone https://github.com/KiaroSama/Numera-Image-Gen-MCP.git
+```
+
+```bash
+cd Numera-Image-Gen-MCP
+```
+
+Confirm Node reports a supported24.x version:
+
+```bash
+node --version
+```
+
+### 2. Install dependencies and build
+
+Run from the checkout on Windows, Linux or macOS:
 
 ```bash
 npm ci
@@ -45,8 +69,25 @@ npm ci
 npm run build
 ```
 
-Copy [config.local.json.example](config.local.json.example) to `config.local.json` next to package.json.
-Replace the endpoint, key and exact model IDs:
+The compiled entry point is dist/index.js. It is a stdio MCP server, not a web page; your MCP client
+launches it with pipes. Do not run it expecting an interactive menu or browser UI.
+
+### 3. Create your private configuration
+
+Copy [config.local.json.example](config.local.json.example) to config.local.json next to package.json.
+Do not overwrite an existing private config. In Windows PowerShell:
+
+```powershell
+Copy-Item -LiteralPath config.local.json.example -Destination config.local.json
+```
+
+On Linux/macOS:
+
+```bash
+cp -n config.local.json.example config.local.json
+```
+
+Open config.local.json in a text editor and replace the endpoint, key and exact model IDs:
 
 ```json
 {
@@ -65,34 +106,186 @@ Replace the endpoint, key and exact model IDs:
 }
 ```
 
-Launch the absolute `dist/index.js` using Node in your MCP client. Numera automatically finds this
-adjacent config, regardless of client CWD. Save changes and reconnect the server. No environment
-variables, credential wizard or storage-path setup required. First listed model is the default;
-select others by exact ID. Names are labels, not routing aliases. All listed models appear without
-a provider call; `list_models` with `refresh:true` additionally checks upstream discovery.
-
 The endpoint is your chosen HTTP(S) API prefix: hosted, localhost or reverse-proxy, not a fixed port.
-For example, `https://api.openai.com/v1` or your own `/api/v1`; do not include `/responses` or
-`/images/generations`. Default profile is generic `openai-images`. Explicitly select
+For example, https://api.openai.com/v1 or your own /api/v1; do not include /responses or
+/images/generations. Default profile is generic openai-images. Explicitly select
 `"profile":"omniroute"` or `"profile":"9router"` when using those gateways.
 
-Format/size/quality are optional per-model defaults, not hardcoded; explicit tool arguments override
-them. Use only settings supported by your selected API/model; omit them for provider defaults.
-For Responses, use [simple-responses.json](examples/simple-responses.json):
-`"profile":"openai-responses"` plus a separate `orchestration_model`. The selected image model and
-its settings form one `tools:[{type:"image_generation",model,...}]`; the orchestration model is the
-top-level request model. Arbitrary raw `tools` configuration is not accepted. Other native protocols
-use [advanced config](docs/CONFIGURATION.md); an endpoint alone cannot identify its wire protocol.
-Default outputs/state/logs/inputs are next to the config. Keep this plaintext-key file private:
-git-ignored and excluded from packages; Linux/macOS restrict it to owner access (`chmod 600`).
-Never paste keys in chat or commit them. [Simple template](examples/simple-config.json).
+Format/size/quality are optional per-model defaults; explicit tool arguments override them. Use only
+settings supported by your selected API/model; omit them for provider defaults. First listed model
+is the default; select others by exact ID. Names are display labels, not routing aliases.
 
-Stdout is exclusively MCP traffic; logs go stderr/files. `npm run smoke` checks local handshake/tools/
-health without a provider. Optional Windows [setup.ps1](scripts/setup.ps1) supports `-WhatIf`.
-Read-only connection readiness and real-test prerequisites: [Practical testing](docs/PRACTICAL-TESTING.md).
-The readiness CLI never generates images; missing declared credentials fails with exit2.
+For Responses use [simple-responses.json](examples/simple-responses.json): profile openai-responses
+plus a separate orchestration_model. The selected image model/settings form one image_generation tool;
+the orchestration model is the top-level request model. An endpoint alone cannot identify its wire
+protocol. Other native protocols use [advanced config](docs/CONFIGURATION.md).
+
+Default outputs/state/logs/inputs directories sit beside the selected config. This plaintext-key file
+is ignored and excluded from packages: never share, sync or commit it. On Linux/macOS restrict access:
+
+```bash
+chmod 600 config.local.json
+```
+
+Save changes and reconnect to apply them; there is no hot reload or automatic paid request.
+No environment variables, credential wizard or storage-path setup are required for compact config.
+
+### 4. Register Numera in your MCP client
+
+Choose one client below. Registration happens once; saving application config alone does not register
+a server. Use absolute native paths. Never put the API key in the host entry.
+
+#### Claude Desktop (Windows example)
+
+Open **Settings → Developer → Edit Config**. Add this member inside the existing mcpServers object,
+keeping every other server. The example uses the tested Windows checkout; replace both paths if your
+clone is elsewhere. Forward slashes work in Windows JSON and avoid backslash escaping.
+
+```json
+    "numera-image-gen": {
+      "command": "C:/tools/node/node.exe",
+      "args": [
+        "C:/projects/numera-image-gen-mcp/dist/index.js",
+        "--config",
+        "C:/projects/numera-image-gen-mcp/config.local.json"
+      ]
+    },
+```
+
+This is an inner member, not a complete JSON file. Keep the comma only when another member follows;
+the preceding server also needs a comma. If this is your first server, the complete shape is:
+
+```json
+{
+  "mcpServers": {
+    "numera-image-gen": {
+      "command": "ABSOLUTE_PATH_TO_NODE",
+      "args": [
+        "ABSOLUTE_PATH_TO_NUMERA/dist/index.js",
+        "--config",
+        "ABSOLUTE_PATH_TO_NUMERA/config.local.json"
+      ]
+    }
+  }
+}
+```
+
+On macOS use absolute POSIX paths; do not reuse Windows paths. Use Edit Config to find the actual
+Desktop settings file (packaged Windows installations can use a different location). Save, fully quit
+Claude Desktop and reopen it. Numera should appear among its local MCP tools. Desktop availability is
+separate from the native Linux server support. See [Claude clients](docs/CLAUDE.md).
+
+#### Claude Code
+
+From the built checkout on Linux/macOS:
+
+```bash
+claude mcp add --transport stdio --scope user numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/config.local.json"
+```
+
+Windows PowerShell, using the tested paths (replace them for your installation):
+
+```powershell
+claude mcp add --transport stdio --scope user numera-image-gen -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js' --config 'C:/projects/numera-image-gen-mcp/config.local.json'
+```
+
+Project-scoped JSON alternative: [Claude project entry](examples/claude-project.json). Do not replace
+the whole .mcp.json or unrelated host settings.
+
+#### Codex
+
+From the built checkout on Linux/macOS:
+
+```bash
+codex mcp add numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/config.local.json"
+```
+
+For Windows or manual TOML configuration, merge [the Codex entry](examples/codex.toml) into your
+existing config, replace the paths and keep tool_timeout_sec=360 for long image operations.
+See [Codex setup](docs/CODEX.md).
+
+### 5. Verify the connection and generate your first image
+
+In your client ask: **Call Numera health_check, list_connections and list_models. Do not generate yet.**
+Configured models are listed offline; refresh:true queries the selected catalog without generation.
+For a direct read-only check from the checkout on Linux/macOS:
+
+```bash
+node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "$PWD/config.local.json" --probe
+```
+
+Windows PowerShell:
+
+```powershell
+node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config (Join-Path $PWD 'config.local.json') --probe
+```
+
+Exit0 means local configuration/storage/credentials and the requested read-only catalog check are
+ready; it does not prove image-generation entitlement. A gateway without a catalog can still have an
+image route: inspect the explicit blocker rather than treating discovery as generation proof.
+
+When you approve a potentially billable request, ask your client: **Use Numera generate_image once
+to create a blue mug beside an orange. count=1; request_id=my-first-image-001.** Use the configured
+default model or provide its exact native ID. Reuse that ID only for the same logical request; use
+a new ID for a deliberately new image. Never retry an outcome_unknown request with a new ID.
+
+Images are saved beneath outputs/ beside your private config, with actual dimensions/MIME/hash in
+the receipt. Open the returned path locally; cloud clients cannot inherently read your local files.
+return_mode=files_and_preview adds a bounded preview when the host supports image tool results.
+
+### Update and troubleshoot
+
+Before updating, close the MCP server and preserve your private config and outputs. If your checkout
+has local source changes, resolve those first; never use destructive reset/clean commands.
+
+```bash
+git pull --ff-only
+```
+
+```bash
+npm ci
+```
+
+```bash
+npm run build
+```
+
+Reconnect after rebuilding. The ignored config is not replaced by an update. Common problems:
+
+| Problem                            | Check                                                                                                                              |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Server absent in Claude            | Correct inner mcpServers entry, valid JSON/no trailing final comma, absolute existing Node/dist/config paths, full Desktop restart |
+| Startup fails                      | Supported Node24, npm ci/build completed, nonempty private key/model IDs, writable config-directory storage                        |
+| API401/403                         | Selected endpoint/key/account; never paste keys or read another application's credential store                                     |
+| Route404 or unsupported parameters | Correct API prefix/profile, exact model and supported size/quality/format; no full operation URL                                   |
+| Timeout or uncertain outcome       | Inspect get_job with the original request_id; no automatic resubmission or provider fallback                                       |
+
+Stdout is exclusively MCP traffic; logs go stderr/files. npm run smoke checks local handshake/tools/
+health without a provider. Optional Windows [setup.ps1](scripts/setup.ps1) supports -WhatIf and explicit
+entry-scoped registration with backups. Read-only readiness and real-test prerequisites:
+[Practical testing](docs/PRACTICAL-TESTING.md). Missing declared credentials fails with exit2.
 
 ## Protocols and tools
+
+### OpenAI-compatible vs Anthropic-compatible API
+
+Numera currently submits images through evidenced image APIs, including OpenAI-compatible Images
+and Responses. Using Claude as the MCP host does not require an Anthropic image endpoint: Claude
+calls Numera over MCP, and Numera calls your selected image backend independently.
+
+The standard Anthropic POST /v1/messages contract accepts images for vision but does not define a
+native generated-image output or OpenAI-style image_generation tool. A generic Anthropic-compatible
+chat endpoint is therefore not sufficient for image generation. Numera does not claim such an adapter.
+
+The examined OmniRoute3.8.51 Messages path delegates to chat; image-only models are rejected and its
+Claude response translation does not preserve generated image content. Use its supported
+/v1/images/generations route instead. A future Messages image-output adapter needs an explicit
+gateway extension defining request options, authentication and final image bytes; no protocol
+inference, silent parameter dropping or automatic fallback is permitted.
+
+Sources: [Anthropic Messages](https://platform.claude.com/docs/en/api/messages/create),
+[vision input](https://platform.claude.com/docs/en/build-with-claude/vision), and
+[pinned OmniRoute response conversion](https://github.com/diegosouzapw/OmniRoute/blob/c1e30b7676975feb298b49eff6ff58923c04b89e/open-sse/handlers/responseTranslator.ts#L736).
 
 Generic Images, OmniRoute, 9router, Gemini generateContent, Gemini Interactions, OpenAI Responses image
 tools, dedicated OpenRouter Images, opt-in chat image output and explicitly bound ComfyUI API graphs.

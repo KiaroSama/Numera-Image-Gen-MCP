@@ -25,3 +25,23 @@ reasons and exact runtime/platform evidence are separate. SDK2.3.0 selected. Loc
 initialize and auto negotiation falls back to legacy on this direct stdio server; a modern-only pin is
 rejected. No modern-only transport support is advertised. Provider signatures are privately retained;
 stateless file-reference editing is supported, conversational continuation replay is not exposed.
+
+### OpenAI-compatible vs Anthropic-compatible API
+
+Numera currently submits images through evidenced image APIs, including OpenAI-compatible Images
+and Responses. Using Claude as the MCP host does not require an Anthropic image endpoint: Claude
+calls Numera over MCP, and Numera calls your selected image backend independently.
+
+The standard Anthropic POST /v1/messages contract accepts images for vision but does not define a
+native generated-image output or OpenAI-style image_generation tool. A generic Anthropic-compatible
+chat endpoint is therefore not sufficient for image generation. Numera does not claim such an adapter.
+
+The examined OmniRoute3.8.51 Messages path delegates to chat; image-only models are rejected and its
+Claude response translation does not preserve generated image content. Use its supported
+/v1/images/generations route instead. A future Messages image-output adapter needs an explicit
+gateway extension defining request options, authentication and final image bytes; no protocol
+inference, silent parameter dropping or automatic fallback is permitted.
+
+Sources: [Anthropic Messages](https://platform.claude.com/docs/en/api/messages/create),
+[vision input](https://platform.claude.com/docs/en/build-with-claude/vision), and
+[pinned OmniRoute response conversion](https://github.com/diegosouzapw/OmniRoute/blob/c1e30b7676975feb298b49eff6ff58923c04b89e/open-sse/handlers/responseTranslator.ts#L736).

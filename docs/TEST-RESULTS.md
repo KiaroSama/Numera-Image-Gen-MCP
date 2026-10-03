@@ -115,3 +115,12 @@ skipped,89.74/88.31.26filesdiscovered25passed1platformskip. Types/lint/build/UTF
 production packed installation with valid public templates/private exclusions, native modules/stdio
 and audit0 passed all3OS. All bounded supervisors reported cleanup_verified=true. No full suite
 duplicated locally; no paid/GUI/GPU claim.
+
+## Owner-authorized real generation2026-10-03
+
+One explicitly approved generate_image call, count1, configured default antigravity/gemini-3.1-flash-image
+through the selected Images-compatible endpoint completed. Saved JPEG1024x1024,484496 bytes; actual
+decode/dimensions/SHA256 matched receipt and visual inspection showed the requested blue mug/orange.
+Provider/client operation10.99s, outer owner12.53s, cleanup_verified=true. No retry/fallback or host
+configuration mutation. Output retained locally and delivered; no real key, private endpoint or image
+is published. This proves only one selected model/generation; editing/other routes remain untested.
