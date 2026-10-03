@@ -137,6 +137,13 @@ export class Store {
     if (!row) fail("invalid_input", "Unknown owned request ID.");
     return JSON.parse(String(row.receipt)) as Receipt;
   }
+  identity(id: string): string {
+    const row = this.db
+      .prepare("SELECT identity FROM requests WHERE id=?")
+      .get(id);
+    if (!row) fail("invalid_input", "Unknown owned request ID.");
+    return String(row.identity);
+  }
   update(receipt: Receipt) {
     receipt.updated_at = new Date().toISOString();
     this.db

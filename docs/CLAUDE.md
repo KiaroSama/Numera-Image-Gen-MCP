@@ -1,8 +1,8 @@
 # Claude clients
 
 One-time host registration is still required: a saved config does not install an MCP server into
-Claude automatically. After registration, only edit endpoint/key/models in config.local.json and
-reconnect. Adjacent config is found automatically; explicit config path remains supported. On Linux/
+Claude automatically. After registration, only edit endpoint/key/models in .env and
+call list_models after saving. Adjacent config is found automatically; explicit config path remains supported. On Linux/
 macOS use actual absolute node and dist paths, not the Windows example. No plaintext key in host entry.
 
 Local stdio does not change the host's chat model. `examples/claude-project.json` shows the .mcp.json
@@ -13,7 +13,7 @@ an entire existing settings file; merge only mcpServers.numera-image-gen with a 
 Claude Code project registration can use a .mcp.json entry. User CLI registration, in PowerShell7:
 
 ```powershell
-claude mcp add --transport stdio --scope user numera-image-gen -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js' --config 'C:/projects/numera-image-gen-mcp/config.local.json'
+claude mcp add --transport stdio --scope user numera-image-gen -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js' --config 'C:/projects/numera-image-gen-mcp/.env'
 ```
 
 The command is an example, not registration performed by this project task. Current docs:

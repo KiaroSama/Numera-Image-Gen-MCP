@@ -13,7 +13,7 @@ multiline/inline MCP forms are refused for manual entry-scoped editing. A stale 
 Backups allow manual rollback; no automatic rollback action overwrites a changed config.
 No service, startup entry, task, extension or firewall change. No persistent execution-policy change.
 
-Linux/macOS: install Node24.21.0, run npm ci and npm run build, save the same compact config.local.json
+Linux/macOS: install Node24.21.0, run npm ci and npm run build, save the same compact .env
 next to package.json, launch the absolute dist/index.js using Node. No PowerShell, DPAPI or Windows
 path setup is required. Default roots are beside the selected config. Restrict plaintext-key file
 permissions to0600. Use actual absolute node/config paths in client entries. Native dependency and

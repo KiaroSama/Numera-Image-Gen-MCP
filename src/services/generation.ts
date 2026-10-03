@@ -6,6 +6,8 @@ import { selectConnection } from "../config/load.js";
 import { credentials } from "../config/credentials.js";
 import { effectiveRequest } from "../capabilities.js";
 import { validateDescriptors } from "./model-policy.js";
+import { connectionIdentity } from "./connection-identity.js";
+import { editingRequest, regionMask } from "./editing.js";
 import { buildRequest, normalizeResponse } from "../adapters/index.js";
 import { prepareComfy, submitComfy, waitComfy } from "../adapters/comfyui.js";
 import { apiRequest, apiJson } from "../http/client.js";
@@ -64,7 +66,7 @@ export class Generation {
     operation: Operation,
     signal?: AbortSignal,
   ): Promise<Receipt> {
-    const original = requestSchema.parse(raw),
+    const original = editingRequest(requestSchema.parse(raw), operation),
       [name, c] = selectConnection(this.config, original.connection),
       model = original.model ?? c.defaultModel;
     if (!model)
@@ -111,7 +113,9 @@ export class Generation {
     }
     const mask = request.mask
       ? await this.source(request.mask, combined)
-      : undefined;
+      : request.edit_region
+        ? await regionMask(request, references[0]!, c, this.config)
+        : undefined;
     if (mask) {
       if (total + mask.bytes.length > this.config.files.maxAggregateBytes)
         fail("invalid_input", "Aggregate reference and mask bytes exceeded.");
@@ -130,16 +134,7 @@ export class Generation {
     const built = c.adapter === "comfyui" ? undefined : buildRequest(input);
     const workflow =
       c.adapter === "comfyui" ? await prepareComfy(input, combined) : undefined;
-    const resolvedAuth = await credentials(c);
-    const identity = fingerprint({
-      connection: name,
-      adapter: c.adapter,
-      gateway: c.gateway,
-      origin: new URL(c.baseUrl).origin,
-      base: c.baseUrl,
-      auth: c.auth,
-      account_fingerprint: fingerprint(resolvedAuth),
-    });
+    const identity = await connectionIdentity(name, c);
     const hash = fingerprint({
       identity,
       model,

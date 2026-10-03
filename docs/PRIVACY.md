@@ -1,7 +1,8 @@
 # Privacy boundaries
 
 Image inputs go only to the selected configured gateway/provider/backend, never a convenience public
-upload host. Prompts and original bytes are preserved. Upstream terms/retention still apply; stateless
+upload host. Original bytes and ordinary prompts are preserved; explicitly requesting target_language
+adds in-image translation instructions to the prompt. Upstream terms/retention still apply; stateless
 native requests do not promise zero provider retention. Generated image rights are separate from code
 license and provider terms; no legal ownership guarantee.
 

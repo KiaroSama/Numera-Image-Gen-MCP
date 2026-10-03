@@ -83,7 +83,50 @@
     "profile": {
       "default": "openai-images",
       "type": "string",
-      "enum": ["omniroute", "9router", "openai-images", "openai-responses"]
+      "enum": [
+        "omniroute",
+        "9router",
+        "openai-images",
+        "openai-responses",
+        "gemini",
+        "gemini-interactions",
+        "openrouter-images"
+      ]
+    },
+    "edit": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["multipart", "json", "generation"]
+        },
+        "encoding": {
+          "type": "string",
+          "enum": [
+            "image",
+            "image[]",
+            "images",
+            "image_urls",
+            "input_references"
+          ]
+        },
+        "maxReferences": {
+          "default": 1,
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 32
+        },
+        "masks": {
+          "default": false,
+          "type": "boolean"
+        },
+        "maskPolarity": {
+          "type": "string",
+          "enum": ["transparent-edit", "white-edit", "black-edit"]
+        }
+      },
+      "required": ["mode", "encoding"],
+      "additionalProperties": false
     }
   },
   "required": ["api_endpoint", "api_key", "models"],

@@ -2,7 +2,7 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
 import { requestSchema, type Config } from "../config/schema.js";
-import { Store } from "../jobs/store.js";
+import { fingerprint, Store } from "../jobs/store.js";
 import { Logger } from "../logging.js";
 import { Generation } from "../services/generation.js";
 import { Discovery } from "../services/discovery.js";
@@ -10,7 +10,9 @@ import { health, listConnections } from "../services/health.js";
 import { getJob, cancelJob } from "../services/jobs.js";
 import { ownedImage } from "../files/output.js";
 import { preview } from "../files/images.js";
-import { safeError } from "../errors.js";
+import { fail, safeError } from "../errors.js";
+import type { ConfigReload } from "../config/reload.js";
+import { connectionIdentity } from "../services/connection-identity.js";
 const outputSchema = z.record(z.string(), z.unknown());
 const pagination = {
   limit: z.number().int().min(1).max(100).default(25),
@@ -20,9 +22,52 @@ export function createServer(
   config: Config,
   logger: Logger,
   store = new Store(config.stateDir),
+  reload?: ConfigReload,
 ) {
-  const generation = new Generation(config, store, logger),
+  let generation = new Generation(config, store, logger),
     discovery = new Discovery(config);
+  const generations = [generation];
+  const discoveries = new Map([[config, discovery]]);
+  const jobOwners = new Map<string, Generation>();
+  const abortActive = () => {
+    for (const snapshot of generations)
+      for (const controller of snapshot.active.values()) controller.abort();
+  };
+  const generationFor = async (id: string, upstream: boolean) => {
+    if (!upstream)
+      return generations.find((g) => g.active.has(id)) ?? generation;
+    const receipt = store.get(id),
+      identity = store.identity(id);
+    const owner =
+      jobOwners.get(id) ?? generations.find((g) => g.active.has(id));
+    const matches: Generation[] = [];
+    for (const snapshot of owner ? [owner] : generations) {
+      const c = snapshot.config.connections[receipt.connection];
+      try {
+        if (c && (await connectionIdentity(receipt.connection, c)) === identity)
+          matches.push(snapshot);
+      } catch {
+        /* A missing former credential must not select another account. */
+      }
+    }
+    const routes = new Set(
+      matches.map((snapshot) => {
+        const c = snapshot.config.connections[receipt.connection]!;
+        return fingerprint({
+          paths: c.paths,
+          query: c.query,
+          baseUrlMode: c.baseUrlMode,
+          proxy: c.proxy,
+          workflow: c.workflow,
+        });
+      }),
+    );
+    if (matches.length && routes.size === 1) return matches[0]!;
+    return fail(
+      "permission_denied",
+      "Existing job connection identity is unavailable or ambiguous; no upstream request was sent.",
+    );
+  };
   const server = new McpServer(
     { name: "numera-image-gen-mcp", version: "0.1.0" },
     {
@@ -30,12 +75,34 @@ export function createServer(
         "Discover connection/model capabilities before images. Reuse one request_id per logical operation. Never resubmit unknown outcomes. References require verified forwarding; files are reliable outputs and local paths may not be accessible to remote hosts. Do not replace the host chat model.",
     },
   );
-  const wrap = async (tool: string, fn: () => Promise<unknown>) => {
+  const wrap = async (
+    tool: string,
+    fn: (snapshot: {
+      config: Config;
+      generation: Generation;
+      discovery: Discovery;
+    }) => Promise<unknown>,
+  ) => {
     const call_id = randomUUID(),
       started = performance.now();
     logger.log("INFO", "tool", "Tool started.", { tool, call_id });
     try {
-      const value = await fn(),
+      const current = reload
+        ? await reload.refresh((candidate) => {
+            if (generations.length >= 64) return false;
+            generation = new Generation(candidate, store, logger);
+            discovery = new Discovery(candidate);
+            generations.push(generation);
+            discoveries.set(candidate, discovery);
+            config = candidate;
+            return true;
+          })
+        : config;
+      const value = await fn({
+          config: current,
+          generation: generations.find((g) => g.config === current)!,
+          discovery: discoveries.get(current)!,
+        }),
         structuredContent = value as Record<string, unknown>;
       logger.log("INFO", "tool", "Tool completed.", {
         tool,
@@ -82,7 +149,9 @@ export function createServer(
       annotations: readAnnotations,
     },
     async ({ probe }, ctx) =>
-      wrap("health_check", () => health(config, probe, ctx.mcpReq.signal)),
+      wrap("health_check", ({ config }) =>
+        health(config, probe, ctx.mcpReq.signal),
+      ),
   );
   server.registerTool(
     "list_connections",
@@ -94,7 +163,7 @@ export function createServer(
       annotations: readAnnotations,
     },
     async () =>
-      wrap("list_connections", async () => ({
+      wrap("list_connections", async ({ config }) => ({
         connections: await listConnections(config),
       })),
   );
@@ -114,7 +183,7 @@ export function createServer(
       annotations: readAnnotations,
     },
     async ({ connection, refresh, limit, offset }, ctx) =>
-      wrap("list_models", async () => {
+      wrap("list_models", async ({ discovery }) => {
         const result = await discovery.list(
           connection,
           refresh,
@@ -140,7 +209,7 @@ export function createServer(
       annotations: readAnnotations,
     },
     async ({ connection, model }, ctx) =>
-      wrap("get_model_capabilities", () =>
+      wrap("get_model_capabilities", ({ discovery }) =>
         discovery.model(connection, model, ctx.mcpReq.signal),
       ),
   );
@@ -165,9 +234,17 @@ export function createServer(
         },
       },
       async (args, ctx) => {
-        const result = await wrap(name, () =>
-          generation.run(args, operation, ctx.mcpReq.signal),
-        );
+        let operationConfig = config;
+        const result = await wrap(name, ({ config, generation }) => {
+          operationConfig = config;
+          return generation
+            .run(args, operation, ctx.mcpReq.signal)
+            .then((receipt) => {
+              if (receipt.upstream_job)
+                jobOwners.set(receipt.request_id, generation);
+              return receipt;
+            });
+        });
         const content: Array<
           | { type: "text"; text: string }
           | {
@@ -189,15 +266,16 @@ export function createServer(
               mimeType: output.mime_type,
             });
             if (
-              (args.return_mode ?? config.returnMode) === "files_and_preview"
+              (args.return_mode ?? operationConfig.returnMode) ===
+              "files_and_preview"
             ) {
               try {
                 const { image } = await ownedImage(
-                  config,
+                  operationConfig,
                   store,
                   output.output_id,
                 );
-                const p = await preview(image, config);
+                const p = await preview(image, operationConfig);
                 const previews = (receipt.previews ?? []) as Record<
                   string,
                   unknown
@@ -243,9 +321,19 @@ export function createServer(
       annotations: readAnnotations,
     },
     async ({ request_id, refresh }, ctx) =>
-      wrap("get_job", () =>
-        getJob(generation, request_id, refresh, ctx.mcpReq.signal),
-      ),
+      wrap("get_job", async () => {
+        const receipt = store.get(request_id);
+        const upstream =
+          refresh &&
+          !!receipt.upstream_job &&
+          !["completed", "partial", "failed"].includes(receipt.status);
+        return getJob(
+          await generationFor(request_id, upstream),
+          request_id,
+          refresh,
+          ctx.mcpReq.signal,
+        );
+      }),
   );
   server.registerTool(
     "cancel_job",
@@ -262,9 +350,17 @@ export function createServer(
       },
     },
     async ({ request_id }, ctx) =>
-      wrap("cancel_job", () =>
-        cancelJob(config, generation, request_id, ctx.mcpReq.signal),
-      ),
+      wrap("cancel_job", async () => {
+        const receipt = store.get(request_id);
+        store.cancel(request_id);
+        for (const snapshot of generations)
+          snapshot.active.get(request_id)?.abort();
+        const owner = await generationFor(
+          request_id,
+          receipt.upstream_job?.kind === "comfyui",
+        );
+        return cancelJob(owner.config, owner, request_id, ctx.mcpReq.signal);
+      }),
   );
   server.registerTool(
     "list_outputs",
@@ -299,7 +395,7 @@ export function createServer(
       annotations: { ...readAnnotations, openWorldHint: false },
     },
     async ({ output_id, preview: withPreview }) => {
-      const result = await wrap("get_output_info", async () => {
+      const result = await wrap("get_output_info", async ({ config }) => {
         const { output } = await ownedImage(config, store, output_id);
         return { ...output, verified: true };
       });
@@ -355,5 +451,12 @@ export function createServer(
       };
     },
   );
-  return { server, store, generation };
+  return {
+    server,
+    store,
+    get generation() {
+      return generation;
+    },
+    abortActive,
+  };
 }

@@ -5,7 +5,7 @@
       "command": "C:/tools/node/node.exe",
       "args": ["C:/projects/numera-image-gen-mcp/dist/index.js"],
       "env": {
-        "NUMERA_CONFIG": "C:/projects/numera-image-gen-mcp/config.local.json"
+        "NUMERA_CONFIG": "C:/projects/numera-image-gen-mcp/.env"
       }
     }
   }

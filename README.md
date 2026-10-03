@@ -74,84 +74,61 @@ launches it with pipes. Do not run it expecting an interactive menu or browser U
 
 ### 3. Create your private configuration
 
-Copy [config.local.json.example](config.local.json.example) to config.local.json next to package.json.
-Do not overwrite an existing private config. In Windows PowerShell:
+Copy [.env.example](.env.example) to .env next to package.json. Do not overwrite an existing private config.
+
+Windows PowerShell:
 
 ```powershell
-Copy-Item -LiteralPath config.local.json.example -Destination config.local.json
+Copy-Item -LiteralPath .env.example -Destination .env
 ```
 
-On Linux/macOS:
+Linux/macOS:
 
 ```bash
-cp -n config.local.json.example config.local.json
+cp -n .env.example .env
 ```
 
-Open config.local.json in a text editor and replace the endpoint, key and exact model IDs:
+Edit .env: set API_ENDPOINT, API_KEY and MODEL_1_ID/MODEL_1_NAME. The template has three consistent
+slots, each with ENABLED, OUTPUT_FORMAT, SIZE and QUALITY. Extra slots are disabled; fill their exact
+IDs/names before setting ENABLED=true. At least one model must be enabled; the first enabled slot
+is the default. Names are display labels, never routing aliases. Empty output fields preserve provider
+defaults; explicit tool arguments override them. Use only native values your selected model supports.
 
-```json
-{
-  "api_endpoint": "https://YOUR_API_HOST/YOUR_API_PREFIX",
-  "api_key": "REPLACE_WITH_YOUR_API_KEY",
-  "models": [
-    {
-      "id": "YOUR_EXACT_IMAGE_MODEL_ID_1",
-      "name": "Image model 1",
-      "enabled": true,
-      "output_format": null,
-      "size": null,
-      "quality": null
-    },
-    {
-      "id": "YOUR_EXACT_IMAGE_MODEL_ID_2",
-      "name": "Image model 2",
-      "enabled": false,
-      "output_format": null,
-      "size": null,
-      "quality": null
-    },
-    {
-      "id": "YOUR_EXACT_IMAGE_MODEL_ID_3",
-      "name": "Image model 3",
-      "enabled": false,
-      "output_format": null,
-      "size": null,
-      "quality": null
-    }
-  ]
-}
+```dotenv
+API_ENDPOINT=https://gateway.example/v1
+API_KEY=replace-with-your-private-key
+PROFILE=openai-images
+MODEL_1_ID=provider/exact-image-model
+MODEL_1_NAME="My image model"
+MODEL_1_ENABLED=true
+MODEL_1_OUTPUT_FORMAT=
+MODEL_1_SIZE=
+MODEL_1_QUALITY=
 ```
 
-The endpoint is your chosen HTTP(S) API prefix: hosted, localhost or reverse-proxy, not a fixed port.
-For example, https://api.openai.com/v1 or your own /api/v1; do not include /responses or
-/images/generations. The default is generic openai-images, not an OmniRoute-specific connection. Any gateway exposing
-compatible Images operations can use its own api_endpoint/api_key; a chat-only API is insufficient.
-For gateway-specific forwarding/discovery behavior, explicitly select
-`"profile":"omniroute"` or `"profile":"9router"` when using those gateways. Both use your chosen
-endpoint and key; neither requires a fixed port or an installed copy on the Numera host.
+The endpoint is any valid HTTP(S) API prefix: hosted, localhost or reverse-proxy, not a fixed port.
+Do not include /responses or /images/generations. Generic openai-images is the default; explicitly
+choose PROFILE=omniroute or PROFILE=9router for gateway-specific contracts. An endpoint/key pair
+alone cannot turn a chat-only API into an image API.
 
-Each of the three template slots has enabled/output_format/size/quality. Set the exact ID/name and
-enabled:true when activating an extra slot; enabled:false slots are excluded from the configured
-model list and cannot be submitted. At least one model must be enabled. Null output fields mean
-provider defaults and are not sent to the API; replace null with a supported value when needed.
-Format/size/quality are optional per-model defaults; explicit tool arguments override them. Use only
-settings supported by your selected API/model; omit them for provider defaults. First listed model
-is the default among enabled slots; select others by exact ID. Names are display labels, not routing aliases.
+For Responses use [simple-responses.env.example](examples/simple-responses.env.example):
+PROFILE=openai-responses plus ORCHESTRATION_MODEL, separate from the selected image model.
+Native Gemini/Gemini Interactions/OpenRouter Images profiles are also available; see
+[configuration](docs/CONFIGURATION.md). Editing is enabled only by its verified native contract,
+not guessed from an endpoint/model ID.
 
-For Responses use [simple-responses.json](examples/simple-responses.json): profile openai-responses
-plus a separate orchestration_model. The selected image model/settings form one image_generation tool;
-the orchestration model is the top-level request model. An endpoint alone cannot identify its wire
-protocol. Other native protocols use [advanced config](docs/CONFIGURATION.md).
-
-Default outputs/state/logs/inputs directories sit beside the selected config. This plaintext-key file
-is ignored and excluded from packages: never share, sync or commit it. On Linux/macOS restrict access:
+Outputs/state/logs/inputs sit beside the selected config. This plaintext-key file is ignored and
+excluded from packages: never share, sync or commit it. On Linux/macOS restrict access:
 
 ```bash
-chmod 600 config.local.json
+chmod 600 .env
 ```
 
-Save changes and reconnect to apply them; there is no hot reload or automatic paid request.
-No environment variables, credential wizard or storage-path setup are required for compact config.
+**Save and call list_models again: valid model/endpoint settings reload without restarting.**
+Invalid or partially saved files keep the last valid configuration and emit a redacted warning.
+Active jobs retain their original connection; reload never submits or retries an image request.
+Storage/logging/input-root/global-policy changes and the bounded 64-snapshot limit require restart.
+Legacy compact and advanced JSON remain supported for existing installations.
 
 ### 4. Register Numera in your MCP client
 
@@ -169,7 +146,7 @@ keeping every other server. These are neutral example paths; replace them with y
       "args": [
         "C:/projects/numera-image-gen-mcp/dist/index.js",
         "--config",
-        "C:/projects/numera-image-gen-mcp/config.local.json"
+        "C:/projects/numera-image-gen-mcp/.env"
       ]
     },
 ```
@@ -185,7 +162,7 @@ the preceding server also needs a comma. If this is your first server, the compl
       "args": [
         "ABSOLUTE_PATH_TO_NUMERA/dist/index.js",
         "--config",
-        "ABSOLUTE_PATH_TO_NUMERA/config.local.json"
+        "ABSOLUTE_PATH_TO_NUMERA/.env"
       ]
     }
   }
@@ -202,13 +179,13 @@ separate from the native Linux server support. See [Claude clients](docs/CLAUDE.
 From the built checkout on Linux/macOS:
 
 ```bash
-claude mcp add --transport stdio --scope user numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/config.local.json"
+claude mcp add --transport stdio --scope user numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/.env"
 ```
 
 Windows PowerShell, using neutral example paths (replace them for your installation):
 
 ```powershell
-claude mcp add --transport stdio --scope user numera-image-gen -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js' --config 'C:/projects/numera-image-gen-mcp/config.local.json'
+claude mcp add --transport stdio --scope user numera-image-gen -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js' --config 'C:/projects/numera-image-gen-mcp/.env'
 ```
 
 Project-scoped JSON alternative: [Claude project entry](examples/claude-project.json). Do not replace
@@ -219,7 +196,7 @@ the whole .mcp.json or unrelated host settings.
 From the built checkout on Linux/macOS:
 
 ```bash
-codex mcp add numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/config.local.json"
+codex mcp add numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/.env"
 ```
 
 For Windows or manual TOML configuration, merge [the Codex entry](examples/codex.toml) into your
@@ -234,7 +211,7 @@ tables. All paths below are neutral examples; replace them with your actual path
 ```toml
 [mcp_servers.numera-image-gen]
 command = "C:/tools/node/node.exe"
-args = ["C:/projects/numera-image-gen-mcp/dist/index.js", "--config", "C:/projects/numera-image-gen-mcp/config.local.json"]
+args = ["C:/projects/numera-image-gen-mcp/dist/index.js", "--config", "C:/projects/numera-image-gen-mcp/.env"]
 startup_timeout_sec = 10
 tool_timeout_sec = 360
 ```
@@ -255,7 +232,7 @@ all workspaces. Enable MCP support in Kiro settings, save and check that the ser
       "args": [
         "C:/projects/numera-image-gen-mcp/dist/index.js",
         "--config",
-        "C:/projects/numera-image-gen-mcp/config.local.json"
+        "C:/projects/numera-image-gen-mcp/.env"
       ],
       "disabled": false,
       "autoApprove": []
@@ -281,7 +258,7 @@ Cursor's Customize/MCP page and check its tool list:
       "args": [
         "C:/projects/numera-image-gen-mcp/dist/index.js",
         "--config",
-        "C:/projects/numera-image-gen-mcp/config.local.json"
+        "C:/projects/numera-image-gen-mcp/.env"
       ]
     }
   }
@@ -302,7 +279,7 @@ mcp_servers:
     args:
       - "C:/projects/numera-image-gen-mcp/dist/index.js"
       - "--config"
-      - "C:/projects/numera-image-gen-mcp/config.local.json"
+      - "C:/projects/numera-image-gen-mcp/.env"
 ```
 
 Restart the Hermes session/gateway that should load it, or use its supported /reload-mcp command.
@@ -324,7 +301,7 @@ OpenCode uses a command array under mcp, not a Claude-style mcpServers object:
         "C:/tools/node/node.exe",
         "C:/projects/numera-image-gen-mcp/dist/index.js",
         "--config",
-        "C:/projects/numera-image-gen-mcp/config.local.json"
+        "C:/projects/numera-image-gen-mcp/.env"
       ],
       "enabled": true,
       "timeout": 10000
@@ -351,7 +328,7 @@ For existing VS Code-native .vscode/mcp.json, the top-level key is servers inste
       "args": [
         "C:/projects/numera-image-gen-mcp/dist/index.js",
         "--config",
-        "C:/projects/numera-image-gen-mcp/config.local.json"
+        "C:/projects/numera-image-gen-mcp/.env"
       ]
     }
   }
@@ -376,7 +353,7 @@ For Gemini CLI installations, add a server to ~/.gemini/settings.json (user) or 
       "args": [
         "C:/projects/numera-image-gen-mcp/dist/index.js",
         "--config",
-        "C:/projects/numera-image-gen-mcp/config.local.json"
+        "C:/projects/numera-image-gen-mcp/.env"
       ],
       "timeout": 360000,
       "trust": false
@@ -405,13 +382,13 @@ include unconfigured provider models. A listed ID does not prove account entitle
 For a direct read-only check from the checkout on Linux/macOS:
 
 ```bash
-node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "$PWD/config.local.json" --probe
+node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "$PWD/.env" --probe
 ```
 
 Windows PowerShell:
 
 ```powershell
-node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config (Join-Path $PWD 'config.local.json') --probe
+node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config (Join-Path $PWD '.env') --probe
 ```
 
 Exit0 means local configuration/storage/credentials and the requested read-only catalog check are
@@ -493,7 +470,16 @@ verified limits. Edit sources are typed output_id/path/url/data_url objects; no 
 
 Saved originals provide owned IDs, paths, actual MIME/dimensions/bytes/alpha/SHA256. Optional bounded
 previews are derivatives. Local paths are not automatically accessible to cloud hosts. Prompts/input
-bytes preserved; provider policy/terms still apply. Read [privacy](docs/PRIVACY.md).
+bytes preserved unless explicit in-image translation instructions are requested; provider policy/terms still apply. Read [privacy](docs/PRIVACY.md).
+
+## Image-to-image, comic and selected-region editing
+
+Use edit_image with approved reference_images for image-to-image/comic edits. Add target_language
+for translation replacing text inside the image; add edit_region={x,y,width,height} for an absolute
+pixel rectangle on the first reference. A verified native mask route is required for region editing.
+Unsupported masks/parameters fail before submission. No local output resizing is performed.
+[Examples, coordinate rules and limitations](docs/IMAGE-EDITING.md). Actual translation quality needs
+a real authorized sample; offline wire/mask tests are not semantic proof.
 
 ## Documentation
 

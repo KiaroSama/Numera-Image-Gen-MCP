@@ -188,6 +188,16 @@ export const requestSchema = z
     provider_options: options.default({}),
     reference_images: z.array(sourceSchema).max(32).default([]),
     mask: sourceSchema.optional(),
+    edit_region: z
+      .object({
+        x: z.number().int().nonnegative().max(64000000),
+        y: z.number().int().nonnegative().max(64000000),
+        width: positive.max(64000000),
+        height: positive.max(64000000),
+      })
+      .strict()
+      .optional(),
+    target_language: z.string().min(1).max(100).regex(/\S/).optional(),
     output_subdirectory: z.string().optional(),
     filename_prefix: z.string().optional(),
     return_mode: z.enum(["files", "files_and_preview"]).optional(),

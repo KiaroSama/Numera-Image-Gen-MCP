@@ -3,4 +3,4 @@ command = "C:/tools/node/node.exe"
 args = ["C:/projects/numera-image-gen-mcp/dist/index.js"]
 startup_timeout_sec = 10
 tool_timeout_sec = 360
-env = { NUMERA_CONFIG = "C:/projects/numera-image-gen-mcp/config.local.json" }
+env = { NUMERA_CONFIG = "C:/projects/numera-image-gen-mcp/.env" }

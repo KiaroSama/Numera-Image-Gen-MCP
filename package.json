@@ -12,7 +12,7 @@
   },
   "files": [
     "dist",
-    "config.local.json.example",
+    ".env.example",
     "schemas",
     "examples",
     "scripts",
@@ -21,16 +21,6 @@
     "LICENSE",
     "THIRD_PARTY_NOTICES.md"
   ],
-  "prettier": {
-    "overrides": [
-      {
-        "files": "config.local.json.example",
-        "options": {
-          "parser": "json"
-        }
-      }
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/KiaroSama/Numera-Image-Gen-MCP.git"
@@ -39,8 +29,8 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests",
-    "format": "prettier --write src tests scripts examples schemas docs config.local.json.example *.json *.md .github",
-    "format:check": "prettier --check src tests scripts examples schemas docs config.local.json.example *.json *.md .github",
+    "format": "prettier --write src tests scripts examples schemas docs *.json *.md .github",
+    "format:check": "prettier --check src tests scripts examples schemas docs *.json *.md .github",
     "test": "node scripts/bounded.mjs 180000 45000 node_modules/vitest/vitest.mjs run",
     "test:unit": "node scripts/bounded.mjs 60000 20000 node_modules/vitest/vitest.mjs run tests/unit",
     "test:contract": "node scripts/bounded.mjs 90000 30000 node_modules/vitest/vitest.mjs run tests/contract",

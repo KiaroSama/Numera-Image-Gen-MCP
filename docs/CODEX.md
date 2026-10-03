@@ -1,7 +1,7 @@
 # Codex clients
 
 Compact config needs no host env key: register the absolute Node/dist entry once, then save
-config.local.json beside package.json and reconnect. Optional explicit NUMERA_CONFIG still works.
+.env beside package.json; valid model changes reload on the next tool call. Optional explicit NUMERA_CONFIG still works.
 Linux/macOS use actual absolute native node/dist/config paths; no PowerShell required.
 
 Current docs https://developers.openai.com/codex/mcp.md describe shared config.toml for local CLI,
@@ -13,7 +13,7 @@ Set startup_timeout_sec10 and tool_timeout_sec360 so default60s does not prematu
 never plaintext keys. CLI example in PowerShell7:
 
 ```powershell
-codex mcp add numera-image-gen --env 'NUMERA_CONFIG=C:/projects/numera-image-gen-mcp/config.local.json' -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js'
+codex mcp add numera-image-gen --env 'NUMERA_CONFIG=C:/projects/numera-image-gen-mcp/.env' -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js'
 ```
 
 Restart/reconnect existing desktop sessions after environment changes; call health_check to verify.

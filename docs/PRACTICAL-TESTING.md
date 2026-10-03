@@ -9,7 +9,7 @@ errors, catalog/model strings, credentials and config paths are excluded from it
 Use the existing bounded owner (90-second wall / 20-second idle ceiling):
 
 ```bash
-node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "C:/projects/numera-image-gen-mcp/config.local.json" --connection default --probe
+node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "C:/projects/numera-image-gen-mcp/.env" --connection default --probe
 ```
 
 The shown configuration path is a neutral Windows example, not a portable default. On other
@@ -23,9 +23,8 @@ Exit2: readiness blocked. Exit1: invalid invocation/configuration or maintenance
 connection_ready=null means not probed; generation_verified is always false. Catalog visibility and
 configured forwarding evidence do not prove account entitlement, cost, output quality or editing.
 
-Compact setup uses connection name default and private api_key in config.local.json; no environment
-or DPAPI steps are required. Advanced config retains independent existing secret sources. Reconnect
-after saving. The first configured model defaults; display labels never replace exact model IDs.
+Compact setup uses connection name default and private API_KEY in .env; no shell environment
+or DPAPI steps are required. Advanced config retains existing secret sources. Save then call list_models. The first configured model defaults; display labels never replace exact model IDs.
 
 ## Earlier local observation, 2026-10-03
 
@@ -37,10 +36,9 @@ A separate bounded unauthenticated GET /v1/models returned401 from the already-r
 on20100. No generation was submitted and no private gateway credential store was inspected.
 No listener was found on20128 or8188 at inspection; this is not proof software is uninstalled.
 
-Before a real catalog probe, set api_key privately in the compact config, or use the declared
+Before a real catalog probe, set API_KEY privately in .env, or use the declared
 secret source for advanced config. Never paste
-keys into prompts, tool arguments, source, screenshots or public host config. No automatic dotenv
-loading. Existing Desktop processes do not inherit a newly set terminal environment.
+keys into prompts, tool arguments, source, screenshots or public host config. Compact .env is parsed by Node; it does not set process environment variables. Existing Desktop processes do not inherit a newly set terminal environment.
 
 ## Windows DPAPI evidence
 

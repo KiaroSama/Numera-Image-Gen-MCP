@@ -1,4 +1,5 @@
-import { readFile, access } from "node:fs/promises";
+import { access } from "node:fs/promises";
+import { parseEnvConfig, readConfigText } from "./env.js";
 import { homedir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,11 +19,11 @@ export function userRoot(env: NodeJS.ProcessEnv = process.env) {
         "numera-image-gen",
       );
 }
-export async function loadConfig(
-  args: string[] = process.argv.slice(2),
-  env: NodeJS.ProcessEnv = process.env,
-): Promise<Config> {
-  const { values } = parseArgs({
+export const localEnvPath = fileURLToPath(
+  new URL("../../.env", import.meta.url),
+);
+function configArgs(args: string[]) {
+  return parseArgs({
     args,
     options: {
       config: { type: "string" },
@@ -38,18 +39,38 @@ export async function loadConfig(
     },
     strict: true,
   });
-  const root = userRoot(env);
+}
+export async function configFile(
+  args: string[] = process.argv.slice(2),
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<string | null> {
+  const { values } = configArgs(args);
+  if (values["openai-compat"]) return null;
   let file = values.config ?? env.NUMERA_CONFIG;
   if (!file) {
-    try {
-      await access(localConfigPath);
-      file = localConfigPath;
-    } catch {
-      file = join(root, "config.json");
+    for (const candidate of [localEnvPath, localConfigPath]) {
+      try {
+        await access(candidate);
+        file = candidate;
+        break;
+      } catch {
+        /* Legacy fallback. */
+      }
     }
+    file ??= join(userRoot(env), "config.json");
   }
   if (!isAbsolute(file))
     fail("invalid_configuration", "NUMERA_CONFIG must be absolute.");
+  return file;
+}
+export async function loadConfig(
+  args: string[] = process.argv.slice(2),
+  env: NodeJS.ProcessEnv = process.env,
+  sourceText?: string,
+): Promise<Config> {
+  const { values } = configArgs(args);
+  const root = userRoot(env);
+  const file = await configFile(args, env);
   let raw: Record<string, unknown>;
   if (values["openai-compat"])
     raw = {
@@ -69,11 +90,14 @@ export async function loadConfig(
     };
   else {
     try {
-      raw = JSON.parse(await readFile(file, "utf8")) as Record<string, unknown>;
+      const text = sourceText ?? (await readConfigText(file!));
+      raw = /(?:^|[/\\])[^/\\]*\.env(?:\.[^/\\]+)?$/i.test(file!)
+        ? parseEnvConfig(text)
+        : (JSON.parse(text) as Record<string, unknown>);
     } catch {
       return fail(
         "invalid_configuration",
-        "Cannot read configuration. Set an absolute NUMERA_CONFIG to valid JSON.",
+        "Cannot read configuration. Set an absolute NUMERA_CONFIG to valid env or JSON configuration.",
       );
     }
   }
@@ -85,7 +109,7 @@ export async function loadConfig(
     !Array.isArray(raw) &&
     ("api_endpoint" in raw || "api_key" in raw)
   )
-    raw = expandSimple(raw, file);
+    raw = expandSimple(raw, file!);
   const get = (flag: string, key: string) =>
     values[flag as keyof typeof values] ?? env[key];
   for (const [field, flag, key] of [

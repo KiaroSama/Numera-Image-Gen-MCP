@@ -13,15 +13,15 @@ npm ci
 npm run build
 ```
 
-Save config.local.json next to package.json, using the public root config.local.json.example as a template. Only
-api_endpoint, api_key and models:[{id,name}] are required. Use your actual image API prefix and exact
+Save .env next to package.json, using the public root .env.example as a template. Only
+API_ENDPOINT, API_KEY and MODEL_1_ID/MODEL_1_NAME are required. Use your actual image API prefix and exact
 model IDs; no Windows paths. Default profile openai-images; explicit omniroute/9router or openai-responses with separate
-orchestration_model. Optional per-model output_format/size/quality need no code edit.
+ORCHESTRATION_MODEL. Optional per-model OUTPUT_FORMAT/SIZE/QUALITY need no code edit.
 First model is default, display names do not change native IDs. Outputs/state/logs/inputs are local
 folders beside the file. Keep plaintext API key private, never commit/sync/share it:
 
 ```bash
-chmod 600 config.local.json
+chmod 600 .env
 ```
 
 For Claude Code, register once from the checkout (CLI writes a host entry, not an API key):
@@ -42,7 +42,7 @@ Do not replace existing settings. Existing scripts/register.mjs supports entry-s
 with explicit targets/backups; Windows PowerShell setup is optional, not a Linux/macOS dependency.
 Set Codex tool_timeout_sec=360 when using long image requests; preserve unrelated settings.
 
-Reconnect the MCP server after saving config changes. Ask it to call health_check/list_connections/
+Saved config changes reload on the next tool call. Ask it to call health_check/list_connections/
 list_models first; configured catalog is offline and is not entitlement proof. refresh:true contacts
 the selected backend read-only. Do not run dist/index.js expecting a browser UI: it speaks stdio MCP.
 The host must launch it with pipes. A config file alone cannot register a tool in an arbitrary host.

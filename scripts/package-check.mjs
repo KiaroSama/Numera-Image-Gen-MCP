@@ -36,9 +36,14 @@ await maintenance("package-check", async (log) => {
     const packed = Array.isArray(manifest)
       ? manifest[0]
       : Object.values(manifest)[0];
-    if (!packed.files.some((file) => file.path === "config.local.json.example"))
+    if (!packed.files.some((file) => file.path === ".env.example"))
       throw new Error("Public configuration template missing from package.");
     for (const file of packed.files) {
+      if (
+        file.path === ".env.example" ||
+        /^examples\/simple(?:-responses)?\.env\.example$/.test(file.path)
+      )
+        continue;
       if (
         /(?:^|\/)(?:\.ai|\.specify|specs|\.claude|\.ignoreme|secrets\.md|config\.local\.json|state|outputs|logs|node_modules)(?:\/|$)|(?:^|\/)\.env(?:$|\.)/.test(
           file.path,
@@ -78,12 +83,12 @@ await maintenance("package-check", async (log) => {
     const bin = join(root, "node_modules/numera-image-gen-mcp/dist/index.js");
     await readFile(bin);
     const { simpleConfigSchema } = await import("../dist/config/simple.js");
+    const { parseEnvConfig } = await import("../dist/config/env.js");
     for (const template of [
-      "config.local.json.example",
-      "examples/simple-config.json",
-      "examples/simple-responses.json",
+      ".env.example",
+      "examples/simple-responses.env.example",
     ]) {
-      const value = JSON.parse(
+      const value = parseEnvConfig(
         await readFile(
           join(root, "node_modules/numera-image-gen-mcp", template),
           "utf8",

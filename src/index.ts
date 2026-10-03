@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
-import { loadConfig, userRoot } from "./config/load.js";
+import { configFile, loadConfig, userRoot } from "./config/load.js";
+import { ConfigReload } from "./config/reload.js";
+import { readConfigText } from "./config/env.js";
 import { Logger } from "./logging.js";
 import { createServer } from "./mcp/server.js";
 import { safeError } from "./errors.js";
@@ -10,19 +12,35 @@ async function main() {
     process.env.NUMERA_LOG_DIR ?? join(userRoot(), "logs"),
   );
   try {
-    const config = await loadConfig();
+    const args = process.argv.slice(2),
+      env = { ...process.env };
+    const file = await configFile(args, env);
+    const pinnedArgs = file ? [...args, "--config", file] : args;
+    const config = await loadConfig(
+      pinnedArgs,
+      env,
+      file ? await readConfigText(file) : undefined,
+    );
     logger.close();
     logger = new Logger(
       config.logging.directory,
       config.logging.level,
       config.logging.retentionDays,
     );
-    const { server, store, generation } = createServer(config, logger);
+    const reload = file
+      ? new ConfigReload(config, file, pinnedArgs, env, logger)
+      : undefined;
+    const { server, store, abortActive } = createServer(
+      config,
+      logger,
+      undefined,
+      reload,
+    );
     let closed = false;
     const shutdown = async () => {
       if (closed) return;
       closed = true;
-      for (const c of generation.active.values()) c.abort();
+      abortActive();
       await server.close();
       store.close();
       logger.log("INFO", "MCP", "Server stopped.");

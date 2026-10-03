@@ -52,6 +52,11 @@ export function imagesRequest(input: AdapterInput) {
   if (!references.length)
     fail("invalid_input", "Editing requires source images.");
   if (c.gateway === "9router") {
+    if (mask)
+      fail(
+        "unsupported_operation",
+        "9router has no verified mask forwarding contract.",
+      );
     if (!model.startsWith("codex/") && !c.edit)
       fail(
         "unsupported_operation",

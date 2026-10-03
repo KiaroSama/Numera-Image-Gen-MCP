@@ -1,6 +1,7 @@
 import { dirname, join } from "node:path";
 import { z } from "zod";
 import { fail } from "../errors.js";
+import { connectionSchema } from "./schema.js";
 export const simpleConfigSchema = z
   .object({
     api_endpoint: z.string().url(),
@@ -31,8 +32,17 @@ export const simpleConfigSchema = z
       .max(100),
     orchestration_model: z.string().min(1).max(300).regex(/\S/).optional(),
     profile: z
-      .enum(["omniroute", "9router", "openai-images", "openai-responses"])
+      .enum([
+        "omniroute",
+        "9router",
+        "openai-images",
+        "openai-responses",
+        "gemini",
+        "gemini-interactions",
+        "openrouter-images",
+      ])
       .default("openai-images"),
+    edit: connectionSchema.shape.edit,
   })
   .strict();
 export function expandSimple(
@@ -77,14 +87,20 @@ export function expandSimple(
     files: { allowedInputRoots: [join(root, "inputs")] },
     connections: {
       default: {
-        adapter: c.profile === "openai-responses" ? c.profile : "openai-images",
+        adapter: ["omniroute", "9router"].includes(c.profile)
+          ? "openai-images"
+          : c.profile,
+        edit: c.edit,
         orchestrationModel: c.orchestration_model,
         ...(["omniroute", "9router"].includes(c.profile)
           ? { gateway: c.profile }
           : {}),
         baseUrl: c.api_endpoint,
         auth: {
-          type: "bearer",
+          type: c.profile.startsWith("gemini") ? "header" : "bearer",
+          ...(c.profile.startsWith("gemini")
+            ? { header: "x-goog-api-key" }
+            : {}),
           apiKey: c.api_key,
           origin: new URL(c.api_endpoint).origin,
         },

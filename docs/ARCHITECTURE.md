@@ -12,6 +12,13 @@ uses Node SQLite WAL/FULL transactions for request-ID uniqueness, admission and 
 trusted configured API transport from DNS-pinned, credential-free asset downloads. `logging.ts`
 provides one shared redacted JSON logger. No bundled diffusion runtime; ComfyUI owns inference.
 
+Env parsing uses Node util.parseEnv after strict bounded UTF-8/key validation. Each tool reads the
+selected file and atomically accepts a validated immutable connection/model snapshot. Invalid saves
+keep last-good config; storage/security policy changes require restart. Retained snapshots are capped
+at64. Existing handles poll/cancel only with matching persisted account/destination identity and
+unambiguous transport settings. Region editing prepares a same-dimension native PNG mask; translation
+instructions are appended only when target_language is explicitly requested. No local final resizing.
+
 ## Important trade-offs
 
 SQLite is built into Node24 (release-candidate API), avoiding a native DB dependency. State must be

@@ -79,8 +79,11 @@ export function capabilities(connection: Connection, model: string) {
     masks = "unsupported";
     if (model.startsWith("codex/")) refs = "supported";
   }
-  if (connection.gateway === "9router" && model.startsWith("codex/"))
-    refs = "supported";
+  if (connection.gateway === "9router") {
+    masks = "unsupported";
+    if (model.startsWith("codex/")) refs = "supported";
+  }
+  if (native) masks = "unsupported";
   if (connection.adapter === "comfyui") {
     refs = connection.workflow?.bindings.image ? "supported" : "unsupported";
     masks =
@@ -185,13 +188,16 @@ export function effectiveRequest(
       "unsupported_operation",
       "Reference input forwarding is not verified for this route.",
     );
-  if (request.mask && cap.gateway_forwarding.masks !== "supported")
+  if (
+    (request.mask || request.edit_region) &&
+    cap.gateway_forwarding.masks !== "supported"
+  )
     fail(
       "unsupported_operation",
       "Mask forwarding is unsupported for this route.",
     );
   if (
-    request.mask &&
+    (request.mask || request.edit_region) &&
     !connection.edit?.maskPolarity &&
     connection.adapter !== "comfyui"
   )
