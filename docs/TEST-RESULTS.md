@@ -107,3 +107,11 @@ requested size, correctly yielding partial while saved originals match. New publ
 Responses example are checked by packed installation in final hosted CI; previous logging run above
 is not evidence for this new code. Incompatible TypeScript7 bot update was closed without merging,
 its remote branch deleted; compiler6.0.3 retained under the verified eslint peer constraint.
+
+Final code `6c4cef2869e17398684787a828ec4720de6886b9` passed
+[CI37082578573](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37082578573).
+Windows297 passed/3 POSIX skipped,90.24 statements/88.61 branches; Linux/macOS299 passed/1 DPAPI
+skipped,89.74/88.31.26filesdiscovered25passed1platformskip. Types/lint/build/UTF8/format, clean
+production packed installation with valid public templates/private exclusions, native modules/stdio
+and audit0 passed all3OS. All bounded supervisors reported cleanup_verified=true. No full suite
+duplicated locally; no paid/GUI/GPU claim.
