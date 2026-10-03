@@ -34,6 +34,21 @@ const config = () =>
   configuration(join(process.cwd(), ".ci-work", "image-validation"));
 
 describe("image bytes and previews", () => {
+  it("decodes large valid Base64 without overflowing and preserves strict validation", () => {
+    const bytes = Buffer.alloc(4 * 1024 * 1024, 42);
+    const encoded = bytes.toString("base64");
+    expect(decodeBase64(encoded, bytes.length).equals(bytes)).toBe(true);
+    for (const invalid of [
+      "AAA",
+      "AAA\n",
+      "AA=A",
+      "A===",
+      "AAAA====",
+      `${encoded.slice(0, -4)}!===`,
+    ])
+      expect(() => decodeBase64(invalid, bytes.length)).toThrow();
+    expect(() => decodeBase64(encoded, bytes.length - 1)).toThrow();
+  });
   it.each(["png", "jpeg", "webp"] as const)(
     "decodes real %s bytes with exact metadata, hash and Base64 round trip",
     async (format) => {

@@ -18,6 +18,9 @@ mask editing reuse the existing edit tool; original bytes and native dimensions 
 Explicit model-based upscale through existing reference editing, with larger-size input validation
 and honest output deviations; no local resizing or automatic provider fallback.
 
+Large Base64 image validation no longer overflows the runtime stack; byte limits and strict alphabet/
+padding validation remain enforced. Native4K output was verified on one authorized gateway/model call.
+
 ## 0.1.0 - 2026-10-02
 
 Initial local stdio image orchestration implementation with named connections, protocol-specific

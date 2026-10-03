@@ -15,9 +15,8 @@ export function decodeBase64(value: string, limit: number): Buffer {
   if (
     !value ||
     value.length > Math.ceil(limit / 3) * 4 + 4 ||
-    !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(
-      value,
-    )
+    value.length % 4 !== 0 ||
+    !/^[A-Za-z0-9+/]+={0,2}$/.test(value)
   )
     fail("invalid_response", "Invalid or excessive Base64 image.", "response");
   const bytes = Buffer.from(value, "base64");

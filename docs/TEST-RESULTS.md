@@ -175,3 +175,23 @@ because the selected route's reference forwarding is unverified. No edit/upscale
 Two new configured IDs appeared through the same alive MCP session without restart, but their single
 actual generation checks returned HTTP404 and HTTP400 respectively, with no image and no retry.
 These outcomes establish that configuration reload works, not that those model routes/accounts work.
+
+## Large-image validation and native4K practical check2026-10-03
+
+A grouped Base64 validation regex overflowed on valid multi-megabyte payloads (4MiB regression).
+A flat alphabet/padding check plus length divisibility preserves strict validation without recursive
+regex stack growth. The targeted regression failed before the fix and passed afterward; the final
+hosted checks for this correction are recorded separately when complete.
+
+One initial authorized4K request returned an image response but saved no output because validation
+failed. Its original bytes were not retained by that gateway path; no automatic resubmission occurred.
+After explicit user authorization for one new request, the same Flash Image model and endpoint,
+with an operation-only verified OmniRoute profile, returned JPEG5504x3072,11779138 bytes.
+get_output_info verified its decode/dimensions/hash; original file was delivered and no resize used.
+This is the provider's native4K tier, not a claim of exact3840x2160 dimensions.
+
+The replaced third model `cx/gpt-6.1-sol` loaded without restart and produced a validated PNG1254x1254
+showing the requested bicycle/cactus. The fourth `antigravity/gemini-3-pro-image-preview` loaded but its
+one actual generation returned HTTP404, no image and no retry. Configured labels do not establish
+upstream model identity or availability. Source research confirmed that the examined Antigravity
+Images path drops references; image2image/upscale is still blocked pending verified gateway support.
