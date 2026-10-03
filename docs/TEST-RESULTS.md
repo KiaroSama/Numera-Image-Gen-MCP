@@ -154,3 +154,24 @@ instructions were tested on the wire. MCP discovery exposes authorized watermark
 Synthetic images do not prove live comic translation, watermark reconstruction quality or actual GUI
 interoperability. Private configuration migration preserved values and matched the public template
 shape; obsolete private JSON was removed only after comparison and the owner's explicit request.
+
+## Native upscale and additional live checks2026-10-03
+
+Runtime SHA `ba22dd92ebc3814f3712fffc29a2580c97da104c` passed
+[CI37139147888](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37139147888).
+Windows324 passed/3 POSIX skips,90.56 statements/88.65 branches; Linux/macOS326 passed/1 DPAPI skip,
+90.14/88.38. All31 suites discovered; type/lint/build/UTF8/format, production package/templates/stdio
+and runtime audit0 passed. Native upscale fixture validates original reference bytes, larger requested
+size, no local resize, invalid-size preflight and partial receipts when output is not enlarged.
+
+Three separately authorized real generations on the configured Flash Image model produced validated
+files: a blue teapot/two lemons photo1024x1024, a mountain lake/red canoe landscape1264x848, and a
+1024x1024 two-panel comic with readable Persian text. The landscape request asked1536x1024, so its
+receipt correctly reported partial rather than resizing the returned original. All three saved
+outputs passed get_output_info hash/decode/metadata checks and visual review.
+
+A real image2image request adding a teacup and a native upscale preflight were blocked before submission
+because the selected route's reference forwarding is unverified. No edit/upscale quality claim.
+Two new configured IDs appeared through the same alive MCP session without restart, but their single
+actual generation checks returned HTTP404 and HTTP400 respectively, with no image and no retry.
+These outcomes establish that configuration reload works, not that those model routes/accounts work.

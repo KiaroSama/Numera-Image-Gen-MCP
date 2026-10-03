@@ -27,8 +27,8 @@ profiles, native image protocols and configured GPU ComfyUI workflows. No paid P
 uploads, prompt enhancement or automatic provider/model fallback.
 
 **Status:** published offline-tested implementation on Windows, Linux and macOS.
-Windows323 tests pass/3 POSIX-only skipped; Linux/macOS325 pass/1 Windows-only DPAPI skipped.
-Runtime coverage: at least90.06 percent statements and88.15 percent branches.
+Windows324 tests pass/3 POSIX-only skipped; Linux/macOS326 pass/1 Windows-only DPAPI skipped.
+Runtime coverage: at least90.14 percent statements and88.38 percent branches.
 See [test evidence](docs/TEST-RESULTS.md);
 no npm publication, all-model support, GUI integration or production-readiness claim.
 One owner-authorized real generation also succeeded on2026-10-03 through the configured Images API:
