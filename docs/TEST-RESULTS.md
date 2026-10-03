@@ -136,3 +136,21 @@ list_models returned the active configured name/ID without generation. Client co
 were parsed and checked against official docs; new client GUIs were not executed. Public examples
 use neutral paths; source runtime preserved during the scoped historical path replacement, before
 the separate model-slot change. Earlier run links remain historical evidence on their original SHAs.
+
+## Env reload and targeted editing verification2026-10-03
+
+Code SHA `b4be4753175e03d9cea08afc8fc319117637e083` passed
+[CI37125203065](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37125203065).
+Windows323 passed/3 POSIX skipped,90.48 statements/88.42 branches; Linux/macOS325 passed/1 DPAPI
+skipped,90.06/88.15. All30 files were discovered (29 passed/1 platform-specific skipped).
+Types/lint/build/UTF8/format, production-only packed installation, public env templates/private-file
+exclusion, native modules/real stdio and audit0 passed on all three platforms. All bounded owners
+reported cleanup_verified=true. No full suite was duplicated locally.
+
+Strict env parsing, live save/last-good config, retained job identity/ambiguous transport refusal,
+immutable in-flight operations and the actual built stdio reload fixture passed. Region masks passed
+transparent/white/black polarity checks, original references stayed unchanged and explicit translation
+instructions were tested on the wire. MCP discovery exposes authorized watermark prompt/region usage.
+Synthetic images do not prove live comic translation, watermark reconstruction quality or actual GUI
+interoperability. Private configuration migration preserved values and matched the public template
+shape; obsolete private JSON was removed only after comparison and the owner's explicit request.
