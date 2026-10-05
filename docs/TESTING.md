@@ -29,7 +29,8 @@ reservations, real output-index SQL-trigger failure, future-schema refusal, and 
 Actual child kill checkpoints cover pre-intent/prepared/submitted/running/finalizing/retained/published/
 committed states; reopened stores assert deduplication and original hashes. Original Comfy waiting
 races a refresher through the actual Generation entry point; partial downloads retain the first image.
-These newly added cases require fresh execution; historical CI is not their result. Scheduled filesystem races insert a directory, regular file or
+These cases passed fresh hosted CI on320f903; historical CI is not used as their evidence.
+Scheduled filesystem races insert a directory, regular file or
 junction between the missing-path observation and mkdir; only the real directory is accepted.
 Two distinct reference images prove scalar contracts reject and array encoding preserves both.
 Dimension fixtures separate sourced model limits from the route safety ceiling and compare persisted

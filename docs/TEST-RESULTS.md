@@ -1,5 +1,37 @@
 # Test results
 
+## Recovery and dimension safeguards — 2026-10-05
+
+Exact runtime SHA: `320f903d479ed240b5b274e7fcaa2082ec92ba87`.
+[Hosted CI37307308453](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/37307308453)
+passed all three Node24.21.0 jobs. Each discovered40 test files:39 passed and1 platform-specific skip.
+
+| Platform | Tests passed | Platform skips | Statements | Branches |
+| -------- | -----------: | -------------: | ---------: | -------: |
+| Windows  |          368 |        3 POSIX |     89.76% |   88.23% |
+| Ubuntu   |          370 |        1 DPAPI |     89.61% |   88.03% |
+| macOS    |          370 |        1 DPAPI |     89.61% |   88.03% |
+
+Typecheck, lint, build, UTF-8/source-size, format,85/80 coverage gates, clean production-only packed
+installation and runtime audit passed on every platform; audit reported0 vulnerabilities. Bounded
+runner cleanup was verified. No full local suite/build duplicated hosted CI.
+
+Recovery fixtures cover renewable fencing, expired admission, actual killed children at lifecycle/
+publication checkpoints, SQLite/file failures, original-byte retention after cancellation, concurrent
+waiter/refresher claims and legacy-WAL migration. Model-limit and reference-cardinality fixtures
+preserve unknown account/route semantics. These are deterministic fixtures, not paid/GUI/GPU proof.
+
+The first run failed7 cases: an enumerable internal ownership symbol escaped into the MCP output
+record, and a legacy scalar-edit fixture declared incompatible capacity. The wire boundary now strips
+internal metadata while retaining fencing; the fixture uses capacity1 for scalar encoding. The second
+run passed Windows/Linux but caught macOS process-group cleanup before asynchronous reaping;
+bounded group-disappearance verification fixed it. Final results above include both corrections.
+
+The latest canonical Pro live observation remains404/no image, not retried. Publication of this
+runtime does not itself replace an already-running local MCP process.
+
+## Historical results
+
 Verified2026-10-02: hosted CI passed on exact code SHA
 `f34afdc3d2832d26a8dd2de864b04f17aa7f2b49`.
 [CI run36949992617](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/36949992617).

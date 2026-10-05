@@ -2,7 +2,7 @@
 
 ## Unreleased - 2026-10-05
 
-Recovery changes are implemented in source; final cross-platform validation is pending. Renewable
+Recovery changes passed hosted Windows/Linux/macOS validation on320f903. Renewable
 writer fencing and a bounded private result journal preserve received originals for storage recovery
 without paid resubmission. Output index/receipt relationships commit together, with stable publication
 hash reconciliation. Directory creation handles verified competing directories safely. Scalar JSON

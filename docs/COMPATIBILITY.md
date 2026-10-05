@@ -6,8 +6,9 @@ and resumed acceptance additions have separate offline evidence. Compact config 
 orchestration_model; other native protocols use advanced config. Linux/macOS do not require
 DPAPI. Hosted matrix now includes macOS with specific POSIX boundary assertions.
 Exact versions, coverage and remaining live limitations belong in TEST-RESULTS.md.
-The recovery/model-limit changes added on2026-10-05 have only static checks and a narrow two-case
-normal/recovered dimension test so far; historical matrix results do not validate those new paths.
+The recovery/model-limit changes added on2026-10-05 passed a fresh hosted three-platform matrix
+on320f903, including original-byte normal/recovered comparison, real child interruption and packed
+installation fixtures. See TEST-RESULTS.md for exact counts and coverage; this is not live-provider proof.
 Canonical Pro/preview dimension evidence describes the public model, not Antigravity account access;
 the separately repaired gateway still has no verified successful Pro generation.
 

@@ -46,7 +46,7 @@ when requested dimensions differ; originals remain unchanged.
 
 Env/live configuration: env-config.test.ts covers strict UTF-8 parsing, duplicate/unknown assignments, native profiles/edit settings and fixed-policy rejection. config-reload.test.ts covers last-good save, retained identity/ambiguous transport recovery and immutable in-flight operations; env-stdio.test.ts verifies the actual built stdio entrypoint from another CWD. image-editing.test.ts covers exact reference bytes, translation instructions, rectangle PNG alpha/color polarities and pre-submission invalid-region/mask conflicts. These fixtures do not prove live translation quality.
 
-Recovery review (new fixtures; execution pending): tests/integration/recovery.test.ts and
+Recovery review (verified in hostedCI37307308453 on320f903): tests/integration/recovery.test.ts and
 journal-sql-failures.test.ts cover leases, real child kills, journal publication/commit faults and migration;
 async-waiter-race.test.ts covers Responses waiter/refresher fencing; comfy-result-retention.test.ts and
 cancelled-results.test.ts cover partial downloads and cancellation. tests/unit/output-directory-race.test.ts
