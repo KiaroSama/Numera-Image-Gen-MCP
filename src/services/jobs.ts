@@ -1,3 +1,4 @@
+import { TerminalProviderError } from "../adapters/terminal.js";
 import type { Config } from "../config/schema.js";
 import { selectConnection } from "../config/load.js";
 import { apiJson } from "../http/client.js";
@@ -6,7 +7,7 @@ import { normalize } from "../adapters/normalize.js";
 import { connectionPrefix } from "./discovery.js";
 import { requestSchema } from "../config/schema.js";
 import type { Generation } from "./generation.js";
-import { fail, record, safeError } from "../errors.js";
+import { fail, record, safeError, NumeraError } from "../errors.js";
 import { connectionIdentity } from "./connection-identity.js";
 import { retainImage } from "./result-finalization.js";
 import { Store } from "../jobs/store.js";
@@ -24,7 +25,7 @@ export async function getJob(
     return generation.recoverLocal(id, signal);
   if (
     !receipt.upstream_job ||
-    ["completed", "partial", "failed"].includes(receipt.status)
+    ["completed", "partial", "failed", "cancelled"].includes(receipt.status)
   )
     return receipt;
   const [, c] = selectConnection(generation.config, receipt.connection);
@@ -77,6 +78,10 @@ export async function getJob(
             },
             generation.config.files.maxOutputBytes,
             generation.config.files.maxAggregateBytes,
+            () => {
+              receipt.generation_outcome = "completed";
+              generation.store.update(receipt);
+            },
           )
         : normalize(
             c,
@@ -88,6 +93,17 @@ export async function getJob(
               combined,
             ),
           );
+    if (
+      (result?.terminal && result.upstreamId !== job.id) ||
+      (result?.upstreamId && result.upstreamId !== job.id)
+    )
+      fail(
+        "invalid_response",
+        "Polled response does not match the existing job.",
+        "response",
+      );
+    if (result?.job && result.job.id !== job.id)
+      fail("invalid_response", "Polled job identity changed.", "response");
     if (result && !result.job)
       return await generation.finish(
         receipt,
@@ -109,6 +125,14 @@ export async function getJob(
     return receipt;
   } catch (error) {
     if (!generation.store.owns(id, receipt)) return generation.store.get(id);
+    if (error instanceof TerminalProviderError)
+      return generation.store.terminal(
+        id,
+        error.terminal,
+        safeError(error),
+        receipt,
+        receipt.upstream_job,
+      );
     receipt = generation.store.get(id);
     receipt.errors.push(safeError(error));
     receipt.status = generation.store.hasPendingResults(id)
@@ -128,6 +152,15 @@ export async function cancelJob(
   signal?: AbortSignal,
 ) {
   const receipt = generation.store.get(id);
+  if (["completed", "partial", "failed", "cancelled"].includes(receipt.status))
+    return {
+      request_id: id,
+      local_wait_cancelled: false,
+      upstream_requested: false,
+      upstream_cancelled: receipt.upstream_terminal === "cancelled",
+      refund_verified: false,
+      another_submission_may_charge: true,
+    };
   generation.store.cancel(id);
   generation.active.get(id)?.abort();
   let upstream_requested = false,
@@ -158,7 +191,43 @@ export async function cancelJob(
         ),
       );
       upstream_requested = true;
-      upstream_cancelled = result.cancelled === true;
+      upstream_cancelled = typeof result.cancelled === "boolean" ? false : null;
+      if (result.cancelled === true) {
+        const status = record(
+          await apiJson(
+            c,
+            `api/jobs/${encodeURIComponent(job.id)}`,
+            "",
+            {},
+            signal,
+          ),
+        );
+        if (status.id !== job.id)
+          fail(
+            "invalid_response",
+            "Cancellation status does not match the existing job.",
+          );
+        if (status.status === "completed")
+          await getJob(generation, id, true, signal);
+        if (["cancelled", "failed"].includes(String(status.status))) {
+          const state = status.status as "cancelled" | "failed";
+          generation.store.terminal(
+            id,
+            state,
+            safeError(
+              new NumeraError(
+                "provider_rejection",
+                "Provider confirmed terminal job state.",
+                "generation",
+              ),
+            ),
+            undefined,
+            job,
+          );
+          upstream_cancelled =
+            generation.store.get(id).upstream_terminal === "cancelled";
+        }
+      }
     }
   }
   return {

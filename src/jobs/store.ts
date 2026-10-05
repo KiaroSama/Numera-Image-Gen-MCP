@@ -9,6 +9,13 @@ import {
 import { join } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { fail } from "../errors.js";
+import {
+  expireRequests,
+  updateReceipt,
+  reserveResults,
+  terminateRequest,
+  type TerminalState,
+} from "./lifecycle.js";
 import type { snapshotRequirements } from "../services/output-requirements.js";
 export function fingerprint(value: unknown): string {
   const stable = (v: unknown): unknown =>
@@ -53,6 +60,7 @@ export type Receipt = {
   storage_outcome: string;
   another_submission_may_charge: boolean;
   upstream_job?: { id: string; kind: string };
+  upstream_terminal?: TerminalState;
   upstream_request_id?: string;
   output_requirements?: {
     count: number;
@@ -77,7 +85,6 @@ export type ResultItem = {
   phase: string;
 };
 const writerGeneration = Symbol("request-writer-generation");
-const busy = ["prepared", "submitting", "running", "finalizing"];
 export class Store {
   static readonly leaseMs = 30000;
   private db: DatabaseSync;
@@ -234,48 +241,13 @@ export class Store {
     if (generation !== undefined)
       this.db
         .prepare(
-          "UPDATE requests SET owner=NULL,lease=0 WHERE id=? AND owner=? AND generation=?",
+          "UPDATE requests SET owner=NULL,lease=0,reservation=CASE WHEN json_extract(receipt,'$.upstream_terminal') IS NOT NULL THEN 0 ELSE reservation END WHERE id=? AND owner=? AND generation=?",
         )
         .run(id, this.owner, generation);
     if (this.generations.get(id) === generation) this.generations.delete(id);
   }
   private expire(id?: string) {
-    const rows = this.db
-      .prepare(
-        `SELECT * FROM requests WHERE lease<=? AND owner IS NOT NULL${id ? " AND id=?" : ""}`,
-      )
-      .all(...(id ? [Date.now(), id] : [Date.now()]));
-    for (const row of rows) {
-      const receipt = JSON.parse(String(row.receipt)) as Receipt;
-      if (busy.includes(receipt.status)) {
-        const pending = this.db
-          .prepare(
-            "SELECT 1 FROM result_journal WHERE request_id=? AND phase!='committed' LIMIT 1",
-          )
-          .get(String(row.id));
-        if (receipt.status === "prepared") {
-          receipt.status = "failed";
-          receipt.generation_outcome = "not_submitted";
-        } else if (!pending && !receipt.outputs.length) {
-          receipt.status = receipt.upstream_job ? "running" : "outcome_unknown";
-          receipt.generation_outcome = receipt.upstream_job
-            ? "running"
-            : "unknown";
-        }
-        receipt.updated_at = new Date().toISOString();
-      }
-      this.db
-        .prepare(
-          "UPDATE requests SET receipt=?,owner=NULL,lease=0,generation=generation+1,reservation=CASE WHEN ? THEN reservation ELSE 0 END WHERE id=? AND generation=? AND lease<=?",
-        )
-        .run(
-          JSON.stringify(receipt),
-          receipt.status !== "failed" ? 1 : 0,
-          String(row.id),
-          Number(row.generation),
-          Date.now(),
-        );
-    }
+    expireRequests(this.db, id);
   }
   prepare(
     receipt: Receipt,
@@ -334,19 +306,27 @@ export class Store {
         "Receipt belongs to an earlier writer generation; stale writes are fenced.",
         "storage",
       );
-    receipt.updated_at = new Date().toISOString();
-    this.db
-      .prepare(
-        "UPDATE requests SET receipt=?,reservation=CASE WHEN ? THEN reservation ELSE 0 END WHERE id=? AND owner=? AND generation=?",
-      )
-      .run(
-        JSON.stringify(receipt),
-        busy.includes(receipt.status) ? 1 : 0,
-        receipt.request_id,
-        this.owner,
-        this.generations.get(receipt.request_id)!,
-      );
+    updateReceipt(
+      this.db,
+      receipt,
+      this.owner,
+      this.generations.get(receipt.request_id)!,
+    );
   }
+  terminal(
+    id: string,
+    state: TerminalState,
+    error: unknown,
+    expected?: Receipt,
+    job?: { id: string; kind: string },
+  ) {
+    this.transaction(() => {
+      if (expected) this.fence(id, expected);
+      terminateRequest(this.db, id, state, error, job, !!expected);
+    });
+    return this.get(id);
+  }
+
   admit(
     id: string,
     connection: string,
@@ -361,8 +341,10 @@ export class Store {
         )
         .all(Date.now())
         .map((row) => JSON.parse(String(row.receipt)) as Receipt)
-        .filter((r) =>
-          ["submitting", "running", "finalizing"].includes(r.status),
+        .filter(
+          (r) =>
+            ["submitting", "running", "finalizing"].includes(r.status) &&
+            !r.upstream_terminal,
         );
       if (
         all.length >= global ||
@@ -376,7 +358,7 @@ export class Store {
       return true;
     });
   }
-  claimFinalization(id: string, expected?: Receipt): boolean {
+  claimFinalization(id: string, expected?: Receipt, received = false): boolean {
     return this.transaction(() => {
       this.expire(id);
       const row = this.row(id),
@@ -389,12 +371,14 @@ export class Store {
         r.status === "submitting" &&
         row.owner &&
         !expected &&
-        !this.hasPendingResults(id)
+        !this.hasPendingResults(id) &&
+        !received
       )
         return false;
       if (
         ["completed", "partial", "failed", "cancelled"].includes(r.status) &&
-        !this.hasPendingResults(id)
+        !this.hasPendingResults(id) &&
+        !received
       )
         return false;
       const generation = Number(row.generation) + 1;
@@ -441,30 +425,7 @@ export class Store {
   reserveResults(id: string, bytes: number, budget: number) {
     this.transaction(() => {
       this.fence(id);
-      if (
-        !Number.isSafeInteger(bytes) ||
-        bytes <= 0 ||
-        !Number.isSafeInteger(budget) ||
-        budget <= 0
-      )
-        fail(
-          "invalid_configuration",
-          "Result journal limits must be positive safe integers.",
-        );
-      const used = this.db
-        .prepare(
-          `SELECT COALESCE(SUM(MAX(reservation,COALESCE((SELECT SUM(COALESCE(length(bytes),0)+COALESCE(length(url),0)) FROM result_journal WHERE request_id=requests.id),0))),0) AS used FROM requests WHERE id!=?`,
-        )
-        .get(id);
-      if (Number(used?.used) + bytes > budget)
-        fail(
-          "rate_limited",
-          "Private result journal capacity is full; recover retained outputs before authorizing more image work.",
-          "storage",
-        );
-      this.db
-        .prepare("UPDATE requests SET reservation=? WHERE id=?")
-        .run(bytes, id);
+      reserveResults(this.db, id, bytes, budget);
     });
   }
   private result(id: string, index: number) {
@@ -494,7 +455,7 @@ export class Store {
         Number(
           this.db
             .prepare(
-              "SELECT COALESCE(SUM(COALESCE(length(bytes),(SELECT json_extract(metadata,'$.bytes') FROM outputs WHERE id=output_id),0)+COALESCE(length(url),0)),0) AS bytes FROM result_journal WHERE request_id=? AND item!=?",
+              "SELECT COALESCE(SUM(COALESCE(length(bytes),(SELECT json_extract(metadata,'$.bytes') FROM outputs WHERE id=output_id),0)+COALESCE(length(CAST(url AS BLOB)),0)),0) AS bytes FROM result_journal WHERE request_id=? AND item!=?",
             )
             .get(id, index)?.bytes,
         ) + bytes.length;
@@ -516,7 +477,7 @@ export class Store {
           hash,
         );
       const receipt = this.get(id);
-      receipt.generation_outcome = "completed";
+      receipt.generation_outcome = receipt.upstream_terminal ?? "completed";
       receipt.updated_at = new Date().toISOString();
       this.db
         .prepare(
@@ -544,7 +505,7 @@ export class Store {
         Number(
           this.db
             .prepare(
-              "SELECT COALESCE(SUM(COALESCE(length(bytes),(SELECT json_extract(metadata,'$.bytes') FROM outputs WHERE id=output_id),0)+COALESCE(length(url),0)),0) AS bytes FROM result_journal WHERE request_id=? AND item!=?",
+              "SELECT COALESCE(SUM(COALESCE(length(bytes),(SELECT json_extract(metadata,'$.bytes') FROM outputs WHERE id=output_id),0)+COALESCE(length(CAST(url AS BLOB)),0)),0) AS bytes FROM result_journal WHERE request_id=? AND item!=?",
             )
             .get(id, index)?.bytes,
         ) + Buffer.byteLength(url, "utf8");
@@ -567,7 +528,9 @@ export class Store {
       this.hasPendingResults(id) ||
       (receipt.generation_outcome === "completed" &&
         receipt.outputs.length > 0 &&
-        !["completed", "partial", "failed"].includes(receipt.status))
+        !["completed", "partial", "failed", "cancelled"].includes(
+          receipt.status,
+        ))
     );
   }
   hasPendingResults(id: string): boolean {

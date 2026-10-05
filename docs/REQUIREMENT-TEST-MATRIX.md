@@ -54,5 +54,10 @@ uses two real ENOENT observations and competing directory/file/junction schedule
 Recovery-requirements.test.ts covers scalar/array/multipart cardinality, model limits and sourced preset
 comparisons; output-requirements.test.ts preserves bytes and identical normal/recovered deviations.
 Existing two-process MCP deduplication and large Base64 fixtures remain in the automatic CI discovery.
+Terminal lifecycle follow-up: terminal-lifecycle.test.ts checks public tool terminal states, polling
+uncertainty, targeted dispatch/confirmation and retained partial originals. Reservation-lifecycle.test.ts
+checks empty orphan reclamation, retained/live/detached charges, stale fencing and actual two-process
+budget serialization. Fixture presence is not a passing claim; exact execution evidence is reported
+separately. No paid provider, GUI, GPU or private historical-state validation is implied.
 
 Dimension discovery: tests/contract/dimensions.test.ts verifies native ratio/tier/pixel presets, unknown-model honesty and selected-route restrictions without image submission. Large Base64 boundary: tests/unit/images.test.ts covers a valid4MiB round trip, malformed padding/alphabet and byte-limit rejection.

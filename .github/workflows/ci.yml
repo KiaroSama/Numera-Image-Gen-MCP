@@ -26,5 +26,6 @@ jobs:
       - run: npm run check
       - run: npm run format:check
       - run: npm run coverage
+      - run: npm run smoke
       - run: npm run package:check
       - run: npm audit --omit=dev

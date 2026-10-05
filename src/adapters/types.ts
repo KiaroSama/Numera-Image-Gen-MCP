@@ -17,6 +17,7 @@ export type ResultItem = {
 };
 export type Normalized = {
   images: ResultItem[];
+  terminal?: "failed" | "cancelled" | "incomplete";
   upstreamModel: string | null;
   upstreamId?: string;
   usage?: unknown;

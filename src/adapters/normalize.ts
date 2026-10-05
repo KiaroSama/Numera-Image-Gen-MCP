@@ -5,6 +5,7 @@ import type { Normalized, ResultItem } from "./types.js";
 export function normalize(c: Connection, raw: unknown): Normalized {
   const value = record(raw);
   const images: ResultItem[] = [];
+  let terminal: Normalized["terminal"];
   const warnings: string[] = [];
   const signatures: unknown[] = [];
   const push = (v: unknown) => {
@@ -59,7 +60,12 @@ export function normalize(c: Connection, raw: unknown): Normalized {
         job: { id: String(value.id), kind: "interactions" },
         warnings: [],
       };
-    if (value.status && value.status !== "completed")
+    if (value.status === "budget_exceeded") terminal = "failed";
+    else if (
+      ["failed", "cancelled", "incomplete"].includes(String(value.status))
+    )
+      terminal = value.status as Normalized["terminal"];
+    else if (value.status && value.status !== "completed")
       fail(
         "provider_rejection",
         `Interaction ended with ${String(value.status)}.`,
@@ -98,7 +104,9 @@ export function normalize(c: Connection, raw: unknown): Normalized {
         job: { id: String(value.id), kind: "responses" },
         warnings: [],
       };
-    if (value.status && value.status !== "completed")
+    if (["failed", "cancelled", "incomplete"].includes(String(value.status)))
+      terminal = value.status as Normalized["terminal"];
+    else if (value.status && value.status !== "completed")
       fail(
         "provider_rejection",
         `Response ended with ${String(value.status)}.`,
@@ -128,7 +136,7 @@ export function normalize(c: Connection, raw: unknown): Normalized {
       }
     }
   } else for (const item of array(value.data)) push(item);
-  if (!images.some((i) => i.base64 || i.url || i.bytes))
+  if (!terminal && !images.some((i) => i.base64 || i.url || i.bytes))
     fail(
       "no_image_returned",
       "No final image was returned; text, empty bodies and partial previews are not final images.",
@@ -136,6 +144,7 @@ export function normalize(c: Connection, raw: unknown): Normalized {
     );
   return {
     images,
+    terminal,
     upstreamModel: typeof value.model === "string" ? value.model : null,
     upstreamId: typeof value.id === "string" ? value.id : undefined,
     usage: value.usage,
@@ -152,6 +161,18 @@ export function normalizeResponse(
     return { images: [{ bytes }], upstreamModel: null, warnings: [] };
   if (mime.includes("text/event-stream")) {
     const events = sseEvents(bytes);
+    if (c.adapter === "openai-responses") {
+      const terminal = events.find((e) =>
+        ["response.failed", "response.incomplete"].includes(e.type),
+      );
+      const response = terminal?.data.response;
+      if (
+        response &&
+        typeof record(response).id === "string" &&
+        ["failed", "incomplete"].includes(String(record(response).status))
+      )
+        return normalize(c, response);
+    }
     if (
       events.some(
         (e) =>

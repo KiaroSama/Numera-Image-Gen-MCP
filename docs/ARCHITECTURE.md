@@ -48,3 +48,11 @@ or assistant-link guessing. SVG/animation unsupported; PNG/JPEG/WebP required.
 
 ComfyUI requires user-selected API graphs/bindings, installed node validation and primary GPU evidence.
 No inferred checkpoint/node maps, automatic downloads or global shared-backend interrupt.
+
+Lifecycle/accounting SQL lives in jobs/lifecycle.ts behind Store transactions. Explicit normalized
+terminal provider results close admission without treating failed polling/authentication as termination.
+Targeted Comfy cancellation acknowledgement means dispatch, not completion: only matching authoritative
+job status confirms cancellation. Terminal control increments the writer generation, so an older waiter
+cannot resurrect it; originals remain recoverable. Expired empty no-job intents relinquish unused
+reservations while their unknown receipts and billing/deduplication evidence remain. Actual journal
+bytes/URLs remain charged, and storage recovery reacquires bounded capacity. No schema reset or purge.

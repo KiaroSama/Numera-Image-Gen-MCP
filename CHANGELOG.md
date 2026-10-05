@@ -2,6 +2,11 @@
 
 ## Unreleased - 2026-10-05
 
+Authoritative upstream failures/cancellation now close lifecycle capacity through fenced transitions.
+Empty orphan allocations release unused journal reservations without deleting uncertain receipts.
+Targeted cancellation distinguishes backend dispatch from confirmed terminal status; retained originals
+and storage recovery remain independent. MCP client/server update together to2.3.1.
+
 Use the stable native TypeScript7 compiler for typecheck/build alongside the official TypeScript6
 API compatibility package for type-aware ESLint. Explicit compiler paths avoid executable collisions;
 normal dependency resolution and existing verification gates remain enforced.

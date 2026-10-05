@@ -1,3 +1,4 @@
+import { TerminalProviderError } from "../adapters/terminal.js";
 import { randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
 import type { Config, ImageRequest } from "../config/schema.js";
@@ -283,6 +284,10 @@ export class Generation {
           },
           this.config.files.maxOutputBytes,
           this.config.files.maxAggregateBytes,
+          () => {
+            receipt.generation_outcome = "completed";
+            this.store.update(receipt);
+          },
         );
       } else {
         const response = await apiRequest(
@@ -313,11 +318,21 @@ export class Generation {
               {},
               combined,
             );
+            const jobId = normalized.job.id;
             normalized = normalizeResponse(
               c,
               Buffer.from(JSON.stringify(raw)),
               "application/json",
             );
+            if (
+              (normalized.terminal && normalized.upstreamId !== jobId) ||
+              (normalized.job && normalized.job.id !== jobId)
+            )
+              fail(
+                "invalid_response",
+                "Polled response does not match the existing job.",
+                "response",
+              );
           }
         }
       }
@@ -358,6 +373,14 @@ export class Generation {
       return completed;
     } catch (error) {
       if (!this.store.owns(id, receipt)) return this.store.get(id);
+      if (error instanceof TerminalProviderError)
+        return this.store.terminal(
+          id,
+          error.terminal,
+          safeError(error),
+          receipt,
+          receipt.upstream_job,
+        );
       const current = this.store.get(id);
       receipt = current;
       const ambiguous =
@@ -384,11 +407,13 @@ export class Generation {
         : receipt.generation_outcome;
       if (
         receipt.upstream_job &&
-        combined.aborted &&
-        receipt.generation_outcome !== "completed"
+        !receipt.upstream_terminal &&
+        (receipt.generation_outcome !== "completed" ||
+          (!receipt.outputs.length && !this.store.hasPendingResults(id)))
       ) {
         receipt.status = "running";
-        receipt.generation_outcome = "running";
+        if (receipt.generation_outcome !== "completed")
+          receipt.generation_outcome = "running";
         receipt.warnings.push(
           "Local waiting stopped; existing upstream job may still be running. Use get_job, never resubmit.",
         );
@@ -413,6 +438,27 @@ export class Generation {
     claimed = false,
   ): Promise<Receipt> {
     const id = receipt.request_id;
+    let terminalClaim = false;
+    if (result.terminal) {
+      if (!this.store.owns(id, receipt)) return this.store.get(id);
+      receipt = this.store.terminal(
+        id,
+        result.terminal,
+        safeError(
+          new NumeraError(
+            "provider_rejection",
+            "Provider reported a terminal generation result.",
+            "response",
+          ),
+        ),
+        receipt,
+        receipt.upstream_job,
+      );
+      if (!result.images.length && !this.store.hasPendingResults(id))
+        return receipt;
+      claimed = true;
+      terminalClaim = true;
+    }
     if (
       claimed
         ? !this.store.owns(id, receipt)
@@ -440,7 +486,7 @@ export class Generation {
       );
     } finally {
       clearInterval(leaseWatch);
-      if (!claimed) this.store.release(id, receipt);
+      if (!claimed || terminalClaim) this.store.release(id, receipt);
     }
   }
   async recoverLocal(

@@ -39,3 +39,13 @@ Anthropic-compatible research2026-10-03: officialMessages/vision and SDKoutput C
 https://github.com/anthropics/anthropic-sdk-typescript/blob/d49bdab458000bcdffe77bd84b03293f31824fb3/src/resources/messages/messages.ts distinguishimageinput fromoutput. OmniRoute3.8.51 buildc1e30b7/pinnedc1e30b7676975feb298b49eff6ff58923c04b89e
 Messages route->chat guard and responseTranslator.ts#L736 dropimagearrays; no claimedMessagesimageadapter.
 No upstreamcodecopied, no sharedgatewaymutation or additionalpaidrequest.
+
+Terminal lifecycle sources checked2026-10-05: OpenAI ResponseStatus at
+https://github.com/openai/openai-node/blob/fb6955621e1cf6653659adb75094ebace83ebfe9/src/resources/responses/responses.ts ;
+Google InteractionStatusUpdateStatus at
+https://github.com/googleapis/js-genai/blob/f6b85db43db2cb88705f60af9c394fee308ac497/src/gaos/models/interactions/interaction-status-update.ts ;
+Comfy targeted cancellation dispatch/terminal job status at
+https://github.com/Comfy-Org/ComfyUI/blob/5c460d8172fe30761ff67c0df3d5643bb74e0d70/server.py and openapi.yaml.
+A true cancellation boolean confirms dispatch only, not completion/refund. SDK2.3.1 patch release
+https://github.com/modelcontextprotocol/typescript-sdk/releases/tag/v2.3.1 retains stdio contracts.
+No third-party implementation copied.

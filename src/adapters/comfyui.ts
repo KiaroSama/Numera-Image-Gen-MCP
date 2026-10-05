@@ -1,3 +1,4 @@
+import { TerminalProviderError } from "./terminal.js";
 import { FormData } from "undici";
 import { randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
@@ -198,6 +199,7 @@ export async function comfyStatus(
   onImage?: (index: number, bytes: Buffer) => Promise<void>,
   maxOutputBytes?: number,
   maxAggregateBytes = 100 * 1024 * 1024,
+  onCompleted?: () => void,
 ): Promise<Normalized | undefined> {
   const history = record(
     await apiJson(c, `history/${encodeURIComponent(id)}`, "", {}, signal),
@@ -206,8 +208,9 @@ export async function comfyStatus(
   const entry = record(history[id]),
     status = record(entry.status);
   if (status.status_str === "error")
-    fail("provider_rejection", "ComfyUI workflow failed.", "generation");
+    throw new TerminalProviderError("failed", "ComfyUI workflow failed.");
   if (status.completed !== true) return;
+  onCompleted?.();
   const images: Normalized["images"] = [];
   let total = 0;
   for (const node of c.workflow!.outputNodes) {
@@ -266,6 +269,7 @@ export async function waitComfy(
   onImage?: (index: number, bytes: Buffer) => Promise<void>,
   maxOutputBytes?: number,
   maxAggregateBytes?: number,
+  onCompleted?: () => void,
 ) {
   while (!signal.aborted) {
     const result = await comfyStatus(
@@ -275,6 +279,7 @@ export async function waitComfy(
       onImage,
       maxOutputBytes,
       maxAggregateBytes,
+      onCompleted,
     );
     if (result) return result;
     await delay(500, undefined, { signal });

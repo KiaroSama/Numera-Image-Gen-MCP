@@ -48,3 +48,9 @@ must not be called deployed-gateway integration. Interactive DPAPI creation/ACL 
 Live tests require endpoint/model/number/cost authorization. No existing key authorizes generation.
 GPU actual graph/model/backend and host GUI tests not_run when unavailable. Keep evidence separate
 from configured/documented/advertised support. See TEST-RESULTS.md and REQUIREMENT-TEST-MATRIX.md.
+
+Terminal lifecycle fixtures exercise public MCP failed/cancelled results, polling error/identity controls,
+targeted cancellation dispatch versus confirmation and database reopen. Reservation fixtures preserve
+unknown receipts, retained bytes/URLs and live/detached budgets; actual child processes race one bounded
+journal budget. Local recovery preserves terminal generation state and original bytes. These are
+synthetic provider contracts, not live Comfy/Gemini/OpenAI cancellation or refund proof.

@@ -191,9 +191,13 @@ describe("native final result normalization", () => {
           },
         });
       for (const status of ["failed", "cancelled", "incomplete"])
-        expect(() => normalize(connection(adapter), { status })).toThrow(
-          expect.objectContaining({ code: "provider_rejection" }),
-        );
+        expect(
+          normalize(connection(adapter), { status, id: "job-123" }),
+        ).toMatchObject({
+          terminal: status,
+          upstreamId: "job-123",
+          images: [],
+        });
     },
   );
 

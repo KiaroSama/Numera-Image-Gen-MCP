@@ -66,7 +66,7 @@ export async function finalizeResults(
     10,
   );
   receipt.status = "finalizing";
-  receipt.generation_outcome = "completed";
+  receipt.generation_outcome = receipt.upstream_terminal ?? "completed";
   receipt.storage_outcome = "writing";
   // Retry local storage, not generation; old storage errors stop being current after recovery.
   receipt.errors = receipt.errors.filter(
