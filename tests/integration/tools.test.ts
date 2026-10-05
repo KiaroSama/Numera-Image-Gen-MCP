@@ -68,6 +68,9 @@ it("executes every tool with schemas, resource bytes and bounded previews", asyn
             },
           });
           expect(generated.isError).toBe(false);
+          expect(
+            Object.getOwnPropertySymbols(generated.structuredContent!),
+          ).toEqual([]);
           expect(generated.content.some((c) => c.type === "image")).toBe(true);
           const outputs = (
               generated.structuredContent as {

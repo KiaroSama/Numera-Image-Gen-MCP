@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFile } from "node:fs/promises";
 import { Store } from "../../src/jobs/store.js";
 import { Generation } from "../../src/services/generation.js";
+import { connectionIdentity } from "../../src/services/connection-identity.js";
 import { getJob } from "../../src/services/jobs.js";
 import { Logger } from "../../src/logging.js";
 import { requestSchema } from "../../src/config/schema.js";
@@ -107,7 +108,12 @@ describe("review regressions", () => {
                 size: "8x6",
               },
             };
-            store1.prepare(initial, "hash", "identity");
+            store1.prepare(
+              initial,
+              "hash",
+              await connectionIdentity("local", config.connections.local!),
+            );
+            store1.release(initial.request_id);
             const results = await Promise.all([
               getJob(
                 new Generation(config, store1, log),
@@ -133,7 +139,7 @@ describe("review regressions", () => {
               expect(await readFile(output.path)).toEqual(bytes);
             }
             expect(results.some((r) => r.status === "completed")).toBe(true);
-            expect(downloads).toBe(2);
+            expect(downloads).toBe(1);
           } finally {
             store1.close();
             store2.close();

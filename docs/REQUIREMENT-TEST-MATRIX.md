@@ -46,4 +46,13 @@ when requested dimensions differ; originals remain unchanged.
 
 Env/live configuration: env-config.test.ts covers strict UTF-8 parsing, duplicate/unknown assignments, native profiles/edit settings and fixed-policy rejection. config-reload.test.ts covers last-good save, retained identity/ambiguous transport recovery and immutable in-flight operations; env-stdio.test.ts verifies the actual built stdio entrypoint from another CWD. image-editing.test.ts covers exact reference bytes, translation instructions, rectangle PNG alpha/color polarities and pre-submission invalid-region/mask conflicts. These fixtures do not prove live translation quality.
 
+Recovery review (verified in hostedCI37307308453 on320f903): tests/integration/recovery.test.ts and
+journal-sql-failures.test.ts cover leases, real child kills, journal publication/commit faults and migration;
+async-waiter-race.test.ts covers Responses waiter/refresher fencing; comfy-result-retention.test.ts and
+cancelled-results.test.ts cover partial downloads and cancellation. tests/unit/output-directory-race.test.ts
+uses two real ENOENT observations and competing directory/file/junction schedules.
+Recovery-requirements.test.ts covers scalar/array/multipart cardinality, model limits and sourced preset
+comparisons; output-requirements.test.ts preserves bytes and identical normal/recovered deviations.
+Existing two-process MCP deduplication and large Base64 fixtures remain in the automatic CI discovery.
+
 Dimension discovery: tests/contract/dimensions.test.ts verifies native ratio/tier/pixel presets, unknown-model honesty and selected-route restrictions without image submission. Large Base64 boundary: tests/unit/images.test.ts covers a valid4MiB round trip, malformed padding/alphabet and byte-limit rejection.

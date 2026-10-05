@@ -1,5 +1,7 @@
 import type { Connection, ImageRequest } from "./config/schema.js";
 import { fail } from "./errors.js";
+import { validateEditContract } from "./edit-contract.js";
+import { validateImageDimensions } from "./services/image-dimensions.js";
 export const commonFields = [
   "size",
   "aspect_ratio",
@@ -159,6 +161,8 @@ export function effectiveRequest(
     connection.deniedModels.includes(model)
   )
     fail("model_unavailable", "Model is denied by connection policy.");
+  validateEditContract(connection.edit, merged.reference_images.length);
+  validateImageDimensions(connection, model, merged);
   const cap = capabilities(connection, model);
   if (
     request.count > 1 &&

@@ -21,3 +21,4 @@ explain-AI.md
 .git/
 config.local.json
 inputs/
+.ai/.cross-project-sync/

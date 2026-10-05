@@ -6,6 +6,7 @@ import { fingerprint, Store, type Output } from "../../src/jobs/store.js";
 import { requestSchema } from "../../src/config/schema.js";
 import { Logger } from "../../src/logging.js";
 import { Generation } from "../../src/services/generation.js";
+import { connectionIdentity } from "../../src/services/connection-identity.js";
 import { cancelJob, getJob } from "../../src/services/jobs.js";
 import {
   configuration,
@@ -287,7 +288,16 @@ describe("generation receipt completion and owned job recovery", () => {
           outputs: [],
         });
         expect(result.errors).toHaveLength(1);
-        expect(store.listOutputs()).toHaveLength(1);
+        expect(store.pendingResults(cancelled.request_id)).toHaveLength(1);
+        const recovered = await getJob(
+          generation,
+          cancelled.request_id,
+          true,
+          signal,
+        );
+        expect(recovered.status).toBe("completed");
+        expect(await readFile(recovered.outputs[0]!.path)).toEqual(bytes);
+        expect(store.listOutputs()).toHaveLength(2);
       } finally {
         logger.close();
         store.close();
@@ -380,7 +390,11 @@ describe("generation receipt completion and owned job recovery", () => {
               status: "running",
               upstream_job: { id: "owned job", kind: "responses" },
             };
-            store.prepare(initial, "hash", "identity");
+            store.prepare(
+              initial,
+              "hash",
+              await connectionIdentity("local", options.connections.local!),
+            );
             const generation = new Generation(options, store, logger);
             expect(
               (await getJob(generation, initial.request_id, false, signal))
@@ -499,7 +513,11 @@ describe("transactional owned receipts", () => {
           ["b1", "b"],
           ["b2", "b"],
         ])
-          first.prepare(receipt(id!, profile!), id!, profile!);
+          (id === "a2" || id === "b1" ? second : first).prepare(
+            receipt(id!, profile!),
+            id!,
+            profile!,
+          );
         expect(second.queued()).toBe(4);
         expect(first.admit("a1", "a", 2, 1)).toBe(true);
         expect(second.admit("a2", "a", 2, 1)).toBe(false);

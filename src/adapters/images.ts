@@ -1,5 +1,6 @@
 import { FormData } from "undici";
 import { fail } from "../errors.js";
+import { validateEditContract } from "../edit-contract.js";
 import { commonFields } from "../capabilities.js";
 import { jsonRequest, mimeData, type AdapterInput } from "./types.js";
 export function imagesRequest(input: AdapterInput) {
@@ -84,6 +85,7 @@ export function imagesRequest(input: AdapterInput) {
           maxReferences: 1,
           masks: false,
         });
+  validateEditContract(edit, references.length);
   if (edit.mode === "multipart") {
     const form = new FormData();
     for (const [k, v] of Object.entries(fields))

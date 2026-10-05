@@ -109,8 +109,19 @@ export async function outputDirectory(root: string, subdirectory?: string) {
         );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-      await mkdir(current, { mode: 0o700 });
+      try {
+        await mkdir(current, { mode: 0o700 });
+      } catch (creationError) {
+        if ((creationError as NodeJS.ErrnoException).code !== "EEXIST")
+          throw creationError;
+      }
     }
+    const created = await lstat(current);
+    if (created.isSymbolicLink() || !created.isDirectory())
+      fail(
+        "output_file_error",
+        "Output path contains a link or non-directory.",
+      );
     if (!contained(base, await realpath(current)))
       fail("output_file_error", "Output path escapes output root.");
   }

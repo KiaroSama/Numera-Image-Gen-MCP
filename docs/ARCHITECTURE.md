@@ -24,8 +24,23 @@ instructions are appended only when target_language is explicitly requested. No 
 SQLite is built into Node24 (release-candidate API), avoiding a native DB dependency. State must be
 local shared storage, not an unreliable network drive. Unique intent does not prove global exactly-once
 execution across installations or prevent a gateway's internal retry/fallback. Unknown requests do
-not replay. Crash receipts may remain in-flight until conservative lease expiry; inspect before new
-billing authorization.
+not replay. Renewable writer leases carry generation fences: an expired or replaced writer cannot
+update receipts or commit output metadata. Dead prepared intents release queue capacity without
+submission. Normal completion and job refresh share the same finalization claim.
+
+Completed image bytes are retained in a bounded SQLite result journal before filesystem publication.
+A stable item identifier, planned target and hash reconcile a crash after file publication but before
+indexing; output index, receipt append and journal commit use one transaction. Publication is not a
+cross-filesystem/SQL atomic transaction. Disk/database failure can still prevent initial retention;
+Numera reports that failure and never silently repeats paid work. Schema migration takes a consistent
+SQLite snapshot including committed WAL state before transactional changes. `get_job(refresh=true)`
+recovers retained bytes without the original credential; pending asset URLs use only validated,
+credential-free GETs. Polling an existing upstream handle still requires matching destination/account.
+Files are fsynced before non-overwriting publication; POSIX also fsyncs the output directory after
+link/unlink. Windows does not provide the same directory-sync contract. This is process-crash
+recovery, not a universal guarantee against disk failure or power loss. Migration creates a private
+consistent snapshot with a SHA256/schema/date manifest; future or incomplete schemas stop safely.
+If the journal's SQLite transaction itself cannot persist received bytes, recovery is not guaranteed.
 
 Native protocols differ: Gemini inlineData is not Interactions input/steps, Responses orchestration
 model is not image tool model, and OpenRouter /images is not chat/completions. No recursive Base64

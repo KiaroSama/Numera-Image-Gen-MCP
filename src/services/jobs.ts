@@ -6,56 +6,120 @@ import { normalize } from "../adapters/normalize.js";
 import { connectionPrefix } from "./discovery.js";
 import { requestSchema } from "../config/schema.js";
 import type { Generation } from "./generation.js";
-import { record } from "../errors.js";
+import { fail, record, safeError } from "../errors.js";
+import { connectionIdentity } from "./connection-identity.js";
+import { retainImage } from "./result-finalization.js";
+import { Store } from "../jobs/store.js";
 export async function getJob(
   generation: Generation,
   id: string,
   refresh = false,
   signal?: AbortSignal,
 ) {
-  const receipt = generation.store.get(id);
+  if (refresh) generation.store.queued();
+  let receipt = generation.store.get(id);
+  if (!refresh) return receipt;
+  // Local completed bytes are recoverable even after the selected connection was removed.
+  if (generation.store.needsLocalRecovery(id))
+    return generation.recoverLocal(id, signal);
   if (
-    !refresh ||
     !receipt.upstream_job ||
     ["completed", "partial", "failed"].includes(receipt.status)
   )
     return receipt;
-  const [, c] = selectConnection(generation.config, receipt.connection),
-    job = receipt.upstream_job,
-    combined = signal
-      ? AbortSignal.any([signal, AbortSignal.timeout(c.requestTimeoutMs)])
-      : AbortSignal.timeout(c.requestTimeoutMs);
-  const result =
-    job.kind === "comfyui"
-      ? await comfyStatus(c, job.id, combined)
-      : normalize(
-          c,
-          await apiJson(
-            c,
-            `${job.kind}/${encodeURIComponent(job.id)}`,
-            connectionPrefix(c),
-            {},
-            combined,
-          ),
-        );
-  if (result && !result.job) {
-    if (!generation.store.claimFinalization(id))
-      return generation.store.get(id);
-    return generation.finish(
-      receipt,
-      result,
-      requestSchema.parse({
-        prompt: "recovered",
-        ...Object.fromEntries(
-          Object.entries(receipt.output_requirements ?? {}).filter(
-            ([key]) => key !== "upscale_source",
-          ),
-        ),
-      }),
-      combined,
+  const [, c] = selectConnection(generation.config, receipt.connection);
+  if (
+    (await connectionIdentity(receipt.connection, c)) !==
+    generation.store.identity(id)
+  )
+    fail(
+      "permission_denied",
+      "Existing job destination/account identity changed; network recovery is not authorized.",
     );
+  if (!generation.store.claimFinalization(id)) return generation.store.get(id);
+  receipt = generation.store.get(id);
+  const job = receipt.upstream_job!,
+    controller = new AbortController();
+  const combined = AbortSignal.any([
+    controller.signal,
+    AbortSignal.timeout(c.requestTimeoutMs),
+    ...(signal ? [signal] : []),
+  ]);
+  const leaseWatch = setInterval(() => {
+    try {
+      if (!generation.store.renew(id, receipt)) controller.abort();
+    } catch {
+      controller.abort();
+    }
+  }, Store.leaseMs / 3);
+  leaseWatch.unref();
+  try {
+    generation.store.reserveResults(
+      id,
+      generation.config.files.maxAggregateBytes,
+      generation.config.files.maxJournalBytes,
+    );
+    const result =
+      job.kind === "comfyui"
+        ? await comfyStatus(
+            c,
+            job.id,
+            combined,
+            async (index, bytes) => {
+              await retainImage(
+                generation.config,
+                generation.store,
+                id,
+                index,
+                bytes,
+                receipt,
+              );
+            },
+            generation.config.files.maxOutputBytes,
+            generation.config.files.maxAggregateBytes,
+          )
+        : normalize(
+            c,
+            await apiJson(
+              c,
+              `${job.kind}/${encodeURIComponent(job.id)}`,
+              connectionPrefix(c),
+              {},
+              combined,
+            ),
+          );
+    if (result && !result.job)
+      return await generation.finish(
+        receipt,
+        result,
+        requestSchema.parse({
+          prompt: "recovered",
+          ...Object.fromEntries(
+            Object.entries(receipt.output_requirements ?? {}).filter(
+              ([key]) =>
+                !["upscale_source", "dimension_evidence"].includes(key),
+            ),
+          ),
+        }),
+        combined,
+        true,
+      );
+    receipt.status = "running";
+    generation.store.update(receipt);
+    return receipt;
+  } catch (error) {
+    if (!generation.store.owns(id, receipt)) return generation.store.get(id);
+    receipt = generation.store.get(id);
+    receipt.errors.push(safeError(error));
+    receipt.status = generation.store.hasPendingResults(id)
+      ? "failed"
+      : "running";
+    generation.store.update(receipt);
+    return receipt;
+  } finally {
+    clearInterval(leaseWatch);
+    generation.store.release(id, receipt);
   }
-  return receipt;
 }
 export async function cancelJob(
   config: Config,
@@ -70,6 +134,14 @@ export async function cancelJob(
     upstream_cancelled: boolean | null = null;
   if (receipt.upstream_job) {
     const [, c] = selectConnection(config, receipt.connection);
+    if (
+      (await connectionIdentity(receipt.connection, c)) !==
+      generation.store.identity(id)
+    )
+      fail(
+        "permission_denied",
+        "Existing job destination/account identity changed; cancellation is not authorized.",
+      );
     const job = receipt.upstream_job;
     if (job.kind === "comfyui") {
       const result = record(

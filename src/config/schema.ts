@@ -104,7 +104,24 @@ export const connectionSchema = z
       .strict()
       .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((connection, context) => {
+    const edit = connection.edit;
+    if (!edit) return;
+    if (
+      (edit.mode === "multipart" &&
+        !["image", "image[]"].includes(edit.encoding)) ||
+      (edit.mode !== "multipart" && edit.encoding === "image[]") ||
+      (edit.mode !== "multipart" &&
+        edit.encoding === "image" &&
+        edit.maxReferences > 1)
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["edit"],
+        message: "Edit mode, encoding and reference capacity are incompatible.",
+      });
+  });
 export const configSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -135,6 +152,7 @@ export const configSchema = z
         maxInputBytes: positive.default(20 * 1024 * 1024),
         maxOutputBytes: positive.default(50 * 1024 * 1024),
         maxAggregateBytes: positive.default(100 * 1024 * 1024),
+        maxJournalBytes: positive.default(256 * 1024 * 1024),
         maxPixels: positive.default(64000000),
         maxReferences: positive.max(32).default(14),
         previewMaxBytes: positive.default(262144),

@@ -206,11 +206,19 @@ export async function runBounded(
           verified = false;
         }
       } else {
-        try {
-          process.kill(-child.pid, 0);
-          verified = false;
-        } catch (error) {
-          if (error.code !== "ESRCH") verified = false;
+        const until = Date.now() + 2000;
+        while (true) {
+          try {
+            process.kill(-child.pid, 0);
+          } catch (error) {
+            if (error.code !== "ESRCH") verified = false;
+            break;
+          }
+          if (Date.now() >= until) {
+            verified = false;
+            break;
+          }
+          await pause(20);
         }
       }
     }

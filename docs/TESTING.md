@@ -2,7 +2,8 @@
 
 npm run check: strict typecheck/lint/build/UTF8/source-size. npm run coverage: all discovered unit,
 contract and integration files with85 percent statements/80 percent branches. No runtime exclusions.
-Outer runner180s wall/45s idle, case10s/hooks15s, max2 workers. Tiny cached Sharp fixtures and isolated
+Outer runner180s wall/45s idle, case10s/hooks15s, max2 workers. POSIX cleanup waits at most2s
+for the killed process group to disappear; it never treats a live group as verified cleanup. Tiny cached Sharp fixtures and isolated
 project-owned temp roots; loopback external boundaries only, finally cleanup stores/loggers/sockets.
 
 npm run package:check validates allowlisted npm artifact and a production-only clean install in a
@@ -21,7 +22,19 @@ conservative TOML refusal, five PowerShell7 WhatIf actions and idle-timeout desc
 Logging fixtures verify immutable per-run metadata, closed file handlers, redaction at all levels;
 actual stdio tests assert paired tool start/completion/failure with call IDs/durations and no key/prompt.
 Native wire-contract fixtures assert method/path/header/body for each protocol, multipart byte fidelity,
-legacy-client negotiation, endpoint descriptors and private continuation state.
+legacy-client negotiation, endpoint descriptors and private continuation state. Recovery regressions
+exercise renewable writer fencing, expired prepared admission, retained inline bytes after cancellation,
+local recovery without connection credentials, published-file/hash reconciliation, bounded journal
+reservations, real output-index SQL-trigger failure, future-schema refusal, and legacy migration.
+Actual child kill checkpoints cover pre-intent/prepared/submitted/running/finalizing/retained/published/
+committed states; reopened stores assert deduplication and original hashes. Original Comfy waiting
+races a refresher through the actual Generation entry point; partial downloads retain the first image.
+These cases passed fresh hosted CI on320f903; historical CI is not used as their evidence.
+Scheduled filesystem races insert a directory, regular file or
+junction between the missing-path observation and mkdir; only the real directory is accepted.
+Two distinct reference images prove scalar contracts reject and array encoding preserves both.
+Dimension fixtures separate sourced model limits from the route safety ceiling and compare persisted
+aspect/tier requirements against original output bytes.
 No controlled real-gateway process was run against fake upstreams; gateway-shaped contract fixtures
 must not be called deployed-gateway integration. Interactive DPAPI creation/ACL remains not_run.
 
