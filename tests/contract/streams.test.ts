@@ -443,7 +443,14 @@ describe("input and option fidelity at native request seams", () => {
       const input = adapterInput(
         "openai-images",
         {},
-        { edit: { mode: "json", encoding, maxReferences: 2, masks: true } },
+        {
+          edit: {
+            mode: "json",
+            encoding,
+            maxReferences: encoding === "image" ? 1 : 2,
+            masks: true,
+          },
+        },
         [image],
       );
       input.mask = image;

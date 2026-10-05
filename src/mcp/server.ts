@@ -103,7 +103,10 @@ export function createServer(
           generation: generations.find((g) => g.config === current)!,
           discovery: discoveries.get(current)!,
         }),
-        structuredContent = value as Record<string, unknown>;
+        structuredContent = JSON.parse(JSON.stringify(value)) as Record<
+          string,
+          unknown
+        >;
       logger.log("INFO", "tool", "Tool completed.", {
         tool,
         call_id,
