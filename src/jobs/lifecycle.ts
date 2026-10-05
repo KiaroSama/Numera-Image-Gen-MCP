@@ -120,10 +120,7 @@ export function terminateRequest(
       "permission_denied",
       "Terminal result does not match the existing job.",
     );
-  if (
-    receipt.upstream_terminal ||
-    (!receipt.upstream_terminal && receipt.generation_outcome === "completed")
-  )
+  if (receipt.upstream_terminal || receipt.generation_outcome === "completed")
     return;
   receipt.upstream_terminal = state;
   receipt.generation_outcome = state;

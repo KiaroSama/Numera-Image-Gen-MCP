@@ -100,7 +100,14 @@ it(
       await server(
         (req, res) => {
           paths.push(req.url!);
-          json(res, req.method === "POST" ? { cancelled: true } : {});
+          json(
+            res,
+            req.method === "POST"
+              ? { cancelled: true }
+              : req.url?.startsWith("/api/jobs/")
+                ? { id: "original-handle", status: "cancelled" }
+                : {},
+          );
         },
         async (origin) => {
           const file = join(root, "config.json");
@@ -173,6 +180,7 @@ it(
             expect(paths).toEqual([
               "/history/original-handle",
               "/api/jobs/original-handle/cancel",
+              "/api/jobs/original-handle",
             ]);
             const unknown = await client.callTool(
               {
@@ -185,7 +193,7 @@ it(
             expect(unknown.structuredContent).toMatchObject({
               error: { code: "permission_denied" },
             });
-            expect(paths).toHaveLength(2);
+            expect(paths).toHaveLength(3);
             await writeFile(
               file,
               JSON.stringify({
@@ -210,7 +218,7 @@ it(
             expect(ambiguous.structuredContent).toMatchObject({
               error: { code: "permission_denied" },
             });
-            expect(paths).toHaveLength(2);
+            expect(paths).toHaveLength(3);
           } finally {
             await client.close();
             await app.server.close();

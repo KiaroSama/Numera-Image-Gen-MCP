@@ -152,12 +152,14 @@ export async function cancelJob(
   signal?: AbortSignal,
 ) {
   const receipt = generation.store.get(id);
+  generation.active.get(id)?.abort();
   if (["completed", "partial", "failed", "cancelled"].includes(receipt.status))
     return {
       request_id: id,
-      local_wait_cancelled: false,
+      local_wait_cancelled: true,
       upstream_requested: false,
-      upstream_cancelled: receipt.upstream_terminal === "cancelled",
+      upstream_cancelled:
+        receipt.upstream_terminal === "cancelled" ? true : null,
       refund_verified: false,
       another_submission_may_charge: true,
     };

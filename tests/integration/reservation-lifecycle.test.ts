@@ -118,12 +118,16 @@ it("confirmed termination fences a live waiter without discarding retained bytes
         undefined,
         r.upstream_job,
       );
-      expect(owner.owns("race", r)).toBe(false);
-      expect(() => owner.update(r)).toThrow();
-      expect(control.pendingResults("race")[0]?.bytes).toEqual(
+      expect(owner.owns("race", r)).toBe(true);
+      expect(() =>
+        owner.retainResult("race", 1, Buffer.alloc(8), r),
+      ).not.toThrow();
+      expect(control.pendingResults("race").map((i) => i.bytes)).toEqual([
         Buffer.alloc(16),
-      );
+        Buffer.alloc(8),
+      ]);
       expect(control.get("race").generation_outcome).toBe("cancelled");
+      owner.release("race", r);
       control.prepare(receipt("fresh"), "fresh", "identity");
       expect(control.admit("fresh", "local", 1, 1)).toBe(true);
     } finally {
