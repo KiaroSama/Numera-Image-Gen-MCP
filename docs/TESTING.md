@@ -2,7 +2,8 @@
 
 npm run check: strict typecheck/lint/build/UTF8/source-size. npm run coverage: all discovered unit,
 contract and integration files with85 percent statements/80 percent branches. No runtime exclusions.
-Outer runner180s wall/45s idle, case10s/hooks15s, max2 workers. Tiny cached Sharp fixtures and isolated
+Outer runner180s wall/45s idle, case10s/hooks15s, max2 workers. POSIX cleanup waits at most2s
+for the killed process group to disappear; it never treats a live group as verified cleanup. Tiny cached Sharp fixtures and isolated
 project-owned temp roots; loopback external boundaries only, finally cleanup stores/loggers/sockets.
 
 npm run package:check validates allowlisted npm artifact and a production-only clean install in a
