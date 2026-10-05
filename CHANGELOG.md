@@ -2,6 +2,10 @@
 
 ## Unreleased - 2026-10-05
 
+Use the stable native TypeScript7 compiler for typecheck/build alongside the official TypeScript6
+API compatibility package for type-aware ESLint. Explicit compiler paths avoid executable collisions;
+normal dependency resolution and existing verification gates remain enforced.
+
 Recovery changes passed hosted Windows/Linux/macOS validation on320f903. Renewable
 writer fencing and a bounded private result journal preserve received originals for storage recovery
 without paid resubmission. Output index/receipt relationships commit together, with stable publication

@@ -26,8 +26,8 @@
     "url": "https://github.com/KiaroSama/Numera-Image-Gen-MCP.git"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
+    "build": "node node_modules/@typescript/native/bin/tsc --singleThreaded -p tsconfig.build.json",
+    "typecheck": "node node_modules/@typescript/native/bin/tsc --singleThreaded --noEmit",
     "lint": "eslint src tests",
     "format": "prettier --write src tests scripts examples schemas docs *.json *.md .github",
     "format:check": "prettier --check src tests scripts examples schemas docs *.json *.md .github",
@@ -50,10 +50,11 @@
   "devDependencies": {
     "@modelcontextprotocol/client": "2.3.0",
     "@types/node": "26.6.4",
+    "@typescript/native": "npm:typescript@7.0.2",
     "@vitest/coverage-v8": "5.0.3",
     "eslint": "10.12.0",
     "prettier": "3.9.9",
-    "typescript": "7.0.2",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.71.0",
     "vitest": "5.0.3"
   }

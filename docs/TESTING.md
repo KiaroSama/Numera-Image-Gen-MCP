@@ -1,5 +1,12 @@
 # Testing
 
+The native TypeScript7.0.2 compiler runs build/typecheck single-threaded through an explicit
+@typescript/native npm alias. Type-aware ESLint retains the supported TypeScript6.0.3 API via
+Microsoft's @typescript/typescript6 compatibility alias. Normal npm ci resolves both without forced
+peers or parser patches. The check entrypoint asserts both versions and the lint API before running
+existing strict checks; the three-platform matrix also validates the native compiler's emitted runtime.
+See [Microsoft's side-by-side guidance](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0).
+
 npm run check: strict typecheck/lint/build/UTF8/source-size. npm run coverage: all discovered unit,
 contract and integration files with85 percent statements/80 percent branches. No runtime exclusions.
 Outer runner180s wall/45s idle, case10s/hooks15s, max2 workers. POSIX cleanup waits at most2s

@@ -1,13 +1,32 @@
+import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { join } from "node:path";
 import { runBounded } from "./bounded.mjs";
 import { maintenance, projectRoot } from "./logging.mjs";
 
 await maintenance("check", async (log) => {
+  const require = createRequire(import.meta.url);
+  const api = require("typescript");
+  const native = require("@typescript/native/package.json");
+  assert.equal(native.version, "7.0.2", "Native compiler version mismatch.");
+  assert.equal(api.version, "6.0.3", "Lint compiler API version mismatch.");
+  assert.equal(
+    typeof api.createProgram,
+    "function",
+    "Lint compiler API missing.",
+  );
+  log.emit("INFO", "Native compiler7 and lint API6 compatibility verified.");
   for (const [script, args] of [
-    ["node_modules/typescript/bin/tsc", ["--noEmit"]],
+    [
+      "node_modules/@typescript/native/bin/tsc",
+      ["--singleThreaded", "--noEmit"],
+    ],
     ["node_modules/eslint/bin/eslint.js", ["src", "tests"]],
-    ["node_modules/typescript/bin/tsc", ["-p", "tsconfig.build.json"]],
+    [
+      "node_modules/@typescript/native/bin/tsc",
+      ["--singleThreaded", "-p", "tsconfig.build.json"],
+    ],
   ]) {
     const result = await runBounded(
       process.execPath,
