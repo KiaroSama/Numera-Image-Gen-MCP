@@ -195,6 +195,9 @@ export async function comfyStatus(
   c: Connection,
   id: string,
   signal: AbortSignal,
+  onImage?: (index: number, bytes: Buffer) => Promise<void>,
+  maxOutputBytes?: number,
+  maxAggregateBytes = 100 * 1024 * 1024,
 ): Promise<Normalized | undefined> {
   const history = record(
     await apiJson(c, `history/${encodeURIComponent(id)}`, "", {}, signal),
@@ -206,6 +209,7 @@ export async function comfyStatus(
     fail("provider_rejection", "ComfyUI workflow failed.", "generation");
   if (status.completed !== true) return;
   const images: Normalized["images"] = [];
+  let total = 0;
   for (const node of c.workflow!.outputNodes) {
     const output = record(record(entry.outputs)[node] ?? {});
     for (const item of array(output.images)) {
@@ -215,6 +219,13 @@ export async function comfyStatus(
         !["output", "temp"].includes(String(file.type))
       )
         continue;
+      if (images.length >= 10)
+        fail(
+          "invalid_response",
+          "Provider returned too many final image items.",
+          "response",
+        );
+      signal.throwIfAborted();
       const response = await apiRequest(
         c,
         "view",
@@ -227,7 +238,16 @@ export async function comfyStatus(
           },
         },
         signal,
+        maxOutputBytes,
       );
+      total += response.bytes.length;
+      if (total > maxAggregateBytes)
+        fail(
+          "invalid_response",
+          "Aggregate output bytes exceeded.",
+          "response",
+        );
+      await onImage?.(images.length, response.bytes);
       images.push({ bytes: response.bytes });
     }
   }
@@ -243,9 +263,19 @@ export async function waitComfy(
   c: Connection,
   id: string,
   signal: AbortSignal,
+  onImage?: (index: number, bytes: Buffer) => Promise<void>,
+  maxOutputBytes?: number,
+  maxAggregateBytes?: number,
 ) {
   while (!signal.aborted) {
-    const result = await comfyStatus(c, id, signal);
+    const result = await comfyStatus(
+      c,
+      id,
+      signal,
+      onImage,
+      maxOutputBytes,
+      maxAggregateBytes,
+    );
     if (result) return result;
     await delay(500, undefined, { signal });
   }

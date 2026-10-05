@@ -72,7 +72,7 @@ export function createServer(
     { name: "numera-image-gen-mcp", version: "0.1.0" },
     {
       instructions:
-        "Discover connection/model capabilities before images. Reuse one request_id per logical operation. Never resubmit unknown outcomes. References require verified forwarding; files are reliable outputs and local paths may not be accessible to remote hosts. Do not replace the host chat model.",
+        "Discover connection/model capabilities and documented maximum dimensions before images. Never treat route safety pixel limits as model support or promise native 4K/8K without evidence. Verify original returned dimensions. Reuse one request_id per logical operation. Never resubmit unknown outcomes. References require verified forwarding; files are reliable outputs and local paths may not be accessible to remote hosts. Do not replace the host chat model.",
     },
   );
   const wrap = async (
@@ -322,9 +322,14 @@ export function createServer(
     },
     async ({ request_id, refresh }, ctx) =>
       wrap("get_job", async () => {
-        const receipt = store.get(request_id);
+        let receipt = store.get(request_id);
+        if (refresh && store.needsLocalRecovery(request_id))
+          receipt = await (
+            await generationFor(request_id, false)
+          ).recoverLocal(request_id, ctx.mcpReq.signal);
         const upstream =
           refresh &&
+          !store.needsLocalRecovery(request_id) &&
           !!receipt.upstream_job &&
           !["completed", "partial", "failed"].includes(receipt.status);
         return getJob(

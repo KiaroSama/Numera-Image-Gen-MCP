@@ -25,6 +25,13 @@ _Avoid_: Prompt cache entry.
 **Receipt**: The durable outcome of a logical request, including uncertainty and saved outputs.
 _Avoid_: Guaranteed successful generation.
 
+**Retained result**: A received image item preserved for local recovery before becoming an owned output.
+_Avoid_: Permission to generate again.
+
+**Documented dimension limit**: A sourced image model's native size boundary, distinct from route safety
+limits, account entitlement and dimensions observed in one output.
+_Avoid_: A gateway's universal maximum.
+
 **Owned output**: An image Numera saved and can verify by its own identifier and bytes.
 _Avoid_: Arbitrary local file.
 

@@ -63,6 +63,11 @@ EDIT_MASKS=true
 EDIT_MASK_POLARITY=transparent-edit
 ```
 
+Multipart supports repeated `image` or `image[]` parts. JSON/generation `image` is scalar and
+must have `maxReferences=1`; a model override cannot raise that serializer capacity. For multiple
+JSON references select a verified `images`, `image_urls` or `input_references` array contract.
+Incompatible mode/encoding/capacity combinations reject before paid submission, never drop references.
+
 Do not paste this into a gateway whose edit/mask route is unverified. Native Gemini image references
 use its documented protocol without these Images fields; native masks are not implemented there.
 [Editing and translation](IMAGE-EDITING.md) explains region coordinates and route limitations.
@@ -104,15 +109,33 @@ For unsupported/unknown native custom sizes it explains why; unknown model IDs h
 and the local max_pixels ceiling. These facts do not establish account entitlement or actual output.
 
 The Gemini3.1 Flash Image native table includes14 ratios and0.5K/1K/2K/4K. For16:9 these produce
-688x384/1376x768/2752x1536/5504x3072. Aspect labels and native pixels are discrete; do not calculate
+688x384/1376x768/2752x1536/5504x3072. Gemini3 Pro Image (including its preview alias)
+has10 documented ratios and1K/2K/4K, with the same corresponding pixel sizes, no0.5K or extreme
+1:4/1:8/4:1/8:1 ratios. Documentation does not prove the selected Antigravity account can use Pro.
+Aspect labels and native pixels are discrete; do not calculate
 exact dimensions from a ratio label or interpret4K as a universal video size. OmniRoute Antigravity
 accepts only1K/2K/4K tiers through `image_size`; `size` is a gateway aspect lookup. Generic Images
 accepts `size` but not undeclared ratio/tier fields; selecting a model does not change its profile.
 For custom widthxheight, use only a route/model with a verified pixel contract and stay within local
 pixel limits. Always inspect actual saved dimensions/deviations; no hidden resize or provider fallback.
-Official source: https://ai.google.dev/gemini-api/docs/image-generation#aspect-ratios-and-image-size .
+`documented_limits` exposes sourced maximum edge/pixel count separately from route safety limits.
+For GPT Image2 and2.5 Sunburst/Flare the public API contract permits dimensions in multiples of16,
+aspect between1:3 and3:1, edge at most3840 and655360–8294400 total pixels. Resolutions above
+2560x1440 are experimental;3840x2160 fits that contract,4096x4096 and native8K do not.
+Numera rejects numeric requests outside known model limits before submission. Opaque orchestration
+IDs such as Sol have unknown limits; a catalog entry or Codex OAuth route does not establish the
+underlying engine, size forwarding or account access. Always call capabilities before generation.
+
+Aspect/tier/evidence requirements persist with the receipt. Normal completion and local recovery
+compare original output dimensions identically; mismatches are deviations, not resized successes.
+A tier without an exact model/aspect table is explicitly reported as unverifiable.
+Official sources: https://ai.google.dev/gemini-api/docs/image-generation#aspect-ratios-and-image-size
+and https://developers.openai.com/api/docs/guides/image-generation#customize-image-output .
 
 api-prefix preserves reverse-proxy prefixes; origin mode requires an origin-only base and adds the
 native prefix once. Full operation URLs, credentials/query/fragments/traversal reject. Proxy is explicit
 connection-scoped. Asset URL trust is independent of API trust. Defaults: input20MiB, output50MiB,
-aggregate100MiB,64M pixels,14 references, preview512px/256KiB; route limits may be stricter.
+aggregate100MiB, private result-journal budget256MiB,64M pixels,14 references,
+preview512px/256KiB; route limits may be stricter. Advanced `files.maxJournalBytes` caps outstanding
+result reservations/retained payloads. Numera reserves the per-request aggregate budget before a paid
+POST and refuses new work when capacity is unavailable; it never purges unresolved results to make room.

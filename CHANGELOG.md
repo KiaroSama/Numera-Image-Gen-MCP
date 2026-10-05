@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased - 2026-10-03
+## Unreleased - 2026-10-05
+
+Recovery changes are implemented in source; final cross-platform validation is pending. Renewable
+writer fencing and a bounded private result journal preserve received originals for storage recovery
+without paid resubmission. Output index/receipt relationships commit together, with stable publication
+hash reconciliation. Directory creation handles verified competing directories safely. Scalar JSON
+editing rejects excess references instead of dropping them. Persisted aspect/tier evidence drives the
+same original-dimension checks in normal and recovered completion. Capability discovery exposes
+sourced Flash/Pro/GPT Image limits separately from route safety ceilings and account availability.
+
+## Previous changes - 2026-10-03
 
 Simple private endpoint/key/model-list configuration with friendly display names, portable defaults
 and adjacent-file discovery. Existing advanced settings remain supported. Linux/macOS setup docs,

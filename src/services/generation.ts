@@ -14,13 +14,14 @@ import { apiRequest, apiJson } from "../http/client.js";
 import { fetchAsset } from "../http/assets.js";
 import {
   inspectImage,
-  decodeBase64,
   dataUrl,
   validateMask,
   type Image,
 } from "../files/images.js";
+import { finalizeResults, retainImage } from "./result-finalization.js";
+import { snapshotRequirements } from "./output-requirements.js";
 import { inputFile, safeRelative } from "../files/paths.js";
-import { ownedImage, saveImage } from "../files/output.js";
+import { ownedImage } from "../files/output.js";
 import { fingerprint, Store, type Receipt } from "../jobs/store.js";
 import type { Normalized, Operation } from "../adapters/types.js";
 import { NumeraError, fail, safeError } from "../errors.js";
@@ -194,19 +195,30 @@ export class Generation {
         upscale_source: upscaleSource,
         output_format: request.output_format,
         background: request.background,
-        output_subdirectory: request.output_subdirectory,
+        output_subdirectory: request.output_subdirectory ?? now.slice(0, 10),
         filename_prefix: request.filename_prefix,
+        ...snapshotRequirements(c, model, request),
       },
       created_at: now,
       updated_at: now,
     };
     const prepared = this.store.prepare(initial, hash, identity);
     if (!prepared.fresh) return prepared.receipt;
-    const receipt = prepared.receipt;
+    let receipt = prepared.receipt;
     this.active.set(id, controller);
+    let lastRenewal = Date.now();
     const cancelWatch = setInterval(() => {
       if (this.store.cancelled(id)) controller.abort();
+      if (Date.now() - lastRenewal >= Store.leaseMs / 3) {
+        try {
+          if (!this.store.renew(id, receipt)) controller.abort();
+        } catch {
+          controller.abort();
+        }
+        lastRenewal = Date.now();
+      }
     }, 200);
+    cancelWatch.unref();
     try {
       if (this.store.queued() > this.config.maxQueuedRequests)
         fail("rate_limited", "Local bounded queue is full.");
@@ -222,6 +234,11 @@ export class Generation {
         await delay(50, undefined, { signal: combined });
       }
       combined.throwIfAborted();
+      this.store.reserveResults(
+        id,
+        this.config.files.maxAggregateBytes,
+        this.config.files.maxJournalBytes,
+      );
       receipt.status = "submitting";
       receipt.generation_outcome = "unknown";
       this.store.update(receipt);
@@ -230,6 +247,7 @@ export class Generation {
         connection: name,
       });
       let normalized: Normalized;
+      let finalizationClaimed = false;
       if (workflow) {
         const submitted = await submitComfy(input, workflow, combined);
         receipt.upstream_job = { id: submitted.id, kind: submitted.kind };
@@ -238,8 +256,34 @@ export class Generation {
         receipt.generation_outcome = "running";
         this.store.update(receipt);
         if (!request.wait) return receipt;
-        normalized = await waitComfy(c, receipt.upstream_job.id, combined);
-        if (!this.store.claimFinalization(id)) return this.store.get(id);
+        normalized = await waitComfy(
+          c,
+          receipt.upstream_job.id,
+          combined,
+          async (index, bytes) => {
+            if (!finalizationClaimed) {
+              if (!this.store.claimFinalization(id, receipt))
+                fail(
+                  "outcome_unknown",
+                  "Another waiter owns output finalization.",
+                  "storage",
+                );
+              finalizationClaimed = true;
+              receipt = this.store.get(id);
+              receipt.status = "finalizing";
+            }
+            await retainImage(
+              this.config,
+              this.store,
+              id,
+              index,
+              bytes,
+              receipt,
+            );
+          },
+          this.config.files.maxOutputBytes,
+          this.config.files.maxAggregateBytes,
+        );
       } else {
         const response = await apiRequest(
           c,
@@ -277,14 +321,45 @@ export class Generation {
           }
         }
       }
-      if (normalized.continuation)
-        this.store.saveContinuation(
-          id,
-          fingerprint({ identity, model }),
-          normalized.continuation,
-        );
-      return await this.finish(receipt, normalized, request, combined);
+      if (!finalizationClaimed) {
+        if (!this.store.claimFinalization(id, receipt))
+          return this.store.get(id);
+        finalizationClaimed = true;
+        receipt = this.store.get(id);
+      }
+      const completed = await this.finish(
+        receipt,
+        normalized,
+        request,
+        combined,
+        true,
+      );
+      if (normalized.continuation) {
+        try {
+          this.store.saveContinuation(
+            id,
+            fingerprint({ identity, model }),
+            normalized.continuation,
+          );
+        } catch (error) {
+          if (!this.store.owns(id, receipt)) return this.store.get(id);
+          completed.warnings.push(
+            "Private continuation metadata could not be retained; original outputs remain available.",
+          );
+          this.store.update(completed);
+          this.logger.log(
+            "WARNING",
+            "generation",
+            "Continuation storage failed after retaining outputs.",
+            { code: safeError(error).code },
+          );
+        }
+      }
+      return completed;
     } catch (error) {
+      if (!this.store.owns(id, receipt)) return this.store.get(id);
+      const current = this.store.get(id);
+      receipt = current;
       const ambiguous =
         receipt.status === "submitting" &&
         (error instanceof NumeraError
@@ -307,7 +382,11 @@ export class Generation {
       receipt.generation_outcome = ambiguous
         ? "unknown"
         : receipt.generation_outcome;
-      if (receipt.upstream_job && combined.aborted) {
+      if (
+        receipt.upstream_job &&
+        combined.aborted &&
+        receipt.generation_outcome !== "completed"
+      ) {
         receipt.status = "running";
         receipt.generation_outcome = "running";
         receipt.warnings.push(
@@ -323,6 +402,7 @@ export class Generation {
     } finally {
       clearInterval(cancelWatch);
       this.active.delete(id);
+      this.store.release(id, receipt);
     }
   }
   async finish(
@@ -330,107 +410,76 @@ export class Generation {
     result: Normalized,
     request: ImageRequest,
     signal: AbortSignal,
-  ) {
-    receipt.status = "finalizing";
-    receipt.generation_outcome = "completed";
-    receipt.storage_outcome = "writing";
-    receipt.upstream_model = result.upstreamModel;
-    receipt.upstream_request_id =
-      result.upstreamId ?? receipt.upstream_request_id;
-    receipt.usage = result.usage;
-    receipt.warnings.push(...result.warnings);
-    this.store.update(receipt);
-    if (result.images.length > 10)
-      fail(
-        "invalid_response",
-        "Provider returned too many final image items.",
-        "response",
-      );
-    let total = 0;
-    for (const [index, item] of result.images.entries()) {
+    claimed = false,
+  ): Promise<Receipt> {
+    const id = receipt.request_id;
+    if (
+      claimed
+        ? !this.store.owns(id, receipt)
+        : !this.store.claimFinalization(id, receipt)
+    )
+      return this.store.get(id);
+    receipt = this.store.get(id);
+    const leaseWatch = setInterval(() => {
       try {
-        signal.throwIfAborted();
-        if (item.error) fail("invalid_response", item.error, "response");
-        const bytes =
-          item.bytes ??
-          (item.base64
-            ? decodeBase64(item.base64, this.config.files.maxOutputBytes)
-            : item.url?.startsWith("data:")
-              ? dataUrl(item.url, this.config.files.maxOutputBytes)
-              : await fetchAsset(
-                  item.url!,
-                  this.config,
-                  this.config.files.maxOutputBytes,
-                  signal,
-                ));
-        total += bytes.length;
-        if (total > this.config.files.maxAggregateBytes)
-          fail(
-            "invalid_response",
-            "Aggregate output bytes exceeded.",
-            "response",
-          );
-        const image = await inspectImage(bytes, this.config);
-        const output = await saveImage(
-          image,
-          this.config,
-          this.store,
-          receipt.request_id,
-          index,
-          request.output_subdirectory,
-          request.filename_prefix,
-        );
-        receipt.outputs.push(output);
-        this.store.update(receipt);
-        if (
-          request.output_format &&
-          image.mime !== `image/${request.output_format}`
-        )
-          receipt.deviations.push(
-            `Output ${index} format is ${image.mime}, not requested ${request.output_format}.`,
-          );
-        if (
-          request.size &&
-          /^\d+x\d+$/.test(request.size) &&
-          request.size !== `${image.width}x${image.height}`
-        )
-          receipt.deviations.push(
-            `Output ${index} dimensions differ from requested size.`,
-          );
-        const source = receipt.output_requirements?.upscale_source;
-        if (
-          source &&
-          (image.width < source.width ||
-            image.height < source.height ||
-            (image.width === source.width && image.height === source.height))
-        )
-          receipt.deviations.push(
-            `Output ${index} was not upscaled beyond the reference dimensions.`,
-          );
-        if (request.background === "transparent" && !image.alpha)
-          receipt.deviations.push(`Output ${index} has no alpha channel.`);
-      } catch (e) {
-        receipt.errors.push(safeError(e));
+        this.store.renew(id, receipt);
+      } catch {
+        /* Fenced writes stop a failed renewal. */
       }
-    }
-    if (receipt.outputs.length !== request.count)
-      receipt.deviations.push(
-        `Requested ${request.count} image(s), saved ${receipt.outputs.length}.`,
+    }, Store.leaseMs / 3);
+    leaseWatch.unref();
+    try {
+      return await finalizeResults(
+        this.config,
+        this.store,
+        this.logger,
+        receipt,
+        result,
+        request,
+        signal,
       );
-    receipt.status = !receipt.outputs.length
-      ? "failed"
-      : receipt.errors.length || receipt.deviations.length
-        ? "partial"
-        : "completed";
-    receipt.storage_outcome = receipt.errors.length
-      ? "partial_or_failed"
-      : "completed";
-    this.store.update(receipt);
-    this.logger.log("INFO", "generation", "Outputs processed.", {
-      requestId: receipt.request_id,
-      status: receipt.status,
-      count: receipt.outputs.length,
+    } finally {
+      clearInterval(leaseWatch);
+      if (!claimed) this.store.release(id, receipt);
+    }
+  }
+  async recoverLocal(
+    id: string,
+    signal: AbortSignal = new AbortController().signal,
+  ): Promise<Receipt> {
+    if (!this.store.needsLocalRecovery(id) || !this.store.claimFinalization(id))
+      return this.store.get(id);
+    const receipt = this.store.get(id);
+    const request = requestSchema.parse({
+      prompt: "recovered",
+      ...Object.fromEntries(
+        Object.entries(receipt.output_requirements ?? {}).filter(
+          ([key]) => !["upscale_source", "dimension_evidence"].includes(key),
+        ),
+      ),
     });
-    return receipt;
+    const leaseWatch = setInterval(() => {
+      try {
+        this.store.renew(id, receipt);
+      } catch {
+        /* Fenced writes stop a failed renewal. */
+      }
+    }, Store.leaseMs / 3);
+    leaseWatch.unref();
+    try {
+      return await finalizeResults(
+        this.config,
+        this.store,
+        this.logger,
+        receipt,
+        undefined,
+        request,
+        signal,
+        true,
+      );
+    } finally {
+      clearInterval(leaseWatch);
+      this.store.release(id, receipt);
+    }
   }
 }

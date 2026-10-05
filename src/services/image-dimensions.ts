@@ -1,4 +1,5 @@
-import type { Config, Connection } from "../config/schema.js";
+import type { Config, Connection, ImageRequest } from "../config/schema.js";
+import { fail } from "../errors.js";
 
 // Google AI for Developers, CC BY 4.0; checked 2026-10-03. Native pixel sizes are discrete, not calculated ratios.
 const flashSizes: Record<string, string[]> = {
@@ -18,19 +19,34 @@ const flashSizes: Record<string, string[]> = {
   "21:9": ["792x168", "1584x672", "3168x1344", "6336x2688"],
 };
 const tiers = ["0.5K", "1K", "2K", "4K"];
+const proSizes = Object.fromEntries(
+  Object.entries(flashSizes)
+    .filter(([ratio]) => !["1:4", "1:8", "4:1", "8:1"].includes(ratio))
+    .map(([ratio, sizes]) => [ratio, sizes.slice(1)]),
+);
 const source =
   "https://ai.google.dev/gemini-api/docs/image-generation#aspect-ratios-and-image-size";
 
 export function imageDimensions(
   connection: Connection,
   model: string,
-  files: Config["files"],
+  files: Pick<Config["files"], "maxPixels">,
 ) {
   const knownFlash = [
     "gemini-3.1-flash-image",
     "models/gemini-3.1-flash-image",
     "antigravity/gemini-3.1-flash-image",
   ].includes(model);
+  const knownPro = [
+    "gemini-3-pro-image",
+    "gemini-3-pro-image-preview",
+    "models/gemini-3-pro-image",
+    "models/gemini-3-pro-image-preview",
+    "antigravity/gemini-3-pro-image",
+    "antigravity/gemini-3-pro-image-preview",
+  ].includes(model);
+  const sizes = knownFlash ? flashSizes : knownPro ? proSizes : undefined;
+  const modelTiers = knownPro ? tiers.slice(1) : tiers;
   const nativeGemini =
     connection.adapter === "gemini" ||
     connection.adapter === "gemini-interactions";
@@ -54,16 +70,16 @@ export function imageDimensions(
     preset_aspect_ratios: Object.keys(flashSizes),
     presets_are_model_support: false,
     model_support: {
-      status: knownFlash ? "documented" : "unknown",
-      aspect_ratios: knownFlash ? Object.keys(flashSizes) : null,
-      resolution_tiers: knownFlash ? tiers : null,
-      pixel_sizes: knownFlash
-        ? Object.entries(flashSizes).flatMap(([aspect_ratio, sizes]) =>
-            sizes.map((size, i) => {
+      status: sizes ? "documented" : "unknown",
+      aspect_ratios: sizes ? Object.keys(sizes) : null,
+      resolution_tiers: sizes ? modelTiers : null,
+      pixel_sizes: sizes
+        ? Object.entries(sizes).flatMap(([aspect_ratio, pixels]) =>
+            pixels.map((size, i) => {
               const [width, height] = size.split("x").map(Number);
               return {
                 aspect_ratio,
-                resolution: tiers[i]!,
+                resolution: modelTiers[i]!,
                 width: width!,
                 height: height!,
               };
@@ -71,21 +87,21 @@ export function imageDimensions(
           )
         : null,
       custom_dimensions: {
-        status: knownFlash ? "unsupported" : "unknown",
-        explanation: knownFlash
+        status: sizes ? "unsupported" : "unknown",
+        explanation: sizes
           ? "Select a documented aspect ratio and native tier; arbitrary pixel dimensions are not a native contract."
           : "No verified model-specific custom pixel-size contract is available.",
       },
-      evidence: knownFlash
-        ? [{ source, checked_at: "2026-10-03", kind: "official_documentation" }]
+      evidence: sizes
+        ? [{ source, checked_at: "2026-10-05", kind: "official_documentation" }]
         : [],
     },
     route_support: {
       accepted_parameters: accepted,
       resolution_tiers: omni
         ? ["1K", "2K", "4K"]
-        : knownFlash && nativeGemini
-          ? tiers
+        : sizes && nativeGemini
+          ? modelTiers
           : null,
       max_pixels: files.maxPixels,
       custom_dimensions: "unknown",
@@ -96,4 +112,94 @@ export function imageDimensions(
     account_verified: false,
     output_dimensions_must_be_verified: true,
   };
+}
+
+export function dimensionEvidence(connection: Connection, model: string) {
+  const dimensions = imageDimensions(connection, model, {
+    maxPixels: 64000000,
+  });
+  const pixels = dimensions.model_support.pixel_sizes;
+  const engine = model.replace(/^(?:cx|codex)\//, "");
+  const gpt = [
+    "gpt-image-2",
+    "gpt-image-2.5-sunburst",
+    "gpt-image-2.5-flare",
+  ].includes(engine);
+  return {
+    kind: pixels ? "discrete" : gpt ? "custom" : "unknown",
+    source: pixels
+      ? source
+      : gpt
+        ? "https://developers.openai.com/api/docs/guides/image-generation#customize-image-output"
+        : null,
+    checked_at: pixels || gpt ? "2026-10-05" : null,
+    max_edge: pixels
+      ? Math.max(...pixels.flatMap((p) => [p.width, p.height]))
+      : gpt
+        ? 3840
+        : null,
+    max_pixels: pixels
+      ? Math.max(...pixels.map((p) => p.width * p.height))
+      : gpt
+        ? 8294400
+        : null,
+    min_pixels: gpt ? 655360 : null,
+    dimension_multiple: gpt ? 16 : null,
+    pixel_sizes: pixels,
+    account_verified: false,
+    forwarding_guaranteed: false,
+  };
+}
+export function validateImageDimensions(
+  connection: Connection,
+  model: string,
+  request: ImageRequest,
+) {
+  const evidence = dimensionEvidence(connection, model);
+  if (evidence.pixel_sizes) {
+    if (
+      request.aspect_ratio &&
+      !evidence.pixel_sizes.some(
+        (size) => size.aspect_ratio === request.aspect_ratio,
+      )
+    )
+      fail(
+        "unsupported_parameter",
+        "Requested aspect ratio is outside the documented model presets.",
+      );
+    if (
+      request.image_size &&
+      !evidence.pixel_sizes.some(
+        (size) => size.resolution === request.image_size,
+      )
+    )
+      fail(
+        "unsupported_parameter",
+        "Requested resolution tier is outside the documented model presets.",
+      );
+  }
+  if (
+    !request.size ||
+    !/^\d+x\d+$/.test(request.size) ||
+    evidence.kind !== "custom"
+  )
+    return;
+  const [width, height] = request.size.split("x").map(Number) as [
+    number,
+    number,
+  ];
+  if (
+    width > evidence.max_edge! ||
+    height > evidence.max_edge! ||
+    width * height > evidence.max_pixels! ||
+    width * height < evidence.min_pixels! ||
+    width % 16 ||
+    height % 16 ||
+    width / height < 1 / 3 ||
+    width / height > 3
+  )
+    fail(
+      "unsupported_parameter",
+      "Requested dimensions exceed the documented image-model limits; a gateway cannot guarantee larger native output.",
+    );
 }

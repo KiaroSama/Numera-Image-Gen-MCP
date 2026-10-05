@@ -11,8 +11,11 @@ Public asset destinations block private/link-local/metadata by default; explicit
 allowances are narrow. TLS checks never disabled. Logs omit keys/auth/cookies/tokens/signed query
 values, prompts/Base64 and original paths by default; DEBUG does not relax redaction.
 
-Private receipts persist request fingerprints, owned paths and upstream IDs locally. Output bytes,
-logs/config/receipts are excluded from Git/npm artifacts. No automatic gallery/sync/browser launch.
+Private receipts persist request fingerprints, owned paths and upstream IDs locally. The bounded
+private result journal also retains completed image bytes and asset continuation URLs until publication
+and receipt indexing commit. These may be sensitive: keep the entire state directory owner-private,
+off shared/network drives and outside sync/public backup roots. Tool receipts never expose journal
+payloads or URLs. Output bytes, logs/config/receipts are excluded from Git/npm artifacts. No automatic gallery/sync/browser launch.
 Private state should reside on owner-controlled local storage. Provider-required thought signatures
 are retained in a separate private state table, bound to connection/account fingerprint/model and not
 returned in tool receipts or logs. No conversational signature replay API is exposed; stateless refs

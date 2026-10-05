@@ -1,10 +1,10 @@
-import { open, link, unlink, readFile, realpath } from "node:fs/promises";
-import { join } from "node:path";
+import { open, link, unlink, realpath } from "node:fs/promises";
+import { join, dirname } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { Config } from "../config/schema.js";
 import { contained, outputDirectory, safeRelative } from "./paths.js";
 import { inspectImage, type Image } from "./images.js";
-import type { Store, Output } from "../jobs/store.js";
+import type { Store, Output, Receipt } from "../jobs/store.js";
 import { fail } from "../errors.js";
 export async function saveImage(
   image: Image,
@@ -14,15 +14,35 @@ export async function saveImage(
   index: number,
   subdir?: string,
   prefix?: string,
+  options?: { stable: boolean; deviations?: string[]; receipt?: Receipt },
 ): Promise<Output> {
-  const dir = await outputDirectory(config.outputDir, subdir),
-    id = randomUUID();
-  const name = `${prefix ? safeRelative(prefix) + "-" : ""}${requestId}-${index}-${id}.${image.extension}`;
-  if (name.includes("/") || name.includes("\\"))
-    fail("invalid_input", "Filename prefix cannot contain directories.");
-  const target = join(dir, name),
-    temp = join(dir, `.${id}.tmp`);
+  const dir = await outputDirectory(config.outputDir, subdir);
+  const filename = (id: string) => {
+    const name = `${prefix ? safeRelative(prefix) + "-" : ""}${requestId}-${index}-${id}.${image.extension}`;
+    if (name.includes("/") || name.includes("\\"))
+      fail("invalid_input", "Filename prefix cannot contain directories.");
+    return join(dir, name);
+  };
+  const publication = options?.stable
+    ? store.publication(requestId, index, filename, options.receipt)
+    : undefined;
+  const id = publication?.output_id ?? randomUUID(),
+    target = publication?.target ?? filename(id);
+  const parent = await realpath(dirname(target));
+  if (parent !== dir || !contained(await realpath(config.outputDir), parent))
+    fail(
+      "permission_denied",
+      "Retained output target does not match the configured output directory.",
+    );
+  if (publication && publication.sha256 !== image.sha256)
+    fail(
+      "output_file_error",
+      "Retained output hash does not match image bytes.",
+      "storage",
+    );
+  const temp = join(dir, `.${id}-${randomUUID()}.tmp`);
   try {
+    if (publication?.phase === "committed") return store.output(id);
     const file = await open(temp, "wx", 0o600);
     try {
       await file.writeFile(image.bytes);
@@ -30,9 +50,50 @@ export async function saveImage(
     } finally {
       await file.close();
     }
-    await link(temp, target);
+    if (options?.stable && !store.owns(requestId, options.receipt))
+      fail(
+        "outcome_unknown",
+        "Output writer lease changed before publication.",
+        "storage",
+      );
+    try {
+      await link(temp, target);
+    } catch (error) {
+      if (
+        !options?.stable ||
+        (error as NodeJS.ErrnoException).code !== "EEXIST"
+      )
+        throw error;
+      // A crash may have published this item already; filename alone never proves ownership.
+    }
     await unlink(temp);
-    const saved = await inspectImage(await readFile(target), config);
+    // Windows does not provide the same directory-fsync contract; do not claim global power-loss durability.
+    if (process.platform !== "win32") {
+      const directory = await open(dir, "r");
+      try {
+        await directory.sync();
+      } finally {
+        await directory.close();
+      }
+    }
+    const resolved = await realpath(target);
+    if (resolved !== target || !contained(parent, resolved))
+      fail("permission_denied", "Published image path changed during storage.");
+    const savedFile = await open(target, "r");
+    let bytes: Buffer;
+    try {
+      const stat = await savedFile.stat();
+      if (!stat.isFile() || stat.size > config.files.maxOutputBytes)
+        fail(
+          "output_file_error",
+          "Published output is not a bounded regular image.",
+          "storage",
+        );
+      bytes = await savedFile.readFile();
+    } finally {
+      await savedFile.close();
+    }
+    const saved = await inspectImage(bytes, config);
     if (saved.sha256 !== image.sha256)
       fail("output_file_error", "Saved image hash mismatch.", "storage");
     const output = {
@@ -46,13 +107,21 @@ export async function saveImage(
       bytes: saved.bytes.length,
       sha256: saved.sha256,
     };
-    store.addOutput(output);
+    if (options?.stable)
+      store.commitResult(
+        requestId,
+        index,
+        output,
+        options.deviations,
+        options.receipt,
+      );
+    else store.addOutput(output);
     return output;
   } catch {
     await unlink(temp).catch(() => {});
     return fail(
       "output_file_error",
-      "Cannot save verified image; upstream may already have completed. Do not resubmit automatically.",
+      "Cannot save verified image; retained results can be recovered with get_job. Do not resubmit automatically.",
       "storage",
     );
   }
