@@ -262,7 +262,7 @@ it.each([
                 upstream_cancelled:
                   mode === "confirmed"
                     ? true
-                    : mode === "missing"
+                    : mode === "missing" || mode === "completed"
                       ? null
                       : false,
               });

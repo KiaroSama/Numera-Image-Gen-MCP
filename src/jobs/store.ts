@@ -344,7 +344,8 @@ export class Store {
         .filter(
           (r) =>
             ["submitting", "running", "finalizing"].includes(r.status) &&
-            !r.upstream_terminal,
+            !r.upstream_terminal &&
+            r.generation_outcome !== "completed",
         );
       if (
         all.length >= global ||

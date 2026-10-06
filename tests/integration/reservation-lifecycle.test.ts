@@ -99,7 +99,7 @@ it.each(["bytes", "url", "live", "detached"])(
     }),
 );
 
-it("confirmed termination fences a live waiter without discarding retained bytes", async () =>
+it("received completion wins late cancellation without discarding retained bytes", async () =>
   workspace(async (root) => {
     const owner = new Store(root),
       control = new Store(root);
@@ -126,7 +126,8 @@ it("confirmed termination fences a live waiter without discarding retained bytes
         Buffer.alloc(16),
         Buffer.alloc(8),
       ]);
-      expect(control.get("race").generation_outcome).toBe("cancelled");
+      expect(control.get("race").generation_outcome).toBe("completed");
+      expect(control.get("race").upstream_terminal).toBeUndefined();
       owner.release("race", r);
       control.prepare(receipt("fresh"), "fresh", "identity");
       expect(control.admit("fresh", "local", 1, 1)).toBe(true);
