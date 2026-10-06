@@ -9,6 +9,7 @@ import {
 import { join } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { fail } from "../errors.js";
+import { initializeJournal } from "./sqlite-init.js";
 import {
   expireRequests,
   updateReceipt,
@@ -113,7 +114,7 @@ export class Store {
           "State schema is newer than this build; use the matching Numera version without downgrading state.",
           "storage",
         );
-      this.db.exec("PRAGMA journal_mode=WAL;PRAGMA synchronous=FULL;");
+      initializeJournal(this.db);
       chmodSync(path, 0o600);
       for (const suffix of ["-wal", "-shm"])
         if (existsSync(path + suffix)) chmodSync(path + suffix, 0o600);

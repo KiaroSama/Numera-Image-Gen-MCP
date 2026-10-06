@@ -62,4 +62,7 @@ released versus retained admission without replaying old jobs. stdio-terminal-ra
 waiting/refresher/cancellation races and completion-before-download precedence; original bytes and output
 identities survive both restarts. The host fixture drains bounded stderr, limits calls/startup to5s and
 child lifetime to45s, closes and observes real process exit. Cases are bounded at30s/60s; max2 CI workers
-and existing coverage gates remain. These tests use loopback synthetic providers, not live accounts.
+and existing coverage gates remain. These tests use loopback synthetic providers, not live accounts. A peer refresher must respect a live
+writer in the other process rather than steal its lease. Explicit job recovery ignores prior local wait
+cancellation for original-byte publication. Concurrent first-open WAL contention is bounded separately
+from provider calls; no network submission is retried.

@@ -436,6 +436,7 @@ export class Generation {
     request: ImageRequest,
     signal: AbortSignal,
     claimed = false,
+    recovery = false,
   ): Promise<Receipt> {
     const id = receipt.request_id;
     let terminalClaim = false;
@@ -483,6 +484,7 @@ export class Generation {
         result,
         request,
         signal,
+        recovery,
       );
     } finally {
       clearInterval(leaseWatch);

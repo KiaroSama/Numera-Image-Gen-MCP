@@ -17,7 +17,7 @@ import {
 } from "../fixtures/stdio-hosts.js";
 
 it.each(["failed", "cancelled", "incomplete", "completed"] as const)(
-  "fences a real Responses waiter when the other stdio host confirms %s",
+  "keeps the real Responses writer exclusive while both stdio hosts observe %s",
   async (state) =>
     workspace(async (root) => {
       const bytes = await imageBytes();
@@ -71,17 +71,23 @@ it.each(["failed", "cancelled", "incomplete", "completed"] as const)(
             });
             void original.catch(() => {});
             await bounded(polled.promise);
-            const terminal = await job(pair.hosts[1]!.client, "race", true);
-            expect(terminal.generation_outcome).toBe(state);
+            const busy = await job(pair.hosts[1]!.client, "race", true);
+            expect(busy.status).toBe("running");
+            expect(busy.upstream_job?.id).toBe("owned");
+            expect(polls).toBe(1);
             release.resolve();
             await original;
             const persisted = await job(pair.hosts[0]!.client, "race", true);
+            const terminal = await job(pair.hosts[1]!.client, "race", true);
             expect(persisted.generation_outcome).toBe(state);
+            expect(terminal.generation_outcome).toBe(state);
             expect(persisted.outputs).toEqual(terminal.outputs);
-            if (terminal.outputs.length)
+            if (["completed", "incomplete"].includes(state)) {
+              expect(terminal.outputs).toHaveLength(1);
               expect(await readFile(terminal.outputs[0]!.path)).toEqual(bytes);
+            }
             expect(posts).toBe(1);
-            expect(polls).toBe(2);
+            expect(polls).toBe(1);
           } finally {
             release.resolve();
             await original?.catch(() => {});

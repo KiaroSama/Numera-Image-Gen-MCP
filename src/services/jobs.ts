@@ -119,6 +119,7 @@ export async function getJob(
         }),
         combined,
         true,
+        true,
       );
     receipt.status = "running";
     generation.store.update(receipt);

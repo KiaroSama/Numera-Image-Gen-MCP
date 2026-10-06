@@ -293,6 +293,8 @@ it(
             ),
           );
           config.maxConcurrentRequests = 32;
+          config.files.maxAggregateBytes = 4096;
+          config.files.maxJournalBytes = 1024 * 1024;
           // Native Comfy routes are origin-relative; the query key identifies each fixture connection.
           for (const mode of modes)
             config.connections[mode]!.query = { fixture: mode };
@@ -346,11 +348,17 @@ it(
                   );
                 }
                 const before = generations;
-                await tool(pair.hosts[1]!.client, "generate_image", {
-                  connection: mode,
-                  prompt: "capacity",
-                  request_id: `capacity-${mode}-${round}`,
-                });
+                const probe = await tool(
+                  pair.hosts[1]!.client,
+                  "generate_image",
+                  {
+                    connection: mode,
+                    prompt: "capacity",
+                    request_id: `capacity-${mode}-${round}`,
+                  },
+                );
+                if (["cancelled", "failed", "completed"].includes(mode))
+                  expect(probe.isError, JSON.stringify(probe)).not.toBe(true);
                 expect(generations - before).toBe(
                   ["cancelled", "failed", "completed"].includes(mode) ? 1 : 0,
                 );
