@@ -4,10 +4,22 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { Connection } from "./schema.js";
 import { fail } from "../errors.js";
+// Each operation binds identity checks and network requests to the same private headers.
+// Weak keys keep secret values out of serialized configuration, receipts and persistent state.
+const snapshots = new WeakMap<Connection, Readonly<Record<string, string>>>();
+
+export async function snapshotCredentials(connection: Connection): Promise<Connection> {
+  const snapshot = { ...connection, auth: { ...connection.auth } };
+  snapshots.set(snapshot, Object.freeze(await credentials(connection)));
+  return snapshot;
+}
+
 export async function credentials(
   connection: Connection,
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<Record<string, string>> {
+  const pinned = snapshots.get(connection);
+  if (pinned) return { ...pinned };
   const auth = connection.auth;
   if (auth.type === "none") return {};
   let key: string | undefined;

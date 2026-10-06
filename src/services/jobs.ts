@@ -1,4 +1,6 @@
 import { TerminalProviderError } from "../adapters/terminal.js";
+import { validateJobResult } from "../adapters/job-result.js";
+import { snapshotCredentials } from "../config/credentials.js";
 import type { Config } from "../config/schema.js";
 import { selectConnection } from "../config/load.js";
 import { apiJson } from "../http/client.js";
@@ -28,7 +30,8 @@ export async function getJob(
     ["completed", "partial", "failed", "cancelled"].includes(receipt.status)
   )
     return receipt;
-  const [, c] = selectConnection(generation.config, receipt.connection);
+  const [, selected] = selectConnection(generation.config, receipt.connection);
+  const c = await snapshotCredentials(selected);
   if (
     (await connectionIdentity(receipt.connection, c)) !==
     generation.store.identity(id)
@@ -93,17 +96,7 @@ export async function getJob(
               combined,
             ),
           );
-    if (
-      (result?.terminal && result.upstreamId !== job.id) ||
-      (result?.upstreamId && result.upstreamId !== job.id)
-    )
-      fail(
-        "invalid_response",
-        "Polled response does not match the existing job.",
-        "response",
-      );
-    if (result?.job && result.job.id !== job.id)
-      fail("invalid_response", "Polled job identity changed.", "response");
+    if (result) validateJobResult(result, job);
     if (result && !result.job)
       return await generation.finish(
         receipt,
@@ -168,7 +161,8 @@ export async function cancelJob(
   let upstream_requested = false,
     upstream_cancelled: boolean | null = null;
   if (receipt.upstream_job) {
-    const [, c] = selectConnection(config, receipt.connection);
+    const [, selected] = selectConnection(config, receipt.connection);
+    const c = await snapshotCredentials(selected);
     if (
       (await connectionIdentity(receipt.connection, c)) !==
       generation.store.identity(id)

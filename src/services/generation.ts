@@ -4,7 +4,8 @@ import { setTimeout as delay } from "node:timers/promises";
 import type { Config, ImageRequest } from "../config/schema.js";
 import { requestSchema } from "../config/schema.js";
 import { selectConnection } from "../config/load.js";
-import { credentials } from "../config/credentials.js";
+import { credentials, snapshotCredentials } from "../config/credentials.js";
+import { validateJobResult } from "../adapters/job-result.js";
 import { effectiveRequest } from "../capabilities.js";
 import { validateDescriptors } from "./model-policy.js";
 import { connectionIdentity } from "./connection-identity.js";
@@ -69,7 +70,8 @@ export class Generation {
     signal?: AbortSignal,
   ): Promise<Receipt> {
     const original = editingRequest(requestSchema.parse(raw), operation),
-      [name, c] = selectConnection(this.config, original.connection),
+      [name, selected] = selectConnection(this.config, original.connection),
+      c = await snapshotCredentials(selected),
       model = original.model ?? c.defaultModel;
     if (!model)
       fail(
@@ -318,21 +320,13 @@ export class Generation {
               {},
               combined,
             );
-            const jobId = normalized.job.id;
+            const expectedJob = normalized.job;
             normalized = normalizeResponse(
               c,
               Buffer.from(JSON.stringify(raw)),
               "application/json",
             );
-            if (
-              (normalized.terminal && normalized.upstreamId !== jobId) ||
-              (normalized.job && normalized.job.id !== jobId)
-            )
-              fail(
-                "invalid_response",
-                "Polled response does not match the existing job.",
-                "response",
-              );
+            validateJobResult(normalized, expectedJob);
           }
         }
       }

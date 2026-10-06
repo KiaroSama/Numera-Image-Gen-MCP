@@ -25,6 +25,14 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run check
       - run: npm run format:check
+        id: formatting
+      - name: Show formatting corrections without weakening the check
+        if: failure() && steps.formatting.conclusion == 'failure'
+        shell: bash
+        run: |
+          node -e 'console.error(JSON.stringify({timestamp:new Date().toISOString(),level:"WARNING",component:"ci-format",message:"Formatting failed; printing corrections without accepting them."}))'
+          npm run format
+          git diff --no-ext-diff
       - run: npm run coverage
       - run: npm run smoke
       - run: npm run package:check

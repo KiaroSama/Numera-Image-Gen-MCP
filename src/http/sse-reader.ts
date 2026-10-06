@@ -48,7 +48,8 @@ export async function readSse(
           .find((l) => l.startsWith("event:"))
           ?.slice(6)
           .trim() ?? String(value.type ?? value.event_type ?? "");
-      if (["error", "response.failed", "response.incomplete"].includes(type))
+      // Provider-specific terminal frames must reach the adapter with their image items.
+      if (type === "error")
         fail(
           "outcome_unknown",
           "Image stream ended with an error; no resubmission made.",

@@ -5,6 +5,9 @@ updates:
     schedule:
       interval: daily
     groups:
+      mcp-sdk:
+        patterns:
+          - "@modelcontextprotocol/*"
       development:
         dependency-type: development
   - package-ecosystem: github-actions

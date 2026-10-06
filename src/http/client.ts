@@ -63,6 +63,7 @@ export async function apiRequest(
           : undefined,
       })
     : new Agent();
+  let consumed = false;
   try {
     const response = await fetch(url, {
       method: init.method ?? "GET",
@@ -103,6 +104,7 @@ export async function apiRequest(
       response.body
         ? await readSse(response.body, limit, combined)
         : await boundedBytes(response, limit, combined);
+    consumed = true;
     return {
       bytes,
       mime: response.headers.get("content-type") ?? "",
@@ -122,7 +124,9 @@ export async function apiRequest(
       "network",
     );
   } finally {
-    await agent.close();
+    // Graceful close waits for unread bodies; rejected responses must release their sockets now.
+    if (consumed) await agent.close();
+    else await agent.destroy();
   }
 }
 export async function apiJson(

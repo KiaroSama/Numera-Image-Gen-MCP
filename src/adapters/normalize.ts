@@ -8,8 +8,16 @@ export function normalize(c: Connection, raw: unknown): Normalized {
   let terminal: Normalized["terminal"];
   const warnings: string[] = [];
   const signatures: unknown[] = [];
+  const imageRecord = (v: unknown): Record<string, unknown> | undefined => {
+    if (!v || typeof v !== "object" || Array.isArray(v)) {
+      images.push({ error: "Malformed image result item." });
+      return;
+    }
+    return v as Record<string, unknown>;
+  };
   const push = (v: unknown) => {
-    const item = record(v);
+    const item = imageRecord(v);
+    if (!item) return;
     if (typeof item.b64_json === "string" && item.b64_json)
       images.push({ base64: item.b64_json });
     else if (typeof item.url === "string" && item.url)
@@ -24,23 +32,24 @@ export function normalize(c: Connection, raw: unknown): Normalized {
         "response",
       );
     for (const candidate of array(value.candidates)) {
-      const item = record(candidate);
+      const item = imageRecord(candidate);
+      if (!item) continue;
       if (item.finishReason && item.finishReason !== "STOP")
         warnings.push(`Candidate ended with ${String(item.finishReason)}.`);
-      for (const p of array(item.content ? record(item.content).parts : [])) {
-        const part = record(p);
+      const content = item.content ? imageRecord(item.content) : undefined;
+      const parts = array(content?.parts);
+      for (const [partIndex, p] of parts.entries()) {
+        const part = imageRecord(p);
+        if (!part) continue;
         if (typeof part.thoughtSignature === "string")
           signatures.push({
-            part_index: array(
-              item.content ? record(item.content).parts : [],
-            ).indexOf(p),
+            part_index: partIndex,
             signature: part.thoughtSignature,
           });
         if (part.thought === true) continue;
         if (part.inlineData) {
-          const inline = record(part.inlineData);
-          if (typeof inline.data === "string")
-            images.push({ base64: inline.data });
+          const inline = imageRecord(part.inlineData);
+          if (inline) push({ b64_json: inline.data });
         }
       }
     }
@@ -72,21 +81,20 @@ export function normalize(c: Connection, raw: unknown): Normalized {
         "response",
       );
     for (const step of array(value.steps)) {
-      const s = record(step);
+      const s = imageRecord(step);
+      if (!s) continue;
       if (s.type === "thought" && typeof s.signature === "string")
         signatures.push({ step_type: "thought", signature: s.signature });
       if (s.type !== "model_output") continue;
       for (const content of array(s.content)) {
-        const part = record(content);
-        if (part.type === "image") {
-          if (typeof part.data === "string") images.push({ base64: part.data });
-          else if (typeof part.uri === "string") images.push({ url: part.uri });
-        }
+        const part = imageRecord(content);
+        if (part?.type === "image")
+          push({ b64_json: part.data, url: part.uri });
       }
     }
-    if (!images.length && value.output_image) {
-      const i = record(value.output_image);
-      if (typeof i.data === "string") images.push({ base64: i.data });
+    if (!images.some((image) => image.base64 || image.url) && value.output_image) {
+      const image = imageRecord(value.output_image);
+      if (image) push({ b64_json: image.data, url: image.uri });
     }
   } else if (c.adapter === "openai-responses") {
     if (["in_progress", "queued"].includes(String(value.status))) {
@@ -113,17 +121,16 @@ export function normalize(c: Connection, raw: unknown): Normalized {
         "response",
       );
     for (const item of array(value.output)) {
-      const i = record(item);
-      if (
-        i.type === "image_generation_call" &&
-        i.status === "completed" &&
-        typeof i.result === "string"
-      )
-        images.push({ base64: i.result });
+      const i = imageRecord(item);
+      if (i?.type === "image_generation_call" && i.status === "completed")
+        push({ b64_json: i.result });
     }
   } else if (c.adapter === "chat-images") {
     for (const choice of array(value.choices)) {
-      const message = record(record(choice).message);
+      const item = imageRecord(choice);
+      if (!item) continue;
+      const message = imageRecord(item.message);
+      if (!message) continue;
       if (message.refusal)
         fail(
           "provider_rejection",
@@ -131,8 +138,10 @@ export function normalize(c: Connection, raw: unknown): Normalized {
           "response",
         );
       for (const image of array(message.images)) {
-        const i = record(image);
-        if (i.image_url) push({ url: record(i.image_url).url });
+        const i = imageRecord(image);
+        if (!i) continue;
+        const ref = imageRecord(i.image_url);
+        if (ref) push({ url: ref.url });
       }
     }
   } else for (const item of array(value.data)) push(item);

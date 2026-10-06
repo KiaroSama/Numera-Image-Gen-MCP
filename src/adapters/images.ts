@@ -1,5 +1,6 @@
 import { FormData } from "undici";
 import { fail } from "../errors.js";
+import { isCodexModel } from "../gateway-model.js";
 import { validateEditContract } from "../edit-contract.js";
 import { commonFields } from "../capabilities.js";
 import { jsonRequest, mimeData, type AdapterInput } from "./types.js";
@@ -22,7 +23,7 @@ export function imagesRequest(input: AdapterInput) {
     c.modelOverrides[model]?.supportedParameters ??
     (c.gateway === "omniroute" && model.startsWith("antigravity/")
       ? ["aspect_ratio", "image_size", "size"]
-      : c.gateway === "omniroute" && model.startsWith("codex/")
+      : c.gateway === "omniroute" && isCodexModel(model)
         ? ["size", "quality"]
         : c.gateway === "9router" && model.startsWith("antigravity/")
           ? ["size"]
@@ -58,7 +59,7 @@ export function imagesRequest(input: AdapterInput) {
         "unsupported_operation",
         "9router has no verified mask forwarding contract.",
       );
-    if (!model.startsWith("codex/") && !c.edit)
+    if (!isCodexModel(model) && !c.edit)
       fail(
         "unsupported_operation",
         "9router reference contract is not verified for this model.",
@@ -76,7 +77,7 @@ export function imagesRequest(input: AdapterInput) {
       ? {
           mode: "multipart",
           encoding: "image",
-          maxReferences: model.startsWith("codex/") ? 8 : 1,
+          maxReferences: isCodexModel(model) ? 8 : 1,
           masks: false,
         }
       : {

@@ -1,5 +1,6 @@
 import type { Connection, ImageRequest } from "./config/schema.js";
 import { fail } from "./errors.js";
+import { isCodexModel } from "./gateway-model.js";
 import { validateEditContract } from "./edit-contract.js";
 import { validateImageDimensions } from "./services/image-dimensions.js";
 export const commonFields = [
@@ -79,11 +80,11 @@ export function capabilities(connection: Connection, model: string) {
   }
   if (connection.gateway === "omniroute") {
     masks = "unsupported";
-    if (model.startsWith("codex/")) refs = "supported";
+    if (isCodexModel(model)) refs = "supported";
   }
   if (connection.gateway === "9router") {
     masks = "unsupported";
-    if (model.startsWith("codex/")) refs = "supported";
+    if (isCodexModel(model)) refs = "supported";
   }
   if (native) masks = "unsupported";
   if (connection.adapter === "comfyui") {
@@ -105,7 +106,7 @@ export function capabilities(connection: Connection, model: string) {
     account_availability: "unknown",
     max_references:
       override?.maxReferences ??
-      (connection.gateway === "omniroute" && model.startsWith("codex/")
+      (connection.gateway === "omniroute" && isCodexModel(model)
         ? 8
         : connection.gateway === "9router"
           ? 1
@@ -211,7 +212,7 @@ export function effectiveRequest(
     );
   if (
     connection.gateway === "omniroute" &&
-    model.startsWith("codex/") &&
+    isCodexModel(model) &&
     request.count > 1
   )
     fail(

@@ -91,10 +91,13 @@ export async function fetchAsset(
     const address = addresses[0]!;
     const agent = new Agent({
       connect: {
-        lookup: (_hostname, _options, callback) =>
-          callback(null, address.address, address.family),
+        lookup: (_hostname, options, callback) => {
+          if (options.all) callback(null, [address]);
+          else callback(null, address.address, address.family);
+        },
       },
     });
+    let consumed = false;
     try {
       const response = await fetch(url, {
         signal: combined,
@@ -117,9 +120,12 @@ export async function fetchAsset(
           "download",
         );
       }
-      return await boundedBytes(response, limit, combined);
+      const bytes = await boundedBytes(response, limit, combined);
+      consumed = true;
+      return bytes;
     } finally {
-      await agent.close();
+      if (consumed) await agent.close();
+      else await agent.destroy();
     }
   }
   return fail("unsafe_destination", "Too many image redirects.");

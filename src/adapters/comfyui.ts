@@ -7,6 +7,7 @@ import { array, record, fail } from "../errors.js";
 import type { AdapterInput, Normalized } from "./types.js";
 import type { Connection } from "../config/schema.js";
 import { validateGraph } from "./workflow-validation.js";
+import { validateReferenceBindings } from "./workflow-references.js";
 export function validateWorkflow(input: AdapterInput) {
   const workflow = input.connection.workflow;
   if (!workflow)
@@ -14,6 +15,7 @@ export function validateWorkflow(input: AdapterInput) {
       "invalid_configuration",
       "Configure an API-format ComfyUI workflow and explicit bindings.",
     );
+  validateReferenceBindings(input);
   const graph = structuredClone(workflow.graph);
   if (!Object.keys(graph).length || Object.keys(graph).length > 300)
     fail("invalid_configuration", "Invalid bounded ComfyUI graph.");
@@ -93,6 +95,7 @@ export async function submitComfy(
   prepared: Awaited<ReturnType<typeof prepareComfy>>,
   signal: AbortSignal,
 ): Promise<{ id: string; kind: string; warnings: string[] }> {
+  validateReferenceBindings(input);
   const c = input.connection;
   for (const [index, image] of input.references.entries()) {
     const binding = index === 0 ? "image" : `image_${index + 1}`;
