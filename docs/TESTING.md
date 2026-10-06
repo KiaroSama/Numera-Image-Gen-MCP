@@ -54,3 +54,12 @@ targeted cancellation dispatch versus confirmation and database reopen. Reservat
 unknown receipts, retained bytes/URLs and live/detached budgets; actual child processes race one bounded
 journal budget. Local recovery preserves terminal generation state and original bytes. These are
 synthetic provider contracts, not live Comfy/Gemini/OpenAI cancellation or refund proof.
+
+Real stdio terminal acceptance: stdio-terminal-lifecycle.test.ts runs two actual built MCP processes
+sharing isolated SQLite, restarts both twice, and verifies Responses/Interactions terminal variants,
+polling controls and targeted Comfy cancellation through public tools. Public generation probes verify
+released versus retained admission without replaying old jobs. stdio-terminal-races.test.ts gates actual
+waiting/refresher/cancellation races and completion-before-download precedence; original bytes and output
+identities survive both restarts. The host fixture drains bounded stderr, limits calls/startup to5s and
+child lifetime to45s, closes and observes real process exit. Cases are bounded at30s/60s; max2 CI workers
+and existing coverage gates remain. These tests use loopback synthetic providers, not live accounts.

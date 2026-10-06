@@ -59,5 +59,12 @@ uncertainty, targeted dispatch/confirmation and retained partial originals. Rese
 checks empty orphan reclamation, retained/live/detached charges, stale fencing and actual two-process
 budget serialization. Fixture presence is not a passing claim; exact execution evidence is reported
 separately. No paid provider, GUI, GPU or private historical-state validation is implied.
+Real two-host terminal coverage: stdio-terminal-lifecycle.test.ts covers Responses failed/cancelled/
+incomplete/completed and Interactions failed/cancelled/incomplete/budget_exceeded/completed, queued/
+in_progress/auth/rate-limit/server/disconnect/malformed/wrong-ID/account controls, Comfy confirmed/
+dispatched/false/missing/ambiguous/wrong-ID/completed cancellation, public admission and two restarts.
+stdio-terminal-races.test.ts covers real original waiter versus refresher terminal races and Comfy
+waiting-host cancellation versus completed-original recovery. Both use direct actual SDK stdio processes,
+isolated shared state and original-byte/output-ID/no-duplicate assertions, not in-memory substitutes.
 
 Dimension discovery: tests/contract/dimensions.test.ts verifies native ratio/tier/pixel presets, unknown-model honesty and selected-route restrictions without image submission. Large Base64 boundary: tests/unit/images.test.ts covers a valid4MiB round trip, malformed padding/alphabet and byte-limit rejection.
