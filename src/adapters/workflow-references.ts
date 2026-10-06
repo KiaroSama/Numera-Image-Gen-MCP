@@ -21,7 +21,11 @@ export function validateReferenceBindings(input: AdapterInput): void {
         "invalid_configuration",
         `Workflow binding ${key} has no valid input target.`,
       );
-    record(record(node).inputs);
+    if (!Object.hasOwn(record(record(node).inputs), target.input))
+      fail(
+        "invalid_configuration",
+        `Workflow binding ${key} references an absent input slot.`,
+      );
     // A reference must not overwrite another reference, mask or prompt binding.
     if (
       Object.entries(workflow.bindings).some(

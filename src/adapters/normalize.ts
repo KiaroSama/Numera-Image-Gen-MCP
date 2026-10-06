@@ -181,6 +181,7 @@ export function normalizeResponse(
       if (
         response &&
         typeof record(response).id === "string" &&
+        String(record(response).id).trim().length > 0 &&
         ["failed", "incomplete"].includes(String(record(response).status))
       )
         return normalize(c, response);

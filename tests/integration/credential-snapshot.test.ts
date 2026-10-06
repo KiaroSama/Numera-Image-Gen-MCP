@@ -2,6 +2,7 @@ import { it, expect } from "vitest";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
+import { cancelJob, getJob } from "../../src/services/jobs.js";
 import { Generation } from "../../src/services/generation.js";
 import { Store } from "../../src/jobs/store.js";
 import { Logger } from "../../src/logging.js";
@@ -132,3 +133,94 @@ it("keeps secret snapshots ephemeral and returns independent header copies", asy
   expect(Object.keys(pinned)).toEqual(Object.keys(c));
   expect(JSON.stringify(pinned)).toBe(JSON.stringify(c));
 });
+
+it("keeps the cancellation account through nested completed-job recovery", async () =>
+  workspace(async (root) => {
+    const key = "NUMERA_TEST_CANCEL_SNAPSHOT_KEY",
+      previous = process.env[key];
+    process.env[key] = "synthetic-a";
+    try {
+      const bytes = await imageBytes();
+      const accounts: boolean[] = [];
+      let submissions = 0;
+      await server(
+        (req, res) => {
+          accounts.push(req.headers.authorization === "Bearer synthetic-a");
+          if (req.url === "/api/jobs/owned/cancel")
+            json(res, { cancelled: true });
+          else if (req.url === "/api/jobs/owned") {
+            process.env[key] = "synthetic-b";
+            json(res, { id: "owned", status: "completed" });
+          } else if (req.url === "/history/owned")
+            json(res, {
+              owned: {
+                status: { completed: true, status_str: "success" },
+                outputs: {
+                  save: {
+                    images: [
+                      {
+                        filename: "original.png",
+                        type: "output",
+                        subfolder: "",
+                      },
+                    ],
+                  },
+                },
+              },
+            });
+          else if (req.url?.startsWith("/view")) {
+            res.writeHead(200, { "Content-Type": "image/png" });
+            res.end(bytes);
+          } else {
+            submissions++;
+            json(res, {}, 404);
+          }
+        },
+        async (origin) => {
+          const c = connection("comfyui", {
+            baseUrl: origin,
+            baseUrlMode: "origin",
+            auth: { type: "bearer", secretEnv: key },
+            workflow: {
+              graph: { save: { class_type: "Save", inputs: {} } },
+              bindings: {},
+              outputNodes: ["save"],
+            },
+          });
+          const config = configuration(root, { local: c });
+          const store = new Store(config.stateDir),
+            logger = new Logger(config.logging.directory, "ERROR");
+          const generation = new Generation(config, store, logger);
+          try {
+            const r = store.prepare(
+              receipt("cancel-recover"),
+              "hash",
+              await connectionIdentity("local", c),
+            ).receipt;
+            store.admit(r.request_id, "local", 1, 1);
+            r.status = "running";
+            r.upstream_job = { id: "owned", kind: "comfyui" };
+            store.update(r);
+            store.release(r.request_id, r);
+            const cancelled = await cancelJob(config, generation, r.request_id);
+            expect(cancelled.refund_verified).toBe(false);
+            const result = await getJob(generation, r.request_id);
+            expect(result.status).toBe("completed");
+            expect(result.outputs).toHaveLength(1);
+            expect(accounts).toEqual([true, true, true, true]);
+            expect(submissions).toBe(0);
+            expect(JSON.stringify(result)).not.toContain("synthetic-a");
+            expect(await credentials(c)).toEqual({
+              Authorization: "Bearer synthetic-b",
+            });
+          } finally {
+            store.close();
+            logger.close();
+          }
+        },
+      );
+    } finally {
+      if (previous === undefined) delete process.env[key];
+      else process.env[key] = previous;
+    }
+  }));

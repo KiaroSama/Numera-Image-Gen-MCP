@@ -40,6 +40,10 @@ fixtures and locked dependencies; exact-head CI is the supported-runtime verific
 The new suites cover public MCP-to-HTTP SSE, both async protocols, environment/file credential rotation,
 DNS callback modes, rejected-body disposal, six response formats, Comfy reference uploads and both
 OmniRoute/9router aliases. Existing suites remain enabled. Coverage gates are not lowered.
+Integration review adds controls for empty/blank terminal SSE IDs, misspelled reference input slots
+and credential rotation during cancellation's completed-job confirmation. Nested recovery reuses the
+same operation snapshot; a separate operation still reads current credentials. Invalid input slots
+reject before any upload, and invalid terminal identity remains uncertain.
 The SDK dependency group keeps client and server updates together across runtime/dev classifications.
 Formatting failures remain failures and print an actionable diff; no workflow commits generated fixes.
 

@@ -99,49 +99,52 @@ it.each(["failed", "incomplete"] as const)(
     }),
 );
 
-it.each(["error", "malformed-terminal"])(
-  "keeps %s SSE uncertain without a new submission",
-  async (mode) =>
-    workspace(async (root) => {
-      let posts = 0;
-      await server(
-        (req, res) => {
-          if (req.method === "POST") posts++;
-          res.writeHead(200, { "Content-Type": "text/event-stream" });
-          res.end(
-            mode === "error"
-              ? 'event: error\ndata: {"error":"synthetic"}\n\n'
-              : 'event: response.failed\ndata: {"response":{"status":"failed"}}\n\n',
-          );
-        },
-        async (origin) => {
-          const config = configuration(root, {
-            local: connection("openai-responses", {
-              baseUrl: `${origin}/v1`,
-              orchestrationModel: "text",
-              defaultModel: "image",
-            }),
-          });
-          await host(config, async (client) => {
-            const result = await client.callTool(
-              {
-                name: "generate_image",
-                arguments: {
-                  prompt: "fixture",
-                  request_id: "uncertain",
-                },
+it.each([
+  "error",
+  "malformed-terminal",
+  "empty-terminal-id",
+  "blank-terminal-id",
+])("keeps %s SSE uncertain without a new submission", async (mode) =>
+  workspace(async (root) => {
+    let posts = 0;
+    await server(
+      (req, res) => {
+        if (req.method === "POST") posts++;
+        res.writeHead(200, { "Content-Type": "text/event-stream" });
+        res.end(
+          mode === "error"
+            ? 'event: error\ndata: {"error":"synthetic"}\n\n'
+            : `event: response.failed\ndata: ${JSON.stringify({ response: { status: "failed", ...(mode === "empty-terminal-id" ? { id: "" } : mode === "blank-terminal-id" ? { id: " " } : {}) } })}\n\n`,
+        );
+      },
+      async (origin) => {
+        const config = configuration(root, {
+          local: connection("openai-responses", {
+            baseUrl: `${origin}/v1`,
+            orchestrationModel: "text",
+            defaultModel: "image",
+          }),
+        });
+        await host(config, async (client) => {
+          const result = await client.callTool(
+            {
+              name: "generate_image",
+              arguments: {
+                prompt: "fixture",
+                request_id: "uncertain",
               },
-              { timeout: 5000 },
-            );
-            expect(result.structuredContent).toMatchObject({
-              status: "outcome_unknown",
-              outputs: [],
-            });
-            expect(posts).toBe(1);
+            },
+            { timeout: 5000 },
+          );
+          expect(result.structuredContent).toMatchObject({
+            status: "outcome_unknown",
+            outputs: [],
           });
-        },
-      );
-    }),
+          expect(posts).toBe(1);
+        });
+      },
+    );
+  }),
 );
 
 for (const adapter of ["openai-responses", "gemini-interactions"] as const)

@@ -1,7 +1,7 @@
 import { TerminalProviderError } from "../adapters/terminal.js";
 import { validateJobResult } from "../adapters/job-result.js";
 import { snapshotCredentials } from "../config/credentials.js";
-import type { Config } from "../config/schema.js";
+import type { Config, Connection } from "../config/schema.js";
 import { selectConnection } from "../config/load.js";
 import { apiJson } from "../http/client.js";
 import { comfyStatus } from "../adapters/comfyui.js";
@@ -18,6 +18,7 @@ export async function getJob(
   id: string,
   refresh = false,
   signal?: AbortSignal,
+  pinnedConnection?: Connection,
 ) {
   if (refresh) generation.store.queued();
   let receipt = generation.store.get(id);
@@ -31,7 +32,7 @@ export async function getJob(
   )
     return receipt;
   const [, selected] = selectConnection(generation.config, receipt.connection);
-  const c = await snapshotCredentials(selected);
+  const c = pinnedConnection ?? (await snapshotCredentials(selected));
   if (
     (await connectionIdentity(receipt.connection, c)) !==
     generation.store.identity(id)
@@ -204,7 +205,7 @@ export async function cancelJob(
             "Cancellation status does not match the existing job.",
           );
         if (status.status === "completed")
-          await getJob(generation, id, true, signal);
+          await getJob(generation, id, true, signal, c);
         if (["cancelled", "failed"].includes(String(status.status))) {
           const state = status.status as "cancelled" | "failed";
           generation.store.terminal(

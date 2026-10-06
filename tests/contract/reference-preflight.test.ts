@@ -46,44 +46,51 @@ async function input(root: string, origin: string): Promise<AdapterInput> {
   };
 }
 
-it.each(["second", "mask", "node", "collision", "changed-after-preflight"])(
-  "rejects invalid Comfy %s binding before every upload",
-  async (mode) =>
-    workspace(async (root) => {
-      let uploads = 0;
-      await server(
-        async (req, res) => {
-          await requestBody(req);
-          uploads++;
-          json(res, { name: "fixture.png", subfolder: "", prompt_id: "owned" });
-        },
-        async (origin) => {
-          const request = await input(root, origin);
-          const workflow = request.connection.workflow!;
-          const prepared =
-            mode === "changed-after-preflight"
-              ? validateWorkflow(request)
-              : undefined;
-          if (mode === "second" || mode === "changed-after-preflight")
-            delete workflow.bindings.image_2;
-          if (mode === "mask") request.mask = request.references[0];
-          if (mode === "node")
-            workflow.bindings.image_2 = { node: "missing", input: "image" };
-          if (mode === "collision")
-            workflow.bindings.image_2 = { ...workflow.bindings.image! };
-          await expect(
-            (async () => {
-              await submitComfy(
-                request,
-                prepared ?? validateWorkflow(request),
-                AbortSignal.timeout(2000),
-              );
-            })(),
-          ).rejects.toThrow();
-          expect(uploads).toBe(0);
-        },
-      );
-    }),
+it.each([
+  "second",
+  "mask",
+  "node",
+  "slot",
+  "collision",
+  "changed-after-preflight",
+])("rejects invalid Comfy %s binding before every upload", async (mode) =>
+  workspace(async (root) => {
+    let uploads = 0;
+    await server(
+      async (req, res) => {
+        await requestBody(req);
+        uploads++;
+        json(res, { name: "fixture.png", subfolder: "", prompt_id: "owned" });
+      },
+      async (origin) => {
+        const request = await input(root, origin);
+        const workflow = request.connection.workflow!;
+        const prepared =
+          mode === "changed-after-preflight"
+            ? validateWorkflow(request)
+            : undefined;
+        if (mode === "second" || mode === "changed-after-preflight")
+          delete workflow.bindings.image_2;
+        if (mode === "mask") request.mask = request.references[0];
+        if (mode === "node")
+          workflow.bindings.image_2 = { node: "missing", input: "image" };
+        if (mode === "slot")
+          workflow.bindings.image_2 = { node: "1", input: "imagge" };
+        if (mode === "collision")
+          workflow.bindings.image_2 = { ...workflow.bindings.image! };
+        await expect(
+          (async () => {
+            await submitComfy(
+              request,
+              prepared ?? validateWorkflow(request),
+              AbortSignal.timeout(2000),
+            );
+          })(),
+        ).rejects.toThrow();
+        expect(uploads).toBe(0);
+      },
+    );
+  }),
 );
 
 it("preserves all accepted Comfy references and their distinct workflow targets", async () =>
