@@ -339,12 +339,12 @@ describe("ComfyUI loopback wire and job lifecycle", () => {
     const adapter = input(undefined, {}, { workflow: configured });
     adapter.references = [image];
     await expect(
-      submitComfy(adapter, validateWorkflow(adapter), signal),
+      (async () => submitComfy(adapter, validateWorkflow(adapter), signal))(),
     ).rejects.toMatchObject({ code: "unsupported_operation" });
     adapter.references = [];
     adapter.mask = image;
     await expect(
-      submitComfy(adapter, validateWorkflow(adapter), signal),
+      (async () => submitComfy(adapter, validateWorkflow(adapter), signal))(),
     ).rejects.toMatchObject({ code: "unsupported_operation" });
   });
 

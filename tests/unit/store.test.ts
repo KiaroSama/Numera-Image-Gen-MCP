@@ -364,6 +364,7 @@ describe("generation receipt completion and owned job recovery", () => {
         (request, response) => {
           paths.push(request.url ?? "");
           json(response, {
+            id: "owned job",
             status: "completed",
             output: [
               {

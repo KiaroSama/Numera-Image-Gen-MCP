@@ -73,6 +73,7 @@ describe("review regressions", () => {
         (req, res) => {
           downloads++;
           json(res, {
+            id: "owned",
             status: "completed",
             output: [
               {
