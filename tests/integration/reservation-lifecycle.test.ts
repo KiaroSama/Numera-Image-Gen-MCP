@@ -148,6 +148,16 @@ it(
           { windowsHide: true, stdio: ["ignore", "pipe", "pipe", "ipc"] },
         ),
       );
+      const diagnostics = children.map((child) => {
+        let stderr = "";
+        child.stderr!.setEncoding("utf8");
+        child.stderr!.on("data", (text: string) => {
+          stderr = (stderr + text).slice(-4096);
+        });
+        child.stdout!.resume();
+        return () =>
+          `Fixture exited (${child.exitCode ?? child.signalCode}): ${stderr}`;
+      });
       const closed = children.map(
         (child) =>
           new Promise<void>((done) => child.once("close", () => done())),
@@ -158,11 +168,11 @@ it(
       try {
         await Promise.all(
           children.map(
-            (child) =>
+            (child, index) =>
               new Promise<void>((done, reject) => {
                 child.once("error", reject);
                 child.once("close", () =>
-                  reject(new Error("Fixture exited before ready.")),
+                  reject(new Error(diagnostics[index]!())),
                 );
                 child.once("message", () => done());
               }),
