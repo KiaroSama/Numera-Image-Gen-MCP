@@ -8,7 +8,9 @@ import { fail } from "../errors.js";
 // Weak keys keep secret values out of serialized configuration, receipts and persistent state.
 const snapshots = new WeakMap<Connection, Readonly<Record<string, string>>>();
 
-export async function snapshotCredentials(connection: Connection): Promise<Connection> {
+export async function snapshotCredentials(
+  connection: Connection,
+): Promise<Connection> {
   const snapshot = { ...connection, auth: { ...connection.auth } };
   snapshots.set(snapshot, Object.freeze(await credentials(connection)));
   return snapshot;

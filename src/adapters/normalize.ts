@@ -92,7 +92,10 @@ export function normalize(c: Connection, raw: unknown): Normalized {
           push({ b64_json: part.data, url: part.uri });
       }
     }
-    if (!images.some((image) => image.base64 || image.url) && value.output_image) {
+    if (
+      !images.some((image) => image.base64 || image.url) &&
+      value.output_image
+    ) {
       const image = imageRecord(value.output_image);
       if (image) push({ b64_json: image.data, url: image.uri });
     }
