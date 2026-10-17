@@ -1,6 +1,7 @@
 import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { writeFile } from "node:fs/promises";
+import { StringDecoder } from "node:string_decoder";
 import { join, resolve } from "node:path";
 import { expect, vi } from "vitest";
 import type { Config } from "../../src/config/schema.js";
@@ -64,6 +65,7 @@ export async function startHosts(root: string, config: Config) {
     client: Client;
     transport: StdioClientTransport;
     pid: number;
+    runId: string;
     deadline: NodeJS.Timeout;
     closed: Promise<void>;
     stderr: () => string;
@@ -108,8 +110,50 @@ export async function startHosts(root: string, config: Config) {
         stderr: "pipe",
       });
       let stderr = "";
+      let pendingLog = "";
+      let discardingLog = false;
+      const decoder = new StringDecoder("utf8");
+      let startupRunId: string | undefined;
+      const startup = gate();
       transport.stderr!.on("data", (bytes: Buffer) => {
-        stderr = (stderr + bytes.toString("utf8")).slice(-4096);
+        const text = decoder.write(bytes);
+        stderr = (stderr + text).slice(-4096);
+        if (startupRunId) return;
+        for (const part of text.split(/(?<=\n)/u)) {
+          const complete = part.endsWith("\n");
+          if (!discardingLog && pendingLog.length + part.length <= 4096)
+            pendingLog += part;
+          else {
+            pendingLog = "";
+            discardingLog = true;
+          }
+          if (!complete) continue;
+          if (!discardingLog) {
+            try {
+              const record: unknown = JSON.parse(pendingLog);
+              if (
+                record &&
+                typeof record === "object" &&
+                "component" in record &&
+                record.component === "MCP" &&
+                "message" in record &&
+                record.message === "Stdio server ready." &&
+                "run_id" in record &&
+                typeof record.run_id === "string" &&
+                /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(
+                  record.run_id,
+                )
+              ) {
+                startupRunId = record.run_id;
+                startup.resolve();
+              }
+            } catch {
+              // Non-JSON diagnostics are not process-instance identity evidence.
+            }
+          }
+          pendingLog = "";
+          discardingLog = false;
+        }
       });
       const client = new Client({
         name: `terminal-host-${index}`,
@@ -126,7 +170,11 @@ export async function startHosts(root: string, config: Config) {
         }
       }, 45000);
       try {
-        await bounded(client.connect(transport));
+        await bounded(
+          Promise.all([client.connect(transport), startup.promise]),
+        );
+        if (!startupRunId)
+          throw new Error("Stdio startup has no process-instance run ID.");
       } catch (error) {
         clearTimeout(deadline);
         const failedPid = transport.pid;
@@ -146,12 +194,14 @@ export async function startHosts(root: string, config: Config) {
         client,
         transport,
         pid,
+        runId: startupRunId,
         deadline,
         closed: closed.promise,
         stderr: () => stderr,
       });
     }
     expect(hosts[0]!.pid).not.toBe(hosts[1]!.pid);
+    expect(hosts[0]!.runId).not.toBe(hosts[1]!.runId);
     return { hosts, close };
   } catch (error) {
     await close();

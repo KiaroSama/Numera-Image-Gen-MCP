@@ -1,8 +1,5 @@
 name: CI
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,12 +13,19 @@ jobs:
     timeout-minutes: 10
     env:
       NUMERA_TEST_WORKERS: "2"
+      npm_config_cache: ${{ github.workspace }}/.ci-cache/npm
+      TEMP: ${{ github.workspace }}/.ci-work/temp
+      TMP: ${{ github.workspace }}/.ci-work/temp
+      TMPDIR: ${{ github.workspace }}/.ci-work/temp
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24.21.0"
-          cache: npm
+          package-manager-cache: false
+      - name: Create project-contained work directories
+        shell: bash
+        run: mkdir -p .ci-work/temp .ci-cache/npm
       - run: npm ci --no-audit --no-fund
       - run: npm run check
       - run: npm run format:check
@@ -37,3 +41,154 @@ jobs:
       - run: npm run smoke
       - run: npm run package:check
       - run: npm audit --omit=dev
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: windows-11-arm
+            target: aarch64-pc-windows-msvc
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 50
+    env:
+      NUMERA_TEST_WORKERS: "2"
+      CARGO_BUILD_JOBS: "2"
+      RUST_TEST_THREADS: "2"
+      PYTHONDONTWRITEBYTECODE: "1"
+      npm_config_cache: ${{ github.workspace }}/.ci-cache/npm
+      TEMP: ${{ github.workspace }}/.ci-work/temp
+      TMP: ${{ github.workspace }}/.ci-work/temp
+      TMPDIR: ${{ github.workspace }}/.ci-work/temp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Create project-contained work directories
+        shell: bash
+        run: mkdir -p .ci-work/temp .ci-cache/npm
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: fc7da25c3b470199949b1b4c67127d77afa0c34a
+          path: .ci-work/baseline
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+          package-manager-cache: false
+      - name: Generate pinned-source compatibility oracle
+        shell: bash
+        env:
+          NUMERA_ORACLE_ROOT: ${{ github.workspace }}/.ci-work/baseline
+        run: |
+          npm --prefix .ci-work/baseline ci --no-audit --no-fund
+          npm --prefix .ci-work/baseline run build
+          node scripts/rust-oracle.mjs
+      - name: Install official Rust only inside workspace
+        run: python -B scripts/native-setup.py
+      - name: Native stable quality, parity, tests and release build
+        env:
+          NUMERA_ORACLE_ROOT: ${{ github.workspace }}/.ci-work/baseline
+          NUMERA_COLLECT_SOURCE_CASES: ${{ matrix.target == 'x86_64-pc-windows-msvc' || matrix.target == 'x86_64-unknown-linux-gnu' || matrix.target == 'aarch64-apple-darwin' }}
+        run: python -B scripts/native-ci.py stable
+      - name: Preserve expanded frozen case inventory including platform skips
+        if: always() && (matrix.target == 'x86_64-pc-windows-msvc' || matrix.target == 'x86_64-unknown-linux-gnu' || matrix.target == 'aarch64-apple-darwin')
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-cases-${{ matrix.target }}
+          path: .ci-work/parity/source-cases.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve resolved dependency licenses and bundled notices
+        id: native_licenses
+        env:
+          NUMERA_NATIVE_TARGET: ${{ matrix.target }}
+        run: python -B scripts/native-licenses.py
+      - name: Package allowlisted native distribution
+        run: python -B scripts/native-package.py --target ${{ matrix.target }}
+      - name: Verify extracted native archives without source runtime dependencies
+        env:
+          NUMERA_ORACLE_ROOT: ${{ github.workspace }}/.ci-work/baseline
+        run: python -B scripts/native-extract-check.py
+      - name: Preserve native archives
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-${{ matrix.target }}
+          path: .ci-work/release/*
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve formatting evidence without accepting a failed check
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-format-${{ matrix.target }}
+          path: .ci-work/native/formatting.zip
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Preserve sanitized dependency notice failures
+        if: failure() && steps.native_licenses.conclusion == 'failure'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-license-failures-${{ matrix.target }}
+          path: .ci-work/native/licenses/failures.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Preserve real generated lockfile
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-lock-${{ matrix.target }}
+          path: Cargo.lock
+          if-no-files-found: error
+          retention-days: 7
+  native-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      NUMERA_TEST_WORKERS: "2"
+      CARGO_BUILD_JOBS: "2"
+      RUST_TEST_THREADS: "2"
+      PYTHONDONTWRITEBYTECODE: "1"
+      npm_config_cache: ${{ github.workspace }}/.ci-cache/npm
+      TEMP: ${{ github.workspace }}/.ci-work/temp
+      TMP: ${{ github.workspace }}/.ci-work/temp
+      TMPDIR: ${{ github.workspace }}/.ci-work/temp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Create project-contained work directories
+        run: mkdir -p .ci-work/temp .ci-cache/npm
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: fc7da25c3b470199949b1b4c67127d77afa0c34a
+          path: .ci-work/baseline
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.21.0"
+          package-manager-cache: false
+      - name: Generate pinned-source compatibility oracle
+        env:
+          NUMERA_ORACLE_ROOT: ${{ github.workspace }}/.ci-work/baseline
+        run: |
+          npm --prefix .ci-work/baseline ci --no-audit --no-fund
+          npm --prefix .ci-work/baseline run build
+          node scripts/rust-oracle.mjs
+      - name: Install stable and isolated nightly coverage toolchains
+        run: python -B scripts/native-setup.py --coverage
+      - name: Enforce native 85 percent regions and 80 percent branches
+        env:
+          NUMERA_ORACLE_ROOT: ${{ github.workspace }}/.ci-work/baseline
+        run: python -B scripts/native-ci.py coverage
+      - name: Preserve coverage evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: native-coverage
+          path: .ci-work/native/coverage.json
+          if-no-files-found: error
+          retention-days: 7

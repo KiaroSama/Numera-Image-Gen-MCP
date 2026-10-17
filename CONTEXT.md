@@ -49,3 +49,12 @@ _Avoid_: Hardcoded output policy.
 
 **Orchestration model**: The model directing a Responses operation, distinct from its image-generation model.
 _Avoid_: Image model alias.
+
+**Local MCP endpoint**: Numera's direct local tool connection, distinct from an image-provider endpoint.
+_Avoid_: Upstream image API, remote proxy.
+
+**Local access token**: A private credential for connecting a local HTTP client to Numera.
+_Avoid_: Provider API key, model entitlement.
+
+**Bridge**: A host-owned stdio connection that starts with the host without a separately running server.
+_Avoid_: Required launcher, background daemon.

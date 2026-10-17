@@ -1,0 +1,799 @@
+{
+  "baseline": "fc7da25c3b470199949b1b4c67127d77afa0c34a",
+  "baseline_case_count": 470,
+  "case_mapping_complete": false,
+  "mapping_level": "suite-navigation-with-pending-case-ledger",
+  "case_ledger": "native-cases/index.json",
+  "runtime_evidence": "docs/TESTING.md",
+  "gap_definitions": {
+    "parameterized_accounting": "Assign source declaration, parameter row and native oracle/assertion ID individually. Aggregate suite counts and nonempty oracle minima do not account for all 470 cases.",
+    "six_adapter_http": "Source wire-contracts lines 16-149 checks actual path, POST, authorization and body for six adapters. Six independently named native HTTP captures passed all six targets at 0f80e3b; literal source-case assertion review and final evidence validation remain pending.",
+    "reference_encodings": "Source recovery-requirements lines 19-105 checks json/generation, scalar rejection, images/image_urls/input_references and multipart. Complete exact encoding/body assignment remains pending.",
+    "comfy_preflight_wire": "At bc34fbf actual distinct-reference/mask and six zero-upload preflight fixtures passed; individual expanded source-case assignment remains pending.",
+    "alias_policy": "Source reference-preflight lines 136-188 checks codex/cx unchanged wire IDs, negative cxx and OmniRoute batch rejection; explicit oracle-row assignment remains pending.",
+    "discovery_isolation": "Source discovery cross-profile cache isolation and malformed first-page completeness are distinct from generic stale/repeated-cursor tests.",
+    "image_specifics": "Source images exact preview geometry/no enlargement/stage, large Base64 regression, input symlinks and owned-output tamper/missing/collision variants need individual assertions.",
+    "directory_toctou": "Three exact two-ENOENT schedules passed four POSIX targets at ec60ae3. Both Windows jobs failed junction shell creation; corrected owned normal CWD/relative basename is source-only. All-platform final assertion acceptance remains pending.",
+    "active_waiter_races": "Source async-waiter-race and stdio-terminal-races hold actual generation polls/downloads while another public caller refreshes/cancels. Seeded recovery and direct store fencing do not establish those schedules.",
+    "cancelled_mixed_results": "Source cancelled-results combines URL and inline bytes, requires zero downloads and two retained entries; inline-only cancellation recovery is not the same assertion.",
+    "comfy_download_recovery": "Existing reopen regressions remain. New exact same-live-Generation and new-Generation/same-Store schedules preserve source defaults/receipt/8x6 originals; current hosted proof and final literal acceptance pending.",
+    "reload_public_boundary": "Source config-reload and env-stdio keep SDK/child alive, reload saved models, count one rejection log, preserve old-handle routing and reject ambiguous route history. Parser/direct Application tests do not cover all those assertions.",
+    "environment_reread": "Native snapshot_races env branch injects a new Generation environment. Source credential-snapshot mutates process.env and uses the same Generation; these are not identical acceptance contracts.",
+    "nested_credentials": "Source credential-snapshot nested cancellation/completed-job recovery needs explicit pinned-account propagation assertions.",
+    "dpapi_protector": "Source DPAPI fixture verifies protector current-user ACL, hidden plaintext and no overwrite. Decoder roundtrip/corrupt-input tests cover only part of it.",
+    "dns_hostname": "Source HTTP cleanup tests DNS-pinned hostname with both autoSelectFamily values; numeric loopback tests do not prove that resolution contract.",
+    "public_sql_recovery": "Source journal-sql-failures invokes Generation.finish then getJob and asserts public receipt state; output::save SQL-gap test alone is a narrower seam.",
+    "two_host_generation_dedup": "Source mcp generates the same request across two actual hosts and proves one POST. One-host HTTP generation/direct Generation dedup and seeded two-host recovery are not equivalent.",
+    "normal_recovered_requirements": "New output_requirements.rs normal and real SQL commit-failure/public local recovery cases assert exact source deviations, original bytes, stable UUID, persisted aspect/tier, retained storage_error and repeated reads. Source-only pending hosted execution and final literal review.",
+    "posix_symlinks": "Source posix-platform checks both escaping link rejection and safe in-root link acceptance; plain contained-file tests do not establish both.",
+    "retained_tooling": "Source setup/POSIX process-tree bounds, PowerShell WhatIf, protector and actual registration mutation/rollback cases need explicit retained-tooling disposition; no silent retirement.",
+    "readiness_variants": "Missing credential/no network, unavailable catalog and public SDK checks need separate assignment beyond generic ready/missing-model.",
+    "crash_assertion_parity": "Eight literal native killed-child cases include both reopens, phase status/dedup and original/index/pending/file counts. SQL lease expiry substitutes for Date.now; publication uses a restored SQL trigger. Hosted proof and final literal acceptance remain pending.",
+    "publication_faults": "Source recovery lines 452-529 tests write/sync/link/unlink/receipt failures. SQL-index and directory failure are not the complete fault matrix.",
+    "concurrent_finalizers": "Source review-fixes and recovery have actual competing finalizers/stale same-instance publication; direct fence checks do not prove every schedule.",
+    "compact_sdk_wire": "Source simple-config integration captures compact Responses orchestrator/tool_choice/default versus explicit size/quality override through two actual SDK POSTs.",
+    "public_tool_schema": "Source tools checks every tool argument plus edit watermark/edit_region descriptions. New HTTP output/resource test covers substantial boundary behavior but not every schema/description assertion.",
+    "polling_matrix": "Twelve exact Application-dispatch cases cover terminal/uncertain SSE and two adapters by other/missing/owned IDs for waiter and refresh. SDK structuredContent/protocol/handshake, hosted execution and final literal acceptance remain pending.",
+    "upscale_wire": "Source upscale captures exact reference, prompt, size, omitted upscale flag and both larger/unchanged output branches. Unchanged-size partial checks alone are insufficient."
+  },
+  "suites": [
+    {
+      "source": "tests/contract/adapters.test.ts",
+      "sha256": "1df72d2d8ecccc1d4bf5456817408a3b7992ce201debc2186b33c92f5742ef0f",
+      "native": [
+        "tests/rust/adapters.rs::source_generated_wire_and_result_contracts_match",
+        "tests/rust/policy.rs::source_oracle_policy_dimensions_and_effective_request_match"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/contract/capability-descriptors.test.ts",
+      "sha256": "5a4f3459e5b7cdf6abfc91337752f097a7a1681a1bb530de51c2c6ab5a450e2a",
+      "native": [
+        "tests/rust/model_policy.rs::endpoint_descriptors_pin_compatible_provider_and_refuse_fallback_or_dropped_requirements",
+        "tests/rust/discovery_acceptance.rs::exact_source_minimal_endpoint_descriptors_pin_only_compatible_provider",
+        "tests/rust/discovery_acceptance.rs::exact_source_failed_catalog_warns_unknown_without_setting_or_replacing_model"
+      ],
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "source": "tests/contract/comfyui.test.ts",
+      "sha256": "a99f6e24a70e5b1427ce71aa662f12991f0662f4d3ac7ff49a7d1edddc2bde0e",
+      "native": [
+        "tests/rust/workflow.rs::explicit_bindings_preserve_unicode_parameters_and_shared_graph",
+        "tests/rust/comfy.rs::installed_comfy_graph_gpu_preflight_upload_submission_and_terminal_history_are_explicit",
+        "tests/rust/catalog_upload_contracts.rs::malformed_image_and_mask_upload_identity_prevent_prompt_submission_and_unknown_ids_never_retry",
+        "tests/rust/comfy_results.rs::comfy_history_rejects_malformed_or_excessive_outputs_and_retains_only_completed_originals",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_prompt_seed_count_options_bind_on_clone_without_changing_configuration",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_aspect_ratio_requires_explicit_binding",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_image_size_requires_explicit_binding",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_output_format_requires_explicit_binding",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_size_requires_explicit_binding",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_background_requires_explicit_binding",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_negative_prompt_requires_explicit_binding",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_quality_requires_explicit_binding",
+        "tests/rust/comfy_workflow_acceptance.rs::exact_source_invalid_graphs_and_unbound_inputs_reject_in_original_order",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_full_comfy_edit_preserves_three_uploads_and_only_bound_final_originals",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_missing_node_refuses_before_any_upload_or_prompt",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_cpu_refuses_before_any_upload_or_prompt",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_no_devices_refuses_before_any_upload_or_prompt",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_cpu_optout_only_requests_installed_nodes",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_missing_image_and_mask_bindings_refuse_both_calls",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_bad_reference_identity_then_empty_submission_never_retries",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_empty_mask_upload_identity_never_submits_sentinel_prompt",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_error_input_only_history_retains_terminal_flag_without_view",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_absent_history_fetches_no_unrelated_image",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_empty_input_only_history_returns_no_image_without_view",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_running_input_only_history_fetches_no_unrelated_image"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Direct wait/arbitrary cancellation reason, public terminal-rejection integration, applicable hosted execution and final literal acceptance remain pending."
+      ]
+    },
+    {
+      "source": "tests/contract/dimensions.test.ts",
+      "sha256": "ff11703e3240abf30e835ed8283c1638c5dc51d19441f2bc50ea65e535909ec8",
+      "native": [
+        "tests/rust/policy.rs::source_oracle_policy_dimensions_and_effective_request_match",
+        "tests/rust/image_route_contracts.rs::requested_ratio_tier_format_and_upscale_deviations_use_original_dimensions_and_evidence",
+        "tests/rust/discovery_acceptance.rs::exact_source_generic_flash_dimensions_separate_native_sizes_from_route_acceptance",
+        "tests/rust/discovery_acceptance.rs::exact_source_opaque_model_does_not_invent_native_dimensions",
+        "tests/rust/discovery_acceptance.rs::exact_source_gateway_tier_restrictions_do_not_establish_native_or_account_support",
+        "tests/rust/discovery_acceptance.rs::exact_source_four_adapter_dimension_inputs_remain_offline_and_unverified_for_accounts"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/contract/discovery.test.ts",
+      "sha256": "9608d1bb7e4864233f6add7611ee3f403acdf5255d879e2b7de668c409508326",
+      "native": [
+        "tests/rust/discovery.rs::specialty_catalog_routes_cache_health_and_metadata_preserve_evidence",
+        "tests/rust/discovery.rs::catalog_pagination_partial_errors_and_stale_cache_are_bounded",
+        "tests/rust/catalog_upload_contracts.rs::omniroute_specialty_catalog_is_supplemented_by_paginated_image_only_deduplication",
+        "tests/rust/catalog_upload_contracts.rs::gemini_page_tokens_do_not_mutate_configuration_or_leak_into_fresh_refresh",
+        "tests/rust/discovery_lifecycle_acceptance.rs::exact_source_profile_caches_stay_isolated_and_failed_refresh_retains_stale_evidence",
+        "tests/rust/discovery_lifecycle_acceptance.rs::exact_source_repeated_cursor_and_twenty_page_refresh_remain_incomplete",
+        "tests/rust/discovery_lifecycle_acceptance.rs::exact_source_malformed_first_page_is_incomplete_with_one_response_warning",
+        "tests/rust/discovery_lifecycle_acceptance.rs::exact_source_enabled_and_disabled_health_never_disclose_declared_secret_sources",
+        "tests/rust/network_acceptance.rs::exact_source_http_401_is_authentication_error_without_retry",
+        "tests/rust/network_acceptance.rs::exact_source_http_403_is_permission_denied_without_retry",
+        "tests/rust/network_acceptance.rs::exact_source_http_404_is_model_unavailable_without_retry",
+        "tests/rust/network_acceptance.rs::exact_source_http_429_is_rate_limited_without_retry",
+        "tests/rust/network_acceptance.rs::exact_source_http_500_is_upstream_error_without_retry",
+        "tests/rust/network_acceptance.rs::exact_source_redirect_malformed_five_byte_limit_and_preabort_reject_in_order",
+        "tests/rust/network_acceptance.rs::exact_source_asset_prefix_redirect_loop_limits_and_unsafe_urls_preserve_original_bytes",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_images_specialty_route_preserves_complete_uncached_evidence",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_openrouter_specialty_route_preserves_complete_uncached_evidence",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_ninerouter_specialty_route_preserves_complete_uncached_evidence",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_comfy_specialty_route_preserves_complete_uncached_evidence",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_gemini_specialty_route_preserves_complete_uncached_evidence",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_interactions_specialty_route_preserves_complete_uncached_evidence",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_omniroute_specialty_supplements_only_paginated_unified_images",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_gemini_page_token_refresh_preserves_config_and_resets_cursor",
+        "tests/rust/discovery_routes_acceptance.rs::exact_source_gateway_metadata_preserves_encoded_ids_and_unknown_availability"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final literal acceptance remain pending."
+      ]
+    },
+    {
+      "source": "tests/contract/malformed-image-items.test.ts",
+      "sha256": "cb64ac9d30c5a0a0ef5ef1e5647e94cbaa0cac529eb91f91e9e2773c1f353374",
+      "native": [
+        "tests/rust/streams.rs::malformed_nested_results_refusals_and_fallbacks_match_source_error_and_partial_contracts",
+        "tests/rust/output_recovery.rs::mixed_provider_results_preserve_valid_originals_and_report_partial_storage_without_retry"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/contract/recovery-requirements.test.ts",
+      "sha256": "2aef09e8d26c2c3d497bfe8cdedbec578d06bb24df92c713b3fc5f59284b17ad",
+      "native": [
+        "tests/rust/reference_requirements_acceptance.rs::exact_source_generation_scalar_loss_refusals_preserve_all_array_and_multipart_references",
+        "tests/rust/reference_requirements_acceptance.rs::exact_source_json_scalar_loss_refusals_preserve_all_array_and_multipart_references",
+        "tests/rust/reference_requirements_acceptance.rs::exact_source_model_limits_remain_separate_from_route_safety_budget",
+        "tests/rust/output_requirements.rs::every_source_requirement_deviation_and_warning_matches_exact_metadata_and_json_round_trip"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["Hosted run and final literal review pending."]
+    },
+    {
+      "source": "tests/contract/reference-preflight.test.ts",
+      "sha256": "0399b9e65e7753466868d4dd5ff7274045705f092f4973edf1240029fbc95303",
+      "native": [
+        "tests/rust/workflow.rs::every_reference_and_mask_requires_an_existing_distinct_input_target",
+        "tests/rust/multipart.rs::actual_multipart_wire_preserves_source_field_names_order_filenames_and_original_bytes",
+        "tests/rust/catalog_upload_contracts.rs::distinct_reference_and_mask_uploads_preserve_bytes_targets_and_gpu_preflight",
+        "tests/rust/catalog_upload_contracts.rs::invalid_reference_bindings_refuse_all_six_source_variants_before_any_upload",
+        "tests/rust/image_route_contracts.rs::all_explicit_json_reference_encodings_preserve_order_scalar_masks_and_gateway_ids",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_missing_node_refuses_before_upload",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_second_binding_refuses_before_upload",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_changed_after_preflight_revalidates_before_upload",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_colliding_targets_refuse_before_upload",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_mask_binding_refuses_before_upload",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_misspelled_slot_refuses_before_upload",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_unmasked_two_distinct_references_keep_bytes_targets_and_direct_submit_order",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_nine_router_aliases_keep_json_model_ids_and_negative_prefix_unknown",
+        "tests/rust/reference_preflight_acceptance.rs::exact_source_omniroute_aliases_preserve_full_multipart_model_and_refuse_paid_fanout"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "New exact preflight/reference/alias fixtures require applicable hosted execution and final literal acceptance."
+      ]
+    },
+    {
+      "source": "tests/contract/streams.test.ts",
+      "sha256": "fba04539eda2096043a80c49ce1e8cd2719c067b1978e080f8cc385a0deae5c9",
+      "native": [
+        "tests/rust/streams.rs::final_stream_and_binary_results_match_frozen_source_without_promoting_previews",
+        "tests/rust/streams.rs::complete_frame_parsing_matches_source_crlf_multiline_unicode_and_error_contracts",
+        "tests/rust/adapters.rs::source_generated_wire_and_result_contracts_match",
+        "tests/rust/multipart.rs::actual_multipart_wire_preserves_source_field_names_order_filenames_and_original_bytes"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/contract/wire-contracts.test.ts",
+      "sha256": "091ab00cc152e911a16fd76af24fc6a87eb6b07ae27c721aafd1541393576a85",
+      "native": [
+        "tests/rust/provider_wire_contracts.rs::openai_images_posts_exact_utf8_json_and_normalizes_original",
+        "tests/rust/provider_wire_contracts.rs::gemini_posts_encoded_model_path_and_exact_modalities_and_normalizes_original",
+        "tests/rust/provider_wire_contracts.rs::openrouter_posts_dedicated_images_route_without_fallback_and_normalizes_original",
+        "tests/rust/provider_wire_contracts.rs::gemini_interactions_posts_stateless_image_format_and_normalizes_original",
+        "tests/rust/provider_wire_contracts.rs::chat_images_posts_opted_in_image_modalities_and_normalizes_original",
+        "tests/rust/provider_wire_contracts.rs::responses_posts_separate_orchestrator_and_image_tool_and_normalizes_original",
+        "tests/rust/reference_requirements_acceptance.rs::exact_source_multipart_edit_keeps_original_reference_and_alpha_mask_on_wire"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["Hosted run and final literal review pending."]
+    },
+    {
+      "source": "tests/contract/workflow-branches.test.ts",
+      "sha256": "6825a10eeb23ff2cf2d86f68312403be40f12d24086ac01ccfef30d145225281",
+      "native": [
+        "tests/rust/catalog_upload_contracts.rs::accepted_partial_workflow_warns_only_rejected_node_ids_and_preserves_mask_evidence",
+        "tests/rust/comfy_lifecycle_acceptance.rs::exact_source_partial_branch_warning_keeps_only_bad_node_and_mask_evidence"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Exact single bad-node warning/mask evidence fixture requires applicable hosted execution and final literal acceptance."
+      ]
+    },
+    {
+      "source": "tests/integration/async-waiter-race.test.ts",
+      "sha256": "c2b712be6db6a9fe7a5664ad047ab8e593ee8a2b8f21c121dc0f343ab2b2db42",
+      "native": [
+        "tests/rust/terminal.rs::shared_terminal_control_fences_old_writer_and_preserves_retained_originals",
+        "tests/rust/job_recovery_contracts.rs::inactive_nonrefreshed_no_handle_terminal_and_owned_writer_requests_do_not_probe",
+        "tests/rust/async_waiter_acceptance.rs::exact_source_refresher_fences_original_responses_waiter_without_duplicate_output"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and independent final literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/cancelled-results.test.ts",
+      "sha256": "627be6f0fb512be7a7e26ce399174f2e8b8acd6b637b1af6bd8a2afb9988e352",
+      "native": [
+        "tests/rust/generation_results.rs::cancelled_publication_retains_completed_originals_and_recovery_preserves_deviations",
+        "tests/rust/recovery.rs::completed_retained_bytes_recover_after_local_cancel_without_credentials_or_post",
+        "tests/rust/generation_acceptance.rs::exact_source_cancelled_mixed_result_retains_inline_bytes_without_asset_download"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and independent final literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/comfy-result-retention.test.ts",
+      "sha256": "93e73ed08089d0867572e865259c6db7e91895abd48365c257f130d2cc8fbfed",
+      "native": [
+        "tests/rust/comfy_results.rs::comfy_history_rejects_malformed_or_excessive_outputs_and_retains_only_completed_originals",
+        "tests/rust/output_recovery.rs::mixed_provider_results_preserve_valid_originals_and_report_partial_storage_without_retry",
+        "tests/rust/comfy_recovery_contracts.rs::seeded_comfy_second_download_failure_retains_first_original_and_recovers_locally_after_removal",
+        "tests/rust/comfy_same_store_acceptance.rs::exact_source_comfy_retained_original_recovers_with_new_generation_and_same_store"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["comfy_download_recovery"]
+    },
+    {
+      "source": "tests/integration/comfy-terminal-recovery.test.ts",
+      "sha256": "ad0e23df3c3d5dfbcbabb6dd85c3876fc823f8f3215afba121718d4bb084b0be",
+      "native": [
+        "tests/rust/comfy_results.rs::comfy_history_rejects_malformed_or_excessive_outputs_and_retains_only_completed_originals",
+        "tests/rust/job_recovery_contracts.rs::retained_url_failure_keeps_journal_then_recovers_bytes_without_resubmitting_generation",
+        "tests/rust/comfy_recovery_contracts.rs::synchronous_comfy_completed_history_survives_first_download_failure_and_reopens_without_replay",
+        "tests/rust/comfy_same_store_acceptance.rs::exact_source_completed_comfy_first_download_failure_refreshes_same_live_generation"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["comfy_download_recovery"]
+    },
+    {
+      "source": "tests/integration/config-reload.test.ts",
+      "sha256": "6cfec679560326b7e658171684524e4543d892d1d2d2c5bc062d167a1aa91bcc",
+      "native": [
+        "tests/rust/config_parity.rs::reload_retains_last_good_fixed_policy_and_sixty_four_snapshots",
+        "tests/rust/application.rs::public_tools_validate_arguments_store_outputs_and_reload_last_good_config",
+        "tests/rust/snapshot_races.rs::in_flight_generation_keeps_old_snapshot_while_reload_and_next_request_use_new_model",
+        "scripts/native-config-reload-acceptance.mjs::configReloadAcceptance"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending.",
+        "Partial ownership schedule: source app.store prepares within the same Store owner; actual child fixture requires explicit public release of the external seed Store. Same-owner seeding/claim schedule remains required."
+      ]
+    },
+    {
+      "source": "tests/integration/credential-snapshot.test.ts",
+      "sha256": "60df177195c15e70091d54325544cba5ff26dd6dc73b240cf1a399e0898bab64",
+      "native": [
+        "tests/rust/snapshot_races.rs::queued_file_and_explicit_environment_snapshots_keep_old_headers_until_next_operation",
+        "tests/rust/config_parity.rs::operation_credentials_are_private_pinned_and_do_not_fall_back",
+        "tests/rust/job_recovery_contracts.rs::supplied_private_credential_snapshot_survives_rotation_for_existing_handle_recovery",
+        "tests/rust/credential_snapshot_acceptance.rs::exact_source_file_credentials_pin_across_queue_but_refresh_on_same_generation",
+        "tests/rust/credential_snapshot_acceptance.rs::exact_source_ephemeral_snapshot_preserves_identity_and_independent_headers"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Same-Generation process environment rotation and nested cancellation credential rotation remain unassigned; native Generation receives explicit immutable environment values, not JavaScript process.env.",
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/detached-jobs.test.ts",
+      "sha256": "06b0eebfb39f072f8c0754eb4c7fc08f771c80f5626c7ca1debb11c56318236b",
+      "native": [
+        "tests/rust/generation_contracts.rs::comfy_wait_false_retains_one_handle_and_get_job_recovers_original_bytes",
+        "tests/rust/detached_job_acceptance.rs::exact_source_detached_job_refresh_saves_original_once_on_same_generation_and_store"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/dpapi.test.ts",
+      "sha256": "1687e22470be252094579d958f9d1bd68e350eb2c1b10bef31993ae6c464d2fb",
+      "native": [
+        "tests/rust/config_parity.rs::source_generated_current_user_dpapi_format_round_trips_without_a_shell"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["dpapi_protector", "retained_tooling"]
+    },
+    {
+      "source": "tests/integration/env-stdio.test.ts",
+      "sha256": "0bc59f88558fd116fc578a923d188a07464221814365b9c1ea067ee6d04c22e0",
+      "native": [
+        "tests/rust/stdio.rs::bridge_runs_without_launcher_from_foreign_cwd_and_closes_on_eof",
+        "tests/rust/config_contracts.rs::adjacent_discovery_explicit_paths_and_openai_compat_are_isolated_from_caller_state",
+        "scripts/native-env-acceptance.mjs::envAcceptance"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/http-resource-cleanup.test.ts",
+      "sha256": "7e013ead2aa26c3cf1487a9dc72e16f18a5133959091fd5859db3bed2c3d335c",
+      "native": [
+        "tests/rust/http_cleanup_acceptance.rs::exact_source_sse_error_releases_held_api_socket_before_provider_deadline",
+        "tests/rust/http_cleanup_acceptance.rs::exact_source_oversize_releases_held_api_socket_before_provider_deadline",
+        "tests/rust/http_cleanup_acceptance.rs::exact_source_redirect_releases_held_api_socket_before_provider_deadline",
+        "tests/rust/http_cleanup_acceptance.rs::exact_source_chunk_limit_releases_held_api_socket_before_provider_deadline",
+        "tests/rust/http_cleanup_acceptance.rs::exact_source_oversize_asset_releases_socket_and_refuses_unapproved_redirect"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["dns_hostname"]
+    },
+    {
+      "source": "tests/integration/image-editing.test.ts",
+      "sha256": "f8abdf3383f995693825adc5f2abdc6636643396e98a6bb3101e4f021f860d48",
+      "native": [
+        "tests/rust/snapshot_races.rs::actual_region_edit_wire_preserves_original_and_mask_polarity_before_submission",
+        "tests/rust/editing.rs::region_masks_preserve_polarity_pixels_and_reject_outside_bounds",
+        "tests/rust/image_editing_acceptance.rs::exact_source_black_region_edit_preserves_mask_pixels_and_original",
+        "tests/rust/image_editing_acceptance.rs::exact_source_transparent_region_edit_preserves_mask_pixels_and_original",
+        "tests/rust/image_editing_acceptance.rs::exact_source_white_region_edit_preserves_mask_pixels_and_original"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/journal-sql-failures.test.ts",
+      "sha256": "c5c70fd39dcf3eb161bd3b6a594b54fceb0198a3f8e4b01332ba91ad26e2774e",
+      "native": [
+        "tests/rust/publication_contracts.rs::filesystem_sql_gap_reconciles_original_bytes_uuid_and_refuses_a_changed_publication_target",
+        "tests/rust/migration.rs::legacy_wal_snapshot_preserves_receipts_and_refuses_future_or_incomplete_schemas",
+        "tests/rust/generation_acceptance.rs::exact_source_future_state_rejection_preserves_user_version_three",
+        "tests/rust/generation_acceptance.rs::exact_source_sql_failure_recovers_published_original_with_same_store"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and independent final literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/mcp.test.ts",
+      "sha256": "b109309a7bd8ac4c309d98577ffdc641b47ea296cd8a1481c414a3f2f26a17bc",
+      "native": [
+        "tests/rust/stdio.rs::bridge_runs_without_launcher_from_foreign_cwd_and_closes_on_eof",
+        "tests/rust/generation.rs::actual_loopback_generation_preserves_bytes_and_deduplicates_paid_post",
+        "tests/rust/http_output_contracts.rs::actual_http_tools_preserve_originals_previews_resource_reads_and_error_contracts",
+        "scripts/native-two-host-acceptance.mjs::twoHostAcceptance"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted/extracted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/negotiation.test.ts",
+      "sha256": "fcd1356a6f20f8ab8701f0119056d4dd20f053f82a10f22f44708f559bc50b7b",
+      "native": [
+        "scripts/native-negotiation-acceptance.mjs::negotiationAcceptance"
+      ],
+      "external": [
+        {
+          "file": "scripts/native-interop.mjs",
+          "test": "start"
+        }
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/output-requirements.test.ts",
+      "sha256": "ebb14f936c5faeeafade3f3dc32c32c089346a128a97ab10c224b27051d51c07",
+      "native": [
+        "tests/rust/image_route_contracts.rs::requested_ratio_tier_format_and_upscale_deviations_use_original_dimensions_and_evidence",
+        "tests/rust/generation_results.rs::cancelled_publication_retains_completed_originals_and_recovery_preserves_deviations",
+        "tests/rust/output_recovery.rs::received_bytes_survive_output_directory_failure_and_recover_with_the_same_uuid_after_reopen",
+        "tests/rust/output_requirements.rs::normal_finalization_preserves_exact_source_aspect_tier_deviations_and_original_bytes",
+        "tests/rust/output_requirements.rs::real_sql_commit_failure_recovers_identical_source_requirements_without_network"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["normal_recovered_requirements"]
+    },
+    {
+      "source": "tests/integration/posix-platform.test.ts",
+      "sha256": "b59d1d946bb42c4bee44b0529f1a4fabb98fb764f83b77884b58b7bede9256a4",
+      "native": [
+        "tests/rust/config_parity.rs::declared_secret_files_are_bounded_private_and_pinned_across_changes",
+        "tests/rust/editing.rs::editing_contracts_and_contained_unicode_files_preserve_original_bytes"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["posix_symlinks", "retained_tooling"]
+    },
+    {
+      "source": "tests/integration/readiness.test.ts",
+      "sha256": "4fb869c7592e7c4a9aa0f53437350490578915c3e29e039e58b7ca0a880ee044",
+      "native": [
+        "tests/rust/maintenance.rs::readiness_reports_local_probe_and_model_blockers_without_generation",
+        "tests/rust/cli_entry.rs::actual_native_menu_maintenance_and_invalid_http_flags_preserve_host_config",
+        "tests/rust/readiness_acceptance.rs::executable_readiness_probes_get_only_and_never_discloses_the_exact_catalog_id",
+        "tests/rust/readiness_acceptance.rs::executable_readiness_missing_declared_credential_exits_two_without_provider_calls",
+        "tests/rust/readiness_acceptance.rs::executable_readiness_local_only_has_null_connection_and_relative_config_exits_one",
+        "tests/rust/readiness_acceptance.rs::executable_readiness_unlisted_model_and_failed_catalog_exit_two_without_post_or_error_leak"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["source_inner_stdio_and_wrapper_cleanup_marker"]
+    },
+    {
+      "source": "tests/integration/recovery.test.ts",
+      "sha256": "a81d091158798f66fadeb248eb09010ad4092e9ad14b351d466fccc7db8a98c2",
+      "native": [
+        "tests/rust/crash_recovery_acceptance.rs::exact_source_killed_published_recovers_one_original_across_two_reopens",
+        "tests/rust/publication_recovery_acceptance.rs::exact_source_published_file_recovers_by_journal_hash_without_duplicate_output",
+        "tests/rust/publication_recovery_acceptance.rs::exact_source_legacy_backup_preserves_completed_receipt_from_live_wal",
+        "tests/rust/local_recovery_acceptance.rs::exact_source_aborted_inline_finish_recovers_original_with_same_store_without_connection"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "crash_assertion_parity",
+        "publication_faults",
+        "concurrent_finalizers",
+        "active_waiter_races"
+      ]
+    },
+    {
+      "source": "tests/integration/reservation-lifecycle.test.ts",
+      "sha256": "2edc47d8993045b92defb1225c736b17e1a9cb2c7e86a1b0ef50ece325869138",
+      "native": [
+        "tests/rust/snapshot_races.rs::two_actual_store_processes_serialize_shared_budget_reservations",
+        "tests/rust/snapshot_races.rs::exact_source_two_process_reservations_close_before_reading_full_budget",
+        "tests/rust/store_acceptance.rs::exact_source_empty_orphan_reservations_preserve_uncertainty_across_two_reopens",
+        "tests/rust/store_acceptance.rs::exact_source_bytes_urls_live_and_detached_writers_keep_charges_and_fence_expiry",
+        "tests/rust/store_acceptance.rs::exact_source_received_completion_wins_late_cancel_and_keeps_both_retained_byte_items",
+        "tests/rust/store_acceptance.rs::exact_source_completed_output_wins_later_cancel_without_resurrecting_state",
+        "tests/rust/store_acceptance.rs::exact_source_known_completion_wins_cancel_before_first_retention",
+        "tests/rust/store_acceptance.rs::exact_source_empty_terminal_release_frees_full_budget_without_erasing_receipt",
+        "tests/rust/terminal.rs::received_completion_wins_late_cancellation_and_preserves_accounting",
+        "tests/rust/terminal.rs::terminal_writer_keeps_reservation_until_retention_then_releases_unused_capacity",
+        "tests/rust/terminal.rs::exact_source_terminal_retention_keeps_full_budget_until_writer_release",
+        "tests/rust/terminal.rs::releasing_empty_terminal_reservation_keeps_receipt_but_frees_full_budget"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting", "active_waiter_races"]
+    },
+    {
+      "source": "tests/integration/review-fixes.test.ts",
+      "sha256": "d16b9a4cad25b99f779f1882e27f7c2e2a431a7ec74b373d89a5a26538a96583",
+      "native": [
+        "tests/rust/review_regression_acceptance.rs::exact_source_two_stores_admit_one_finalizer_and_restore_original_output_requirements",
+        "tests/rust/review_regression_acceptance.rs::exact_source_excessive_final_items_refuse_before_url_processing",
+        "tests/rust/review_regression_acceptance.rs::exact_source_gemini_rejects_ignored_native_batch"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Remaining exact selectors are in the case ledger; hosted execution and final literal review pending."
+      ]
+    },
+    {
+      "source": "tests/integration/setup.test.ts",
+      "sha256": "d054c0a30cdc080480863c3a00f802e13b0299b845e2c59ac369e12c1bc4431e",
+      "native": [
+        "tests/rust/registration.rs::registration_dry_run_backups_idempotence_and_active_lock_are_safe",
+        "tests/rust/registration_contracts.rs::conservative_toml_merge_handles_nested_owned_sections_and_rejects_ambiguous_syntax",
+        "tests/rust/registration_contracts.rs::registration_rejects_unsafe_files_and_creates_only_requested_entry_with_recoverable_backup",
+        "tests/rust/cli_entry.rs::actual_native_menu_maintenance_and_invalid_http_flags_preserve_host_config"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["retained_tooling"]
+    },
+    {
+      "source": "tests/integration/simple-config.test.ts",
+      "sha256": "239ff57ecee500ead7c6351f3b7c97ca9d0dbfc08c6e4d20b4996282b1223b90",
+      "native": [
+        "tests/rust/config_parity.rs::source_generated_defaults_compact_advanced_and_overrides_match",
+        "tests/rust/stdio.rs::bridge_runs_without_launcher_from_foreign_cwd_and_closes_on_eof",
+        "tests/rust/adapters.rs::source_generated_wire_and_result_contracts_match",
+        "scripts/native-compact-acceptance.mjs::compactAcceptance"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted/extracted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/stdio-terminal-lifecycle.test.ts",
+      "sha256": "954b7aa02b6b0c2814ee59325fb5c9962f907260549174401969f6ee9d9cbc62",
+      "native": [
+        "tests/rust/terminal.rs::authoritative_terminal_states_release_admission_and_survive_reopen_without_replay"
+      ],
+      "external": [
+        {
+          "file": "scripts/native-interop.mjs",
+          "test": "start"
+        }
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/integration/stdio-terminal-races.test.ts",
+      "sha256": "8aac8c596e4cf758f8ff53412ba1632b5b572a867dd1376135ea49311939d407",
+      "native": [
+        "tests/rust/terminal.rs::shared_terminal_control_fences_old_writer_and_preserves_retained_originals",
+        "tests/rust/terminal.rs::received_completion_wins_late_cancellation_and_preserves_accounting"
+      ],
+      "external": [
+        {
+          "file": "scripts/native-interop.mjs",
+          "test": "start"
+        }
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["active_waiter_races"]
+    },
+    {
+      "source": "tests/integration/terminal-lifecycle.test.ts",
+      "sha256": "09558be59fb2a91f33b0e02f02190998f4709738d67637c6b5aeb58ff26cc973",
+      "native": [
+        "tests/rust/terminal.rs::authoritative_terminal_states_release_admission_and_survive_reopen_without_replay",
+        "tests/rust/terminal_lifecycle_acceptance.rs::exact_source_false_cancel_ack_preserves_capacity_across_two_reopens_without_generation",
+        "tests/rust/job_recovery_contracts.rs::comfy_authoritative_failed_history_and_absent_cancel_acknowledgement_are_not_equivalent",
+        "tests/rust/generation_acceptance.rs::exact_source_terminal_partial_finish_recovers_on_same_generation_without_capacity_resurrection"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/integration/tools.test.ts",
+      "sha256": "ca484107cecf7f2be80d8c556f76aedb5ccf844f357cbd6b5cdf643f292b781b",
+      "native": [
+        "tests/rust/application.rs::public_tools_validate_arguments_store_outputs_and_reload_last_good_config",
+        "tests/rust/http_output_contracts.rs::actual_http_tools_preserve_originals_previews_resource_reads_and_error_contracts",
+        "scripts/native-tools-acceptance.mjs::toolsAcceptance"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/integration/transport-boundaries.test.ts",
+      "sha256": "30c74caf25771b5addb253b649ee5c550bd3a05a0a604fe74cb92550cbbd2c0e",
+      "native": [
+        "tests/rust/transport_acceptance.rs::exact_source_failed_sse_preserves_terminal_state_and_admission",
+        "tests/rust/transport_acceptance.rs::exact_source_error_sse_remains_uncertain_without_resubmission",
+        "tests/rust/transport_acceptance.rs::exact_source_responses_other_id_rejects_waiter_and_refresh"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["polling_matrix"]
+    },
+    {
+      "source": "tests/integration/upscale.test.ts",
+      "sha256": "d3f44fd6900cf9c78a50eba60f5e3cb881dbeb97b0ba955d889b48596bbea9d4",
+      "native": [
+        "tests/rust/generation_contracts.rs::explicit_masks_region_translation_and_upscale_report_native_results_not_resized_images",
+        "tests/rust/image_route_contracts.rs::requested_ratio_tier_format_and_upscale_deviations_use_original_dimensions_and_evidence",
+        "tests/rust/upscale_acceptance.rs::exact_source_native_upscale_saves_larger_original_then_marks_unchanged_output_partial"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/unit/config.test.ts",
+      "sha256": "3f62dfc9c6fe2f6e371cbbbbe2a0bf934966de1fdf7b7f5c3c52ea9d53615d67",
+      "native": [
+        "tests/rust/config_parity.rs::source_generated_defaults_compact_advanced_and_overrides_match",
+        "tests/rust/config_parity.rs::operation_credentials_are_private_pinned_and_do_not_fall_back",
+        "tests/rust/config_contracts.rs::connection_cross_validation_rejects_unsafe_origins_headers_queries_proxies_and_edit_routes",
+        "tests/rust/policy.rs::source_oracle_policy_dimensions_and_effective_request_match"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/unit/continuation.test.ts",
+      "sha256": "589440afd8305b06a3a969413daf91683bce8f62ba7a6e29ecd3ff3f1e86082c",
+      "native": [
+        "tests/rust/generation_results.rs::gemini_continuation_and_originals_survive_recovery_without_new_generation",
+        "tests/rust/streams.rs::malformed_nested_results_refusals_and_fallbacks_match_source_error_and_partial_contracts",
+        "tests/rust/journal.rs::journal_reservations_urls_and_stable_publication_fail_closed_under_writer_fences"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/unit/env-config.test.ts",
+      "sha256": "84cb0a385711e6730b757ff84fccbd82c019abfb30056e5efbf36f33a7515012",
+      "native": [
+        "tests/rust/config_parity.rs::source_generated_strict_dotenv_matches",
+        "tests/rust/config_contracts.rs::bounded_utf8_config_reads_strip_one_bom_and_refuse_directories_corruption_or_oversize",
+        "tests/rust/config_contracts.rs::strict_dotenv_rejects_unknown_slots_controls_and_accepts_quotes_comments_exports",
+        "tests/rust/config_parity.rs::reload_retains_last_good_fixed_policy_and_sixty_four_snapshots"
+      ],
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "source": "tests/unit/foundation.test.ts",
+      "sha256": "d8ac8b80e96979bdd9c1521145953657bdc9d9b0db083fe7143a73d61dac8c4a",
+      "native": [
+        "tests/rust/http.rs::operation_prefix_and_sensitive_query_are_preserved",
+        "tests/rust/runtime.rs::secrets_are_redacted_without_replacing_safe_metadata"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/unit/images.test.ts",
+      "sha256": "43168e83cc57d90cca909e728a186d17e860648dd9aec4d4dbe450872b3843b9",
+      "native": [
+        "tests/rust/images.rs::generated_original_image_fixtures_are_preserved_and_validated",
+        "tests/rust/editing.rs::editing_contracts_and_contained_unicode_files_preserve_original_bytes",
+        "tests/rust/runtime_contracts.rs::actual_hosted_animated_webp_is_rejected_instead_of_returning_its_first_frame"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["image_specifics"]
+    },
+    {
+      "source": "tests/unit/incremental-stream.test.ts",
+      "sha256": "27615c74cb1787c9acb1560dfcbdbfdcf39980c67508aa93d2a82e903c0773a3",
+      "native": [
+        "tests/rust/streams.rs::incremental_reader_bounds_discarded_progress_and_rejects_invalid_or_unfinished_input",
+        "tests/rust/streams.rs::final_stream_and_binary_results_match_frozen_source_without_promoting_previews"
+      ],
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "source": "tests/unit/logging.test.ts",
+      "sha256": "dea0eddeb5c744877ce25bb7b34041a079b595402bbaa09cdc74c45f01d6678a",
+      "native": [
+        "tests/rust/runtime_contracts.rs::log_runs_are_distinct_redacted_at_all_levels_immutable_and_closed",
+        "tests/rust/runtime_contracts.rs::exact_source_two_loggers_keep_four_levels_private_and_distinct_files",
+        "tests/rust/runtime_contracts.rs::exact_source_log_metadata_cannot_be_forged_and_closed_file_can_rename"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    },
+    {
+      "source": "tests/unit/output-directory-race.test.ts",
+      "sha256": "03f025c76d9532f5f5cf0c660e6df1b2fa3e1b774e3d6549bcac982391f0a26b",
+      "native": [
+        "tests/rust/runtime_contracts.rs::concurrent_output_directory_creation_and_file_collision_fail_closed",
+        "tests/rust/runtime_contracts.rs::linked_output_directory_is_rejected_without_writing_outside",
+        "native/files/paths_races.rs::two_real_missing_observations_accept_concurrent_directory_creation",
+        "native/files/paths_races.rs::two_real_missing_observations_reject_a_concurrent_regular_file",
+        "native/files/paths_races.rs::two_real_missing_observations_reject_a_concurrent_link_or_windows_junction"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["directory_toctou"]
+    },
+    {
+      "source": "tests/unit/simple-config.test.ts",
+      "sha256": "c30b4bb3443d3cd1ab166f5a7f7a3fe58469b53d8705e2dce1a6aea5b709d347",
+      "native": [
+        "tests/rust/config_parity.rs::source_generated_defaults_compact_advanced_and_overrides_match",
+        "tests/rust/config_contracts.rs::nullable_model_settings_and_utf16_lengths_match_the_public_source_schema",
+        "tests/rust/catalog_upload_contracts.rs::refreshed_catalog_retains_configured_names_native_ids_and_cached_metadata"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/unit/store.test.ts",
+      "sha256": "0c8de1306d536ad883043d3603991360a4a3554f2ce176cd8ed7aafffbec1bf2",
+      "native": [
+        "tests/rust/canonical_parity.rs::generated_source_canonicalization_cases_are_nonempty_and_exact",
+        "tests/rust/state.rs::existing_request_identity_survives_reopen_and_never_replays",
+        "tests/rust/terminal.rs::two_real_store_instances_enforce_global_and_connection_admission_limits",
+        "tests/rust/generation_contracts.rs::input_reference_mask_pixel_and_owned_byte_limits_reject_before_submission",
+        "tests/rust/generation_acceptance.rs::exact_source_preintent_refusals_leave_no_queued_or_active_work",
+        "tests/rust/generation_acceptance.rs::exact_source_data_url_edit_mask_and_aggregate_refusals_precede_intent",
+        "tests/rust/generation_acceptance.rs::exact_source_owned_responses_job_refresh_and_active_cancel_are_separate_from_refunds",
+        "tests/rust/generation_acceptance.rs::exact_source_direct_finish_keeps_jpeg_sibling_metadata_and_ordered_deviations",
+        "tests/rust/generation_acceptance.rs::exact_source_direct_finish_aggregate_cancel_and_same_store_recovery_preserve_originals",
+        "tests/rust/generation_acceptance.rs::exact_source_direct_data_url_finish_refresh_and_cancel_keep_terminal_receipt",
+        "tests/rust/store_acceptance.rs::exact_source_known_hash_ignores_object_order_and_omitted_undefined_field",
+        "tests/rust/store_acceptance.rs::exact_source_fingerprint_distinguishes_reference_order_bytes_model_endpoint_and_scalar_types",
+        "tests/rust/store_acceptance.rs::exact_source_independent_stores_reuse_detached_receipts_and_restart_without_resubmission",
+        "tests/rust/store_acceptance.rs::exact_source_identity_conflicts_roll_back_without_corrupting_original_receipt",
+        "tests/rust/store_acceptance.rs::exact_source_cross_store_admission_limits_release_only_completed_work",
+        "tests/rust/store_acceptance.rs::exact_source_double_cancellation_persists_independently_of_billing_and_outcome",
+        "tests/rust/store_acceptance.rs::exact_source_four_output_records_preserve_pagination_lookahead_and_duplicate_rollback"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": ["parameterized_accounting"]
+    },
+    {
+      "source": "tests/unit/workflow-validation.test.ts",
+      "sha256": "44c3d700374960019a7c31926fccc96040ff82c1d27d728fdbc332adbffe8e6b",
+      "native": [
+        "tests/rust/workflow.rs::installed_descriptors_reject_enum_scalar_range_cycle_and_invalid_links",
+        "tests/rust/workflow.rs::exact_source_installed_graph_preserves_enum_and_cycle_error_messages"
+      ],
+      "status": "pending",
+      "evidence": null,
+      "gaps": [
+        "Applicable hosted execution and final independent literal acceptance pending."
+      ]
+    }
+  ],
+  "native_reference_format": "repo-relative-file::function; suite navigation only, not case acceptance"
+}

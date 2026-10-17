@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["prompt"],
+  "properties": {
+    "prompt": { "type": "string", "minLength": 1, "maxLength": 100000 },
+    "connection": { "type": "string" },
+    "model": { "type": "string", "minLength": 1, "maxLength": 300 },
+    "request_id": { "type": "string", "pattern": "^[a-zA-Z0-9_-]{1,100}$" },
+    "count": { "type": "integer", "minimum": 1, "maximum": 10, "default": 1 },
+    "size": { "type": "string" },
+    "aspect_ratio": { "type": "string" },
+    "image_size": { "type": "string" },
+    "quality": { "type": "string" },
+    "output_format": { "type": "string", "enum": ["png", "jpeg", "webp"] },
+    "background": { "type": "string" },
+    "seed": { "type": "integer" },
+    "negative_prompt": { "type": "string" },
+    "provider_options": {
+      "type": "object",
+      "additionalProperties": {},
+      "default": {}
+    },
+    "reference_images": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source" },
+      "maxItems": 32,
+      "default": []
+    },
+    "mask": { "$ref": "#/$defs/source" },
+    "upscale": { "type": "boolean" },
+    "edit_region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0, "maximum": 64000000 },
+        "y": { "type": "integer", "minimum": 0, "maximum": 64000000 },
+        "width": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 64000000
+        },
+        "height": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 64000000
+        }
+      }
+    },
+    "target_language": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "\\S"
+    },
+    "output_subdirectory": { "type": "string" },
+    "filename_prefix": { "type": "string" },
+    "return_mode": { "type": "string", "enum": ["files", "files_and_preview"] },
+    "wait": { "type": "boolean", "default": true }
+  },
+  "$defs": {
+    "source": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "output_id"],
+          "properties": {
+            "type": { "const": "output_id" },
+            "output_id": { "type": "string", "format": "uuid" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "path"],
+          "properties": {
+            "type": { "const": "path" },
+            "path": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "url" },
+            "url": { "type": "string", "format": "uri" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "data_url"],
+          "properties": {
+            "type": { "const": "data_url" },
+            "data_url": { "type": "string", "maxLength": 30000000 }
+          }
+        }
+      ]
+    }
+  }
+}

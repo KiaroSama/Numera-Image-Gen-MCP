@@ -2,8 +2,9 @@
 
 ## Simple env setup (Windows, Linux, macOS)
 
-Copy [.env.example](../.env.example) to .env beside package.json. Never overwrite an existing private
-file. Node24 parses this file directly; no dotenv dependency or process environment mutation is needed.
+Copy [.env.example](../.env.example) to .env in the extracted installation root (parent of `bin/`). Never
+overwrite an existing private file. The native Rust parser preserves the established strict dotenv
+contract; no Node runtime, dotenv dependency or process environment mutation is needed.
 
 - API_ENDPOINT: any valid HTTP(S) API prefix, including hosted/custom deployment paths. Do not append
   /images/generations or /responses. No fixed localhost address or port is assumed.
@@ -21,7 +22,7 @@ not local resizing instructions. IDs are unique; labels are never routing aliase
 are omitted. Nonempty slots need ID/name even when disabled.
 
 Duplicate/unknown keys, malformed assignments, invalid flags, invalid UTF-8 and files above1MiB reject
-with safe errors. Comments/quoted Unicode and multiline names are parsed using Node util.parseEnv;
+with safe errors. Comments/quoted Unicode and multiline names retain the Node util.parseEnv contract;
 API keys cannot contain newlines. No raw tools arrays or hidden extra submissions.
 
 Plaintext keys are not encrypted: keep .env ignored, out of archives/packages/sync, private0600 on
@@ -90,7 +91,9 @@ OPENAI_BASE_URL/OPENAI_API_KEY/OPENAI_MODEL apply only with --openai-compat.
 Auth is none for explicitly trusted local backends, bearer or header with exactly one private apiKey,
 secretEnv, absolute/private/bounded secretFile or Windows current-user secretDpapiFile (PowerShell7).
 auth.origin binds credentials to the destination. Environment variables are not encrypted.
-Run scripts/protect-secret.ps1 interactively only; no overwrites. Its decryption subprocess emits UTF-8.
+Run scripts/protect-secret.ps1 interactively only; no overwrites. It applies a protected current-user-only
+ACL when creating the encrypted file, independent of parent inheritance or token-default grants.
+Native decryption uses Windows DPAPI directly; the retained source-runtime helper emits UTF-8.
 Missing credentials never authorize reading another application's store.
 
 Per-model maxCount/maxReferences/supportedParameters/capabilities overrides need verified contracts.

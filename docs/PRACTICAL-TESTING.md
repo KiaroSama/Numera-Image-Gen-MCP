@@ -1,6 +1,20 @@
 # Practical testing
 
-## Prepared checks
+## Native migration checks — pending verification
+
+The target native readiness command calls the same read-only application services directly, not a
+separate SDK child. It does not submit images or change host configuration:
+
+```bash
+./bin/numera-image-gen-mcp readiness --config /absolute/numera/.env --connection default --probe
+```
+
+Omit `--probe` for provider-free checks. The result distinguishes configuration/storage/credentials
+from an optional bounded catalog; `generation_verified` remains false. This direct command is not
+actual host/GUI reconnection evidence. After owner cutover, call the real host's `health_check` and
+`list_connections` before approving cleanup. No native runtime verification is claimed yet.
+
+## Historical Node prepared checks
 
 The readiness command uses a real SDK stdio client and only read-only tools. It never calls
 image generation/editing, uploads, job cancellation or host registration. It creates normal local
@@ -42,13 +56,18 @@ keys into prompts, tool arguments, source, screenshots or public host config. Co
 
 ## Windows DPAPI evidence
 
-The persistent Windows fixture executes protect-secret.ps1 with only Read-Host replaced by a
-non-secret value. Encryption, file creation, icacls restriction and Numera's decryption reader run
-for real. It checks current-user-only protected ACL, non-ASCII UTF-8 round trip, ciphertext not
+The persistent Windows fixture executes protect-secret.ps1 with Read-Host replaced by a non-secret
+value and a freshly created private destination directory with a noninheritable ACL, never changing
+its populated workspace parent's permissions. Encryption, exclusive creation with an explicit
+current-user-only DACL and Numera's decryption reader are real operations. It checks protected ACL, UTF-8 round trip, ciphertext not
 containing plaintext, corrupt ciphertext rejection and existing-file refusal. The Unicode fixture
 first reproduced codepage loss; credentials now sets Console.OutputEncoding to UTF-8 explicitly.
-Linux visibly skips this Windows-only case. This does not test another user's decryption denial,
-actual human input, domain/service accounts or MSIX host identity differences.
+At `4f471d2`, both native Windows x86_64/ARM64 cases passed strict ACL/native Unicode decryption,
+corrupt-file refusal, no-overwrite and owned Job abort cleanup. At `f723c4b`, ARM passed but x64
+hit an eight-second idle deadline; its cause remains unknown. At `5b4ec24`, both Windows main/abort/privacy
+cases passed; only formatting failed. Boolean-only diagnostics keep raw output private and bounds unchanged.
+This does not test another user's decryption denial, actual human input, domain/service accounts or
+MSIX host identity differences; it is not owner-host activation evidence.
 
 ## Controlled gateway and live boundaries
 

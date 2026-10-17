@@ -4,9 +4,20 @@ Owner assignment dated 2026-10-02; this is a faithful public requirements summar
 
 ## Product
 
-Personal provider-independent TypeScript image generation/editing MCP server, executable/package
+Personal provider-independent native Rust image generation/editing MCP server, executable/package
 `numera-image-gen-mcp`, registration `numera-image-gen`, GPL-3.0-only. Keep host chat model unchanged.
 Target repository https://github.com/KiaroSama/Numera-Image-Gen-MCP. Example checkout location: `C:/projects/numera-image-gen-mcp`; use your own absolute paths.
+
+## Native distribution requirements (2026-10-11)
+
+Preserve the full existing tool/config/provider/state/original-byte behavior while replacing the
+production Node implementation. Hosted CI builds ready Windows/Linux/macOS x86_64/ARM64 archives,
+SHA-256 checksums and license notices; normal installation requires download/extract/config only,
+never a local build or Node/Rust runtime installation. Native `bridge` is launched directly by the
+MCP host with `args: ["bridge"]`; no manual launcher startup is required. All managed temp/cache stays
+inside the project/install root. Old local runtime/dependencies are removed only after owner config
+cutover and verified native reconnection. Private config, originals, journals, snapshots and Git
+history are preserved. Migration is currently unverified; see the acceptance matrix.
 
 ## Required release contracts
 

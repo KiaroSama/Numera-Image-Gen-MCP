@@ -32,7 +32,17 @@
 *.tgz
 *.tsbuildinfo
 /config.local.json
+/config/http.json
+/config/http-token
+/config/.http-settings.lock
+/config/.http-*.tmp
 /inputs/
+/target/
+/.runtime/
+/bin/
+*.profraw
+*.profdata
+__pycache__/
 
 # Hook Maker: local/private files (auto-managed)
 /.env

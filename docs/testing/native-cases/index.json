@@ -1,0 +1,14 @@
+{
+  "baseline": "fc7da25c3b470199949b1b4c67127d77afa0c34a",
+  "source_suites": 50,
+  "source_cases": 470,
+  "mapping_complete": false,
+  "collection_evidence": {
+    "sha": "3c5958f259462ea077dbec757bc9f5ccc2cde65c",
+    "run_id": 38367053960,
+    "url": "https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/38367053960",
+    "test_bodies_executed": false,
+    "platforms": ["win32", "linux", "darwin"]
+  },
+  "files": ["unit.jsonl", "contract.jsonl", "integration.jsonl"]
+}

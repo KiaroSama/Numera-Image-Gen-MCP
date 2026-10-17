@@ -1,22 +1,34 @@
-# Codex clients
+# Codex setup
 
-Compact config needs no host env key: register the absolute Node/dist entry once, then save
-.env beside package.json; valid model changes reload on the next tool call. Optional explicit NUMERA_CONFIG still works.
-Linux/macOS use actual absolute native node/dist/config paths; no PowerShell required.
+The native target runs directly over stdio. No launcher, Node runtime or manually started service is
+needed: Codex runs the absolute native executable with `args = ["bridge"]`. The Rust migration is
+still awaiting hosted verification and a Release; do not switch a live host before installing the
+verified binary.
 
-Current docs https://developers.openai.com/codex/mcp.md describe shared config.toml for local CLI,
-desktop and IDE clients; trusted project scope also possible. Use examples/codex.toml as one entry,
-not a replacement for the existing file. Preserve model/permission/server settings and comments.
+Merge only Numera's table into the actual user configuration, preserving other entries:
 
-Set startup_timeout_sec10 and tool_timeout_sec360 so default60s does not prematurely cancel a
-300000ms image wait. command/args absolute, env only NUMERA_CONFIG or declared environment names,
-never plaintext keys. CLI example in PowerShell7:
-
-```powershell
-codex mcp add numera-image-gen --env 'NUMERA_CONFIG=C:/projects/numera-image-gen-mcp/.env' -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js'
+```toml
+[mcp_servers.numera-image-gen]
+command = "C:/tools/numera-image-gen-mcp/bin/numera-image-gen-mcp.exe"
+args = ["bridge"]
+startup_timeout_sec = 10
+tool_timeout_sec = 360
+env = { NUMERA_CONFIG = "C:/tools/numera-image-gen-mcp/.env" }
 ```
 
-Restart/reconnect existing desktop sessions after environment changes; call health_check to verify.
-No host registration or actual Codex GUI test was performed without explicit opt-in. The real SDK
-stdio fixture verifies protocol interoperability, not product-tab display or cloud-local filesystem
-availability. Request IDs must be reused for host retries; unknown outcomes are not new authorizations.
+The paths are examples. Linux/macOS use the actual absolute POSIX binary and configuration paths.
+`NUMERA_CONFIG` can be omitted when the private `.env` is in the installation root (parent of `bin/`).
+Never put an API key in the table. Restart/reconnect after command changes, then call `health_check`,
+`list_connections` and `list_models`. Settings reload does not authorize or resubmit an image.
+
+CLI registration from the extracted Linux/macOS installation root:
+
+```bash
+codex mcp add numera-image-gen -- "$PWD/bin/numera-image-gen-mcp" bridge
+```
+
+[Codex example](../examples/codex.toml) · [Official MCP documentation](https://developers.openai.com/codex/mcp).
+
+Numera changes no host chat model. Never treat a configured/listed model as account entitlement;
+inspect capabilities, explicitly authorize a potentially billable image and retain its request ID.
+Unknown outcomes are inspected with `get_job`, never replaced automatically.

@@ -1,58 +1,97 @@
 # Architecture
 
-Stdio SDK transport -> schema-validated tools -> application services -> pure adapter mapping ->
-bounded HTTP -> normalization -> validated atomic outputs/transactional receipts.
+Native Rust CLI `bridge` -> bounded stdio RMCP transport -> schema-validated ten tools -> application
+services -> pure adapter mapping -> bounded HTTP -> normalization -> validated original outputs and
+transactional receipts. Native implementation and distribution verification are in progress; the
+migration matrix records acceptance rather than implying that authored modules have passed tests.
 
-`config/` owns schema/precedence/secrets. Compact config expands into the same advanced connection
-contract; it adds no second transport or generation path. Configured model names are presentation only,
-exact IDs remain submission identity. Adjacent config discovery is module-relative, never caller CWD. `adapters/` owns native wire contracts; tools never construct
-provider payloads. `services/` orchestrates readiness/discovery/generation/recovery. `jobs/store.ts`
-uses Node SQLite WAL/FULL transactions for request-ID uniqueness, admission and owned output index.
-`files/` validates signatures/decode/pixels/masks/roots and preserves original bytes. `http/` separates
-trusted configured API transport from DNS-pinned, credential-free asset downloads. `logging.ts`
-provides one shared redacted JSON logger. No bundled diffusion runtime; ComfyUI owns inference.
+## Boundaries
 
-Env parsing uses Node util.parseEnv after strict bounded UTF-8/key validation. Each tool reads the
-selected file and atomically accepts a validated immutable connection/model snapshot. Invalid saves
-keep last-good config; storage/security policy changes require restart. Retained snapshots are capped
-at64. Existing handles poll/cancel only with matching persisted account/destination identity and
-unambiguous transport settings. Region editing prepares a same-dimension native PNG mask; translation
-instructions are appended only when target_language is explicitly requested. No local final resizing.
+- `native/config/`: full/compact/dotenv config, defaults/precedence, private credentials/current-user
+  Windows DPAPI and immutable last-good reload snapshots. Adjacent discovery is executable-relative,
+  never caller CWD. Display names never replace exact model IDs. API credentials are pinned privately
+  for the operation and not serialized into receipts/logs.
+  `runtime_environment.rs` supplies an instance-owned shared selected-key source; immutable startup
+  maps remain supported. A selected value is cloned under a short read lock before credential I/O.
+  Accepted config generations share that source, while already-pinned headers remain independent.
+  This is not process-global OS environment mutation or Windows environment-key alias emulation;
+  [credential snapshot boundaries](testing/CREDENTIAL-SNAPSHOTS.md) retain the acceptance limits.
+- `native/adapters/`: Images, Gemini, Interactions, Responses, dedicated OpenRouter, opt-in chat images
+  and explicit ComfyUI workflow contracts. Tools construct no provider payloads. Gateway forwarding,
+  native model capability and account entitlement are separate evidence layers.
+- `native/services/`: discovery, readiness, generation, admission, finalization and existing-handle
+  recovery. `generation.rs` coordinates validated inputs; `submission.rs` owns admission, submission,
+  existing-job polling and continuation retention. Intent is persisted before paid submission;
+  unknown outcomes are never resubmitted.
+  Cancellation of local waiting does not establish upstream cancellation or a refund.
+  `polling.rs` supplies the production Comfy loop's immediate-first-poll/fixed-500ms/pre-cancel
+  scheduling; callers retain receipt/fence/retention and sanitized cancellation-error policy.
+  Intent diagnostics expose numeric preparation/admission/reservation/update durations only, without
+  changing deadlines or adding event bodies. The cumulative pre-submit duration includes preparation;
+  logging's own synchronous write cost is outside those measurements.
+- `native/jobs/`: bundled SQLite, preserved schema v2/WAL/FULL, renewable 30-second leases and
+  generation fences. Journal phases waiting/retained/publishing/committed keep stable output identity
+  across filesystem/SQL crash gaps. State remains local shared storage, not an unreliable network drive.
+  An instance-owned persistence port delegates publication write/sync/link/unlink to the original OS
+  operations by default. Its receipt-update entry seam supports scoped failure verification without
+  changing real SQL error sanitization, generation fences or the database schema.
+- `native/files/`, `native/http/`, `native/mcp/`, `native/cli/`: byte/container/path/mask validation,
+  API transport separate from DNS-pinned credential-free assets, SDK protocol lifecycle and optional
+  explicit host registration. Originals are never resized; derivative previews are separate.
+  Asset hostname resolution has a per-call seam; default Tokio lookup, all-address validation,
+  first-address pinning and redirect checks remain shared. Submission transport observation reports
+  numeric client-build/pre-send durations only; preparation is not proof of a network write.
 
-## Important trade-offs
+`native/runtime_paths.rs` confines managed temp/cache to the installation root. Logging uses private
+UTF-8 UTC structured files and stderr, never protocol stdout; credentials/prompts/private paths stay
+redacted at every level. The executable needs no Node/Python/Rust installation. ComfyUI, if selected,
+owns inference and GPU/model/node installation; Numera does not bundle or silently install them.
 
-SQLite is built into Node24 (release-candidate API), avoiding a native DB dependency. State must be
-local shared storage, not an unreliable network drive. Unique intent does not prove global exactly-once
-execution across installations or prevent a gateway's internal retry/fallback. Unknown requests do
-not replay. Renewable writer leases carry generation fences: an expired or replaced writer cannot
-update receipts or commit output metadata. Dead prepared intents release queue capacity without
-submission. Normal completion and job refresh share the same finalization claim.
+## Direct local HTTP and native menu
 
-Completed image bytes are retained in a bounded SQLite result journal before filesystem publication.
-A stable item identifier, planned target and hash reconcile a crash after file publication but before
-indexing; output index, receipt append and journal commit use one transaction. Publication is not a
-cross-filesystem/SQL atomic transaction. Disk/database failure can still prevent initial retention;
-Numera reports that failure and never silently repeats paid work. Schema migration takes a consistent
-SQLite snapshot including committed WAL state before transactional changes. `get_job(refresh=true)`
-recovers retained bytes without the original credential; pending asset URLs use only validated,
-credential-free GETs. Polling an existing upstream handle still requires matching destination/account.
-Files are fsynced before non-overwriting publication; POSIX also fsyncs the output directory after
-link/unlink. Windows does not provide the same directory-sync contract. This is process-crash
-recovery, not a universal guarantee against disk failure or power loss. Migration creates a private
-consistent snapshot with a SHA256/schema/date manifest; future or incomplete schemas stop safely.
-If the journal's SQLite transaction itself cannot persist received bytes, recovery is not guaranteed.
+The optional `http` command serves the same `Application` and ten-tool `Handler` through official
+RMCP Streamable HTTP. Hyper owns bounded connections; a tracked task set and explicit shutdown close
+owned work. SDK session handlers have a separate clone-lifetime barrier so connection drain alone
+cannot be mistaken for release of application files and database handles. The default endpoint is `127.0.0.1:1969/mcp`, with validated port overrides and no public
+binding or silent collision fallback. Host/Origin and separate local Bearer authentication guard
+requests before dispatch. SDK-negotiated modern/legacy session and cancellation semantics stay distinct.
 
-Native protocols differ: Gemini inlineData is not Interactions input/steps, Responses orchestration
-model is not image tool model, and OpenRouter /images is not chat/completions. No recursive Base64
-or assistant-link guessing. SVG/animation unsupported; PNG/JPEG/WebP required.
+`native/cli/http_settings.rs` owns private persistent port/token files independently of image provider
+configuration. `native/cli/menu.rs` supplies native start/port/guidance/exit interaction; explicit
+`bridge` never displays a menu. No OS service, OAuth relay or reference-project account features are
+added. HTTP/menu and their new CI paths remain unverified until the integrated candidate passes.
 
-ComfyUI requires user-selected API graphs/bindings, installed node validation and primary GPU evidence.
-No inferred checkpoint/node maps, automatic downloads or global shared-backend interrupt.
+## JSON compatibility boundary
 
-Lifecycle/accounting SQL lives in jobs/lifecycle.ts behind Store transactions. Explicit normalized
-terminal provider results close admission without treating failed polling/authentication as termination.
-Targeted Comfy cancellation acknowledgement means dispatch, not completion: only matching authoritative
-job status confirms cancellation. Terminal control increments the writer generation, so an older waiter
-cannot resurrect it; originals remain recoverable. Expired empty no-job intents relinquish unused
-reservations while their unknown receipts and billing/deduplication evidence remain. Actual journal
-bytes/URLs remain charged, and storage recovery reacquires bounded capacity. No schema reset or purge.
+Native application values use binary64 numbers and exact UTF-16 strings/keys rather than assuming
+`serde_json::Value` can represent every accepted source input. Declared schema fields are validated
+directly; unconstrained records keep their original values. Nonfinite values become `null` only at
+JSON serialization, and lone surrogate units are escaped rather than replaced. SDK protocol metadata
+and bundled schema metadata remain separate from application data. Typed in-process request extensions
+and stdio/HTTP boundary codecs carry exact tool arguments and restore IDs/structured results.
+
+URL and SQLite plain-TEXT boundaries retain the source runtime's documented USVString/UTF-8 coercion;
+JSON receipt text preserves escaped code units. No database schema change, payload sentinel or hidden
+runtime is introduced. This integration is awaiting hosted verification; it is not a full-parity claim.
+
+## Decisions and recovery
+
+Same request ID plus identical effective inputs/account returns the same durable receipt; a changed
+identity conflicts. Canonical hashing preserves source JavaScript number/key/English-collation behavior
+for existing records; actual oracle evidence is required before accepting compatibility. Existing
+handles use retained matching connection snapshots; ambiguous destinations refuse network recovery.
+
+Completed inline bytes are retained before observing cancellation or publishing files. Existing file
+publication is reconciled by output UUID/target/hash, never overwritten. Local completed bytes can be
+recovered even when a connection has been removed. Invalid saves retain last-good config; changes to
+storage/security/global policy or the 64-snapshot bound require restart.
+
+Hosted CI resolves the real Cargo lockfile, verifies stable native binaries per OS/CPU and packages
+allowlisted archives. A separate nightly job measures executable regions >=85% and branches >=80%;
+nightly is not the production compiler. The pinned Node source is used only in hosted migration oracle
+checks, not as a runtime dependency of the shipped application.
+
+Keep old local runtime/dependencies until the owner switches host config and the native connection is
+verified. Migration snapshots, original images, receipts, private configuration and Git history survive
+cleanup. [Migration acceptance](testing/MIGRATION-MATRIX.md) lists gaps; source existence is not evidence
+that any runtime or coverage gate passed.

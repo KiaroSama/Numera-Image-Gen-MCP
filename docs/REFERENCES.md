@@ -1,5 +1,31 @@
 # References
 
+## Native migration references, checked 2026-10-11
+
+Rust1.99 stable manifest and Cargo environment reference govern hosted-only compiler/workspace cache
+setup. RMCP3.5.1 official tag bc82eb861a5ae2e074183e1214dc2380ca454555 was read for ServerHandler,
+legacy negotiation, tool/result/resource models and Transport; its uncapped read path is bounded by
+Numera's stdio adapter. SDK Apache-2.0 notices remain required. Native runtime compatibility is not
+verified merely because these sources were read.
+
+- https://static.rust-lang.org/dist/channel-rust-stable.toml
+- https://doc.rust-lang.org/cargo/reference/environment-variables.html
+- https://github.com/modelcontextprotocol/rust-sdk/tree/rmcp-v3.5.1
+- https://docs.rs/reqwest/0.13.5/reqwest/struct.ClientBuilder.html and retry/proxy references: explicit
+  no protocol retry, no inherited proxy, no API redirect, bounded credential-free assets.
+- https://docs.rs/serde_stacker/0.1.14/serde_stacker/ and tagged dependency manifest: bounded deep JSON
+  parse plus iterative retained clone/drop; MSRV1.67, MIT/Apache-2.0.
+- https://docs.rs/base64/0.23.1/base64/engine/general_purpose/struct.GeneralPurposeConfig.html:
+  compatibility decoder permits source-accepted unused trailing bits after strict syntax/size checks.
+- https://github.com/taiki-e/cargo-llvm-cov/tree/v0.9.1: hosted nightly branch coverage; production
+  compiler remains stable, region and branch floors are independently enforced.
+- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getfileinformationbyhandleex:
+  stable Win32 128-bit file identity rather than nightly-only std metadata APIs.
+- https://modelcontextprotocol.io/docs/develop/build-server: host command/args launch local stdio;
+  stdout must contain only protocol, and local/cloud file access is not interchangeable.
+
+## Historical protocol and Node implementation references
+
 Checked2026-10-03. Interfaces and test patterns only; no third-party implementation copied.
 Resume: SDKv2.3.0 release/protocol-versions documentation read; same direct stdio API and Apache-2.0
 package licensing. Google thinking/signature and OpenRouter endpoint descriptor docs refreshed.

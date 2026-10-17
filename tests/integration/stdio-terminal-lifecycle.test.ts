@@ -109,13 +109,13 @@ it.each(["openai-responses", "gemini-interactions"] as const)(
             })),
           );
           const outputIds = new Map<string, string>();
-          const seenPids = new Set<number>();
+          const seenRunIds = new Set<string>();
           for (let round = 0; round < 3; round++) {
             const pair = await startHosts(root, config);
             try {
               for (const host of pair.hosts) {
-                expect(seenPids.has(host.pid)).toBe(false);
-                seenPids.add(host.pid);
+                expect(seenRunIds.has(host.runId)).toBe(false);
+                seenRunIds.add(host.runId);
               }
               for (const mode of modes) {
                 await Promise.all(
@@ -189,7 +189,7 @@ it.each(["openai-responses", "gemini-interactions"] as const)(
               await pair.close();
             }
           }
-          expect(seenPids.size).toBe(6);
+          expect(seenRunIds.size).toBe(6);
           expect(posts).toHaveLength(states.length * 3);
         },
       );

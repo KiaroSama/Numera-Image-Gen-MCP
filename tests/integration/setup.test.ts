@@ -243,7 +243,7 @@ it(
         .trim()
         .split("\n")
         .map((line) => JSON.parse(line));
-      expect(records).toEqual(
+      expect(records, JSON.stringify(records)).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             event: "start",
@@ -260,6 +260,33 @@ it(
       );
     }),
   15000,
+);
+
+it(
+  "bounded cleanup trusts the owned close event rather than a reused numeric PID",
+  async () =>
+    workspace(async (root) => {
+      const file = join(root, "reused-pid.mjs");
+      const runner = new URL("../../scripts/bounded.mjs", import.meta.url).href;
+      await writeFile(
+        file,
+        `import {runBounded} from ${JSON.stringify(runner)};const original=process.kill;process.kill=function(pid,signal){if(pid>0&&signal===0)return true;return original.call(process,pid,signal)};try{const result=await runBounded(process.execPath,['-e','process.exit(0)'],{wall:2000,idle:1000,cwd:process.cwd(),capture:true});process.exitCode=result.code}finally{process.kill=original}`,
+        "utf8",
+      );
+      const result = await cli(root, file, [], [5000, 3000]);
+      expect(result.code, result.stderr).toBe(0);
+      const records = (
+        await readFile(join(root, ".ci-work/processes.jsonl"), "utf8")
+      )
+        .trim()
+        .split("\n")
+        .map((line) => JSON.parse(line));
+      expect(records.filter((record) => record.event === "finish")).toEqual([
+        expect.objectContaining({ exit_code: 0, cleanup_verified: true }),
+        expect.objectContaining({ exit_code: 0, cleanup_verified: true }),
+      ]);
+    }),
+  10000,
 );
 
 it(
@@ -295,13 +322,28 @@ it(
       const fixture = join(root, "ps-check.mjs");
       await writeFile(
         fixture,
-        `import { spawnSync } from 'node:child_process';\nconst r=spawnSync('pwsh',['-NoProfile','-NonInteractive','-Command',process.argv[2]],{windowsHide:true,encoding:'utf8',timeout:10000,stdio:['ignore','pipe','pipe']});process.stdout.write(r.stdout??'');process.stderr.write(r.stderr??'');process.exitCode=r.status??1;`,
+        `import { spawn } from 'node:child_process';\nprocess.stderr.write('PowerShell fixture: launch\\n');const child=spawn('pwsh',['-NoProfile','-NonInteractive','-Command',process.argv[2]],{windowsHide:true,stdio:['ignore','pipe','pipe']});child.stdout.pipe(process.stdout);child.stderr.pipe(process.stderr);child.once('error',()=>{process.stderr.write('PowerShell fixture: launch failed\\n');process.exitCode=1});child.once('close',(code,signal)=>{process.stderr.write('PowerShell fixture: close '+String(code)+' '+String(signal)+'\\n');process.exitCode=code??1});`,
         "utf8",
       );
       const q = (value: string) => "'" + value.replaceAll("'", "''") + "'";
-      const command = `$ErrorActionPreference='Stop'; foreach($file in @(${["common.ps1", "setup.ps1", "protect-secret.ps1"].map((name) => q(join(scripts, name))).join(",")})) { $tokens=$null; $errors=$null; [System.Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)|Out-Null; if($errors.Count){throw 'PowerShell syntax invalid'} }; foreach($action in @('Install','Update','Diagnose','Register','Remove')) { & ${q(join(fixtureScripts, "setup.ps1"))} -ProjectRoot ${q(root)} -ClientConfig ${q(file)} -NumeraConfig ${q(join(root, "config.json"))} -Action $action -WhatIf; if($LASTEXITCODE -and $LASTEXITCODE -ne 0){exit $LASTEXITCODE} }`;
+      const command = `$ErrorActionPreference='Stop'; foreach($file in @(${["common.ps1", "setup.ps1", "protect-secret.ps1"].map((name) => q(join(scripts, name))).join(",")})) { [Console]::Error.WriteLine('PowerShell fixture: parse '+[IO.Path]::GetFileName($file)+' start'); $tokens=$null; $errors=$null; [System.Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)|Out-Null; if($errors.Count){throw 'PowerShell syntax invalid'}; [Console]::Error.WriteLine('PowerShell fixture: parse '+[IO.Path]::GetFileName($file)+' complete') }; foreach($action in @('Install','Update','Diagnose','Register','Remove')) { [Console]::Error.WriteLine('PowerShell fixture: action '+$action+' start'); & ${q(join(fixtureScripts, "setup.ps1"))} -ProjectRoot ${q(root)} -ClientConfig ${q(file)} -NumeraConfig ${q(join(root, "config.json"))} -Action $action -WhatIf; if($LASTEXITCODE -and $LASTEXITCODE -ne 0){exit $LASTEXITCODE}; [Console]::Error.WriteLine('PowerShell fixture: action '+$action+' complete') }`;
       const result = await cli(root, fixture, [command], [12000, 10000]);
       expect(result.code, result.stderr).toBe(0);
+      for (const name of ["common.ps1", "setup.ps1", "protect-secret.ps1"])
+        expect(result.stderr).toContain(
+          `PowerShell fixture: parse ${name} complete`,
+        );
+      for (const action of [
+        "Install",
+        "Update",
+        "Diagnose",
+        "Register",
+        "Remove",
+      ])
+        expect(result.stderr).toContain(
+          `PowerShell fixture: action ${action} complete`,
+        );
+      expect(result.stderr).toContain("PowerShell fixture: close 0 null");
       expect(await readFile(file, "utf8")).toBe('{"retained":true}');
       expect(
         (await readdir(root)).some((name) =>

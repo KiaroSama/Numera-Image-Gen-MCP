@@ -2,10 +2,10 @@
   "mcpServers": {
     "numera-image-gen": {
       "type": "stdio",
-      "command": "C:/tools/node/node.exe",
-      "args": ["C:/projects/numera-image-gen-mcp/dist/index.js"],
+      "command": "C:/tools/numera-image-gen-mcp/bin/numera-image-gen-mcp.exe",
+      "args": ["bridge"],
       "env": {
-        "NUMERA_CONFIG": "C:/projects/numera-image-gen-mcp/.env"
+        "NUMERA_CONFIG": "C:/tools/numera-image-gen-mcp/.env"
       }
     }
   }
