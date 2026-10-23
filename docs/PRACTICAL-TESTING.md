@@ -1,12 +1,26 @@
 # Practical testing
 
-## Prepared checks
+## Native readiness
+
+The native readiness command launches the selected executable's `bridge` through an official SDK
+stdio client, verifies read-only tools and reaps its child. It submits no image or host configuration:
+
+```bash
+./bin/numera-image-gen-mcp readiness --config /absolute/numera/.env --connection default --probe
+```
+
+Omit `--probe` for provider-free checks. The result distinguishes configuration/storage/credentials
+from an optional bounded catalog; `generation_verified` remains false. This direct command is not
+actual host/GUI reconnection evidence. After owner cutover, call the real host's `health_check` and
+`list_connections` before approving cleanup. Hosted native readiness passed all seven contexts at `49dde41`; actual owner-host cutover is not claimed.
+
+## Historical Node prepared checks
 
 The readiness command uses a real SDK stdio client and only read-only tools. It never calls
 image generation/editing, uploads, job cancellation or host registration. It creates normal local
 Numera state/log/storage directories. Logs use the shared UTF-8 UTC maintenance logger; raw provider
 errors, catalog/model strings, credentials and config paths are excluded from its summary.
-Use the existing bounded owner (90-second wall / 20-second idle ceiling):
+This historical command applies only to the frozen Node baseline checkout, not the native distribution (90-second wall / 20-second idle ceiling):
 
 ```bash
 node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "C:/projects/numera-image-gen-mcp/.env" --connection default --probe
@@ -42,13 +56,18 @@ keys into prompts, tool arguments, source, screenshots or public host config. Co
 
 ## Windows DPAPI evidence
 
-The persistent Windows fixture executes protect-secret.ps1 with only Read-Host replaced by a
-non-secret value. Encryption, file creation, icacls restriction and Numera's decryption reader run
-for real. It checks current-user-only protected ACL, non-ASCII UTF-8 round trip, ciphertext not
+The persistent Windows fixture executes protect-secret.ps1 with Read-Host replaced by a non-secret
+value and a freshly created private destination directory with a noninheritable ACL, never changing
+its populated workspace parent's permissions. Encryption, exclusive creation with an explicit
+current-user-only DACL and Numera's decryption reader are real operations. It checks protected ACL, UTF-8 round trip, ciphertext not
 containing plaintext, corrupt ciphertext rejection and existing-file refusal. The Unicode fixture
 first reproduced codepage loss; credentials now sets Console.OutputEncoding to UTF-8 explicitly.
-Linux visibly skips this Windows-only case. This does not test another user's decryption denial,
-actual human input, domain/service accounts or MSIX host identity differences.
+At `4f471d2`, both native Windows x86_64/ARM64 cases passed strict ACL/native Unicode decryption,
+corrupt-file refusal, no-overwrite and owned Job abort cleanup. At `f723c4b`, ARM passed but x64
+hit an eight-second idle deadline; its cause remains unknown. At `5b4ec24`, both Windows main/abort/privacy
+cases passed; only formatting failed. Boolean-only diagnostics keep raw output private and bounds unchanged.
+This does not test another user's decryption denial, actual human input, domain/service accounts or
+MSIX host identity differences; it is not owner-host activation evidence.
 
 ## Controlled gateway and live boundaries
 
@@ -70,8 +89,8 @@ No sample user image was available for live semantic editing in this task.
 
 ## Host and GPU handoff
 
-Host registration remains opt-in: select the exact Claude Code/Desktop/Codex config, use setup
--WhatIf first, then the explicit Register action; preserve backup/unrelated settings. Existing
+Host registration remains opt-in: select the exact Claude Code/Desktop/Codex config, use native
+setup Register --dry-run first, then explicit Register; preserve backup/unrelated settings. Existing
 examples and docs/CLAUDE.md, docs/CODEX.md provide entry shapes. Reconnect the host and call
 health_check/list_connections; actual GUI preview rendering is separate from SDK success.
 No host settings were changed by preparation.

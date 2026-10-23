@@ -20,5 +20,13 @@ secrets.md
 explain-AI.md
 .git/
 config.local.json
+config/http.json
+config/http-token
+config/.http-settings.lock
+config/.http-*.tmp
 inputs/
+target/
+.runtime/
+bin/
+__pycache__/
 .ai/.cross-project-sync/

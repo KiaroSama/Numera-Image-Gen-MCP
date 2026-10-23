@@ -1,29 +1,32 @@
-# Windows, Linux, WSL and macOS
+# Native Windows, Linux and macOS
 
-Primary development environment Windows11 Enterprise, Node24.21.0/npm12.0.2/PowerShell7. Windows
-Server2025 Datacenter support is a target, not an installation claim. Hosted Windows CI is labeled
-as such, not as testing the owner's exact OS. Local portable dependencies remain inside the project.
+Ready native archives are the installation target. All six native targets passed retirement-tree
+parity and internal extracted-archive checks at `b513884` / run `39519759155`. Publisher signatures
+and a verified Release remain pending; that earlier run does not certify later signing changes.
 
-From any CWD use absolute scripts/setup.ps1; it resolves its source root. Install/Update uses locked
-npm ci/build/smoke, stops on command failures, never silently installs/moves runtimes. Diagnose is
-provider-free. Register/Remove require explicit absolute ClientConfig and only owned entry changes,
-with backups, an interprocess lock and concurrent-change detection. -WhatIf validates intent without
-build/smoke/host mutation. Safe TOML editing supports bare single-line tables; quoted/array/duplicate/
-multiline/inline MCP forms are refused for manual entry-scoped editing. A stale lock is not stolen.
-Backups allow manual rollback; no automatic rollback action overwrites a changed config.
-No service, startup entry, task, extension or firewall change. No persistent execution-policy change.
+Windows uses a native MSVC `.exe`; Linux and macOS use their native executables. Choose the matching
+x86_64 or ARM64 archive from the verified Release. Normal users do not install Node/npm/Rust/Python or
+build locally. The binary does not bundle ComfyUI, GPU drivers, models/checkpoints or custom nodes.
 
-Linux/macOS: install Node24.21.0, run npm ci and npm run build, save the same compact .env
-next to package.json, launch the absolute dist/index.js using Node. No PowerShell, DPAPI or Windows
-path setup is required. Default roots are beside the selected config. Restrict plaintext-key file
-permissions to0600. Use actual absolute node/config paths in client entries. Native dependency and
-packed-install coverage runs on hosted macOS as well as Linux/Windows; read TEST-RESULTS.md for evidence.
+A client starts the native executable with `args: ["bridge"]`. It does not need a launcher or background
+service. Keep binary/config/storage in a writable location; the managed temporary/cache directories are
+inside the installation root, never a global fallback. Preserve all private configuration, originals,
+receipts/journals and migration snapshots during updates.
 
-Linux: Persistent WSL source
-copy convention /srv/projects/numera-image-gen-mcp; Windows G: examples are not Linux paths.
-Windows files may be /mnt/g/... only when mount exists. The process running MCP determines path
-semantics. localhost may differ between WSL/Windows depending on networking mode; configure reachable
-API origin explicitly, never replace the host model. No runner installation or automatic GPU tools.
+Use native path syntax per host. Existing Windows DPAPI secret files require the same Windows user;
+DPAPI files cannot be decrypted on Linux/macOS. POSIX private secret files require owner-only permissions.
+Windows supports declared absolute local/UNC inputs and rejects device paths/alternate data streams;
+POSIX paths use allowed input roots and reject resolved escapes. Actual OS-specific behavior belongs to
+native CI fixtures, not an SDK-only or cross-compilation claim.
 
-ComfyUI owns GPU device selection. Numera checks reported primary device; no guessed per-request
-CUDA switch. No real workflow/checkpoint/device benchmark here without configured authorized backend.
+## WSL
+
+WSL is a separate Linux environment. Windows hosts do not inherently execute a Linux ELF binary, and
+Linux processes do not inherently have Windows local file access. Choose the native Windows binary for
+a Windows local stdio host, or explicitly configure a supported WSL-aware host with Linux paths.
+Do not assume source or data paths are interchangeable. Keep project-owned Linux temp/cache/build state
+inside its canonical Linux workspace; do not clear shared/global runtimes or another project.
+
+Offline/native CI tests and actual Claude/Codex GUI behavior are different evidence. A successful
+provider probe or listed model does not prove paid generation/editing entitlement. GPU/live image tests
+require their own prerequisites and authorization; the Rust rewrite does not authorize them.

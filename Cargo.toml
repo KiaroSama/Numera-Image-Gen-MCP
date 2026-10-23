@@ -1,0 +1,454 @@
+[package]
+name = "numera-image-gen-mcp"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.99"
+license = "GPL-3.0-only"
+description = "Provider-independent native image orchestration MCP server"
+repository = "https://github.com/KiaroSama/Numera-Image-Gen-MCP"
+publish = false
+
+[lib]
+path = "native/lib.rs"
+
+[[bin]]
+name = "numera-image-gen-mcp"
+path = "native/main.rs"
+
+[[bin]]
+name = "numera-dev"
+path = "native/devtools/main.rs"
+
+[target.'cfg(unix)'.dependencies]
+libc = "=0.2.190"
+
+[dependencies]
+rmcp = { version = "=3.5.1", default-features = false, features = ["client", "server", "transport-streamable-http-server"] }
+hyper = { version = "=1.12.0", features = ["server", "http1"] }
+hyper-util = { version = "=0.1.21", features = ["tokio"] }
+http-body-util = "=0.1.5"
+subtle = "=2.6.1"
+ring = "=0.17.14"
+base64 = "=0.23.1"
+chrono = { version = "=0.4.45", default-features = false, features = ["clock", "serde"] }
+icu_collator = "=2.3.1"
+icu_locale = "=2.3.1"
+regex = "=1.13.1"
+rusqlite = { version = "=0.40.2", features = ["bundled"] }
+reqwest = { version = "=0.13.5", default-features = false, features = ["rustls", "json", "stream", "multipart", "gzip", "brotli", "deflate"] }
+tokio = { version = "=1.53.2", features = ["rt-multi-thread", "macros", "time", "sync", "net", "io-util", "io-std", "process", "fs", "signal"] }
+tokio-util = { version = "=0.7.20", features = ["rt"] }
+percent-encoding = "=2.3.2"
+image = { version = "=0.25.10", default-features = false, features = ["png", "jpeg", "webp"] }
+ryu-js = "=1.0.3"
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = { version = "=1.0.154", features = ["preserve_order", "unbounded_depth", "raw_value"] }
+sha2 = "=0.11.0"
+thiserror = "=2.0.21"
+url = "=2.5.8"
+uuid = { version = "=1.28.0", features = ["v4", "serde"] }
+
+[[test]]
+name = "canonical_parity"
+path = "tests/rust/canonical_parity.rs"
+
+[[test]]
+name = "runtime"
+path = "tests/rust/runtime.rs"
+
+[[test]]
+name = "state"
+path = "tests/rust/state.rs"
+
+[[test]]
+name = "http"
+path = "tests/rust/http.rs"
+
+[[test]]
+name = "images"
+path = "tests/rust/images.rs"
+
+[[test]]
+name = "workflow"
+path = "tests/rust/workflow.rs"
+
+[[test]]
+name = "terminal"
+path = "tests/rust/terminal.rs"
+
+[[test]]
+name = "registration"
+path = "tests/rust/registration.rs"
+
+[[test]]
+name = "recovery"
+path = "tests/rust/recovery.rs"
+
+[[test]]
+name = "generation"
+path = "tests/rust/generation.rs"
+
+[[test]]
+name = "lifecycle"
+path = "tests/rust/lifecycle.rs"
+
+[[test]]
+name = "stdio"
+path = "tests/rust/stdio.rs"
+
+[[test]]
+name = "adapters"
+path = "tests/rust/adapters.rs"
+
+[[test]]
+name = "policy"
+path = "tests/rust/policy.rs"
+
+[[test]]
+name = "config_parity"
+path = "tests/rust/config_parity.rs"
+
+[[test]]
+name = "discovery"
+path = "tests/rust/discovery.rs"
+
+[[test]]
+name = "network"
+path = "tests/rust/network.rs"
+
+[[test]]
+name = "editing"
+path = "tests/rust/editing.rs"
+
+[[test]]
+name = "application"
+path = "tests/rust/application.rs"
+
+[[test]]
+name = "comfy"
+path = "tests/rust/comfy.rs"
+
+[[test]]
+name = "maintenance"
+path = "tests/rust/maintenance.rs"
+
+[[test]]
+name = "model_policy"
+path = "tests/rust/model_policy.rs"
+
+[[test]]
+name = "migration"
+path = "tests/rust/migration.rs"
+
+[[test]]
+name = "journal"
+path = "tests/rust/journal.rs"
+
+[[test]]
+name = "multipart"
+path = "tests/rust/multipart.rs"
+
+[[test]]
+name = "cancellation"
+path = "tests/rust/cancellation.rs"
+
+[[test]]
+name = "generation_contracts"
+path = "tests/rust/generation_contracts.rs"
+
+[[test]]
+name = "streams"
+path = "tests/rust/streams.rs"
+
+[[test]]
+name = "output_recovery"
+path = "tests/rust/output_recovery.rs"
+
+[[test]]
+name = "registration_contracts"
+path = "tests/rust/registration_contracts.rs"
+
+[[test]]
+name = "http_server"
+path = "tests/rust/http_server.rs"
+
+[[test]]
+name = "http_settings"
+path = "tests/rust/http_settings.rs"
+
+[[test]]
+name = "menu"
+path = "tests/rust/menu.rs"
+
+[[test]]
+name = "expiry"
+path = "tests/rust/expiry.rs"
+
+[[test]]
+name = "generation_results"
+path = "tests/rust/generation_results.rs"
+
+[[test]]
+name = "config_contracts"
+path = "tests/rust/config_contracts.rs"
+
+[[test]]
+name = "cli_entry"
+path = "tests/rust/cli_entry.rs"
+
+[[test]]
+name = "comfy_results"
+path = "tests/rust/comfy_results.rs"
+
+[[test]]
+name = "generation_admission"
+path = "tests/rust/generation_admission.rs"
+
+[[test]]
+name = "job_recovery_contracts"
+path = "tests/rust/job_recovery_contracts.rs"
+
+[[test]]
+name = "image_route_contracts"
+path = "tests/rust/image_route_contracts.rs"
+
+[[test]]
+name = "api_contracts"
+path = "tests/rust/api_contracts.rs"
+
+[[test]]
+name = "publication_contracts"
+path = "tests/rust/publication_contracts.rs"
+
+[[test]]
+name = "js_json"
+path = "tests/rust/js_json.rs"
+
+[[test]]
+name = "js_value_access"
+path = "tests/rust/js_value_access.rs"
+
+[[test]]
+name = "js_schema"
+path = "tests/rust/js_schema.rs"
+
+[[test]]
+name = "value"
+path = "tests/rust/value.rs"
+
+[[test]]
+name = "js_envelope"
+path = "tests/rust/js_envelope.rs"
+
+[[test]]
+name = "js_http_body"
+path = "tests/rust/js_http_body.rs"
+
+[[test]]
+name = "js_runtime"
+path = "tests/rust/js_runtime.rs"
+
+[[test]]
+name = "crash_recovery"
+path = "tests/rust/crash_recovery.rs"
+
+[[test]]
+name = "runtime_contracts"
+path = "tests/rust/runtime_contracts.rs"
+
+[[test]]
+name = "catalog_upload_contracts"
+path = "tests/rust/catalog_upload_contracts.rs"
+
+[[test]]
+name = "snapshot_races"
+path = "tests/rust/snapshot_races.rs"
+
+[[test]]
+name = "http_output_contracts"
+path = "tests/rust/http_output_contracts.rs"
+
+[[test]]
+name = "comfy_recovery_contracts"
+path = "tests/rust/comfy_recovery_contracts.rs"
+
+[[test]]
+name = "provider_wire_contracts"
+path = "tests/rust/provider_wire_contracts.rs"
+
+[[test]]
+name = "config_acceptance"
+path = "tests/rust/config_acceptance.rs"
+
+[[test]]
+name = "output_requirements"
+path = "tests/rust/output_requirements.rs"
+
+[[test]]
+name = "policy_acceptance"
+path = "tests/rust/policy_acceptance.rs"
+
+[[test]]
+name = "normalization_acceptance"
+path = "tests/rust/normalization_acceptance.rs"
+
+[[test]]
+name = "env_acceptance"
+path = "tests/rust/env_acceptance.rs"
+
+[[test]]
+name = "readiness_acceptance"
+path = "tests/rust/readiness_acceptance.rs"
+
+[[test]]
+name = "body_acceptance"
+path = "tests/rust/body_acceptance.rs"
+
+[[test]]
+name = "streams_acceptance"
+path = "tests/rust/streams_acceptance.rs"
+
+[[test]]
+name = "generation_acceptance"
+path = "tests/rust/generation_acceptance.rs"
+
+[[test]]
+name = "discovery_acceptance"
+path = "tests/rust/discovery_acceptance.rs"
+
+[[test]]
+name = "store_acceptance"
+path = "tests/rust/store_acceptance.rs"
+
+[[test]]
+name = "discovery_lifecycle_acceptance"
+path = "tests/rust/discovery_lifecycle_acceptance.rs"
+
+[[test]]
+name = "network_acceptance"
+path = "tests/rust/network_acceptance.rs"
+
+[[test]]
+name = "discovery_routes_acceptance"
+path = "tests/rust/discovery_routes_acceptance.rs"
+
+[[test]]
+name = "reference_preflight_acceptance"
+path = "tests/rust/reference_preflight_acceptance.rs"
+
+[[test]]
+name = "comfy_lifecycle_acceptance"
+path = "tests/rust/comfy_lifecycle_acceptance.rs"
+
+[[test]]
+name = "comfy_workflow_acceptance"
+path = "tests/rust/comfy_workflow_acceptance.rs"
+
+[[test]]
+name = "upscale_acceptance"
+path = "tests/rust/upscale_acceptance.rs"
+
+[[test]]
+name = "async_waiter_acceptance"
+path = "tests/rust/async_waiter_acceptance.rs"
+
+[[test]]
+name = "detached_job_acceptance"
+path = "tests/rust/detached_job_acceptance.rs"
+
+[[test]]
+name = "image_editing_acceptance"
+path = "tests/rust/image_editing_acceptance.rs"
+
+[[test]]
+name = "credential_snapshot_acceptance"
+path = "tests/rust/credential_snapshot_acceptance.rs"
+
+[[test]]
+name = "reference_requirements_acceptance"
+path = "tests/rust/reference_requirements_acceptance.rs"
+
+[[test]]
+name = "http_cleanup_acceptance"
+path = "tests/rust/http_cleanup_acceptance.rs"
+
+[[test]]
+name = "review_regression_acceptance"
+path = "tests/rust/review_regression_acceptance.rs"
+
+[[test]]
+name = "local_recovery_acceptance"
+path = "tests/rust/local_recovery_acceptance.rs"
+
+[[test]]
+name = "transport_acceptance"
+path = "tests/rust/transport_acceptance.rs"
+
+[[test]]
+name = "publication_recovery_acceptance"
+path = "tests/rust/publication_recovery_acceptance.rs"
+
+[[test]]
+name = "terminal_lifecycle_acceptance"
+path = "tests/rust/terminal_lifecycle_acceptance.rs"
+
+[[test]]
+name = "crash_recovery_acceptance"
+path = "tests/rust/crash_recovery_acceptance.rs"
+
+[[test]]
+name = "comfy_waiter_acceptance"
+path = "tests/rust/comfy_waiter_acceptance.rs"
+
+[[test]]
+name = "posix_acceptance"
+path = "tests/rust/posix_acceptance.rs"
+
+[[test]]
+name = "registration_acceptance"
+path = "tests/rust/registration_acceptance.rs"
+
+[[test]]
+name = "lease_clock_acceptance"
+path = "tests/rust/lease_clock_acceptance.rs"
+
+[[test]]
+name = "environment_snapshot_acceptance"
+path = "tests/rust/environment_snapshot_acceptance.rs"
+
+[[test]]
+name = "asset_dns_acceptance"
+path = "tests/rust/asset_dns_acceptance.rs"
+
+[[test]]
+name = "persistence_fault_acceptance"
+path = "tests/rust/persistence_fault_acceptance.rs"
+
+[[test]]
+name = "dpapi_acceptance"
+path = "tests/rust/dpapi_acceptance.rs"
+
+[[test]]
+name = "comfy_polling_acceptance"
+path = "tests/rust/comfy_polling_acceptance.rs"
+
+[[test]]
+name = "comfy_same_store_acceptance"
+path = "tests/rust/comfy_same_store_acceptance.rs"
+
+[[test]]
+name = "artifact_signatures"
+path = "tests/rust/artifact_signatures.rs"
+
+[[test]]
+name = "devtool_setup"
+path = "tests/rust/devtool_setup.rs"
+
+[[test]]
+name = "devtool_supervisor"
+path = "tests/rust/devtool_supervisor.rs"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "debuginfo"

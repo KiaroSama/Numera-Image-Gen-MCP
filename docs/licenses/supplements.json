@@ -1,0 +1,18 @@
+{
+  "alloc-stdlib@0.3.0": {
+    "license": "BSD-3-Clause",
+    "crate_sha256": "0b5c1865780388bfa186411ab5f247819487fc4864c6e9c3106611fa347586e1",
+    "source_revision": "0a81fd6928ea3b33c8cd484aa4575d50ffb98012",
+    "source_url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/0a81fd6928ea3b33c8cd484aa4575d50ffb98012/LICENSE",
+    "file": "docs/licenses/alloc-stdlib-0.3.0/LICENSE",
+    "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae"
+  },
+  "rmcp@3.5.1": {
+    "license": "Apache-2.0",
+    "crate_sha256": "ab5023804cbe0304cbe06197ac16e645a0a0d0ffa2953bf735c15c2fa0213350",
+    "source_revision": "79437f291b2c44053d00dcd5db969fd0cca7c887",
+    "source_url": "https://raw.githubusercontent.com/modelcontextprotocol/rust-sdk/79437f291b2c44053d00dcd5db969fd0cca7c887/LICENSE",
+    "file": "docs/licenses/rmcp-3.5.1/LICENSE",
+    "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a"
+  }
+}

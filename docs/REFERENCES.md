@@ -1,5 +1,49 @@
 # References
 
+## Native migration references, checked 2026-10-11
+
+Rust1.99 stable manifest and Cargo environment reference govern hosted-only compiler/workspace cache
+setup. RMCP3.5.1 official tag bc82eb861a5ae2e074183e1214dc2380ca454555 was read for ServerHandler,
+legacy negotiation, tool/result/resource models and Transport; its uncapped read path is bounded by
+Numera's stdio adapter. SDK Apache-2.0 notices remain required. Native runtime compatibility is not
+verified merely because these sources were read.
+
+- https://static.rust-lang.org/dist/channel-rust-stable.toml
+- https://doc.rust-lang.org/cargo/reference/environment-variables.html
+- https://github.com/modelcontextprotocol/rust-sdk/tree/rmcp-v3.5.1
+- https://docs.rs/reqwest/0.13.5/reqwest/struct.ClientBuilder.html and retry/proxy references: explicit
+  no protocol retry, no inherited proxy, no API redirect, bounded credential-free assets.
+- https://docs.rs/serde_stacker/0.1.14/serde_stacker/ and tagged dependency manifest: bounded deep JSON
+  parse plus iterative retained clone/drop; MSRV1.67, MIT/Apache-2.0.
+- https://docs.rs/base64/0.23.1/base64/engine/general_purpose/struct.GeneralPurposeConfig.html:
+  compatibility decoder permits source-accepted unused trailing bits after strict syntax/size checks.
+- https://github.com/taiki-e/cargo-llvm-cov/tree/v0.9.1: hosted nightly branch coverage; production
+  compiler remains stable, region and branch floors are independently enforced.
+- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getfileinformationbyhandleex:
+  stable Win32 128-bit file identity rather than nightly-only std metadata APIs.
+- https://modelcontextprotocol.io/docs/develop/build-server: host command/args launch local stdio;
+  stdout must contain only protocol, and local/cloud file access is not interchangeable.
+
+## Native macOS signing references, checked 2026-10-24
+
+- [Apple memory-only PKCS12 import](https://developer.apple.com/documentation/security/ksecimporttomemoryonly),
+  macOS 15+: required true flag prevents keychain persistence; missing support fails closed.
+- [SecPKCS12Import](<https://developer.apple.com/documentation/security/secpkcs12import(_:_:_:)>) returns
+  identities/certificates. Authenticate the actual imported certificate before using its private key.
+- [Apple signing declarations](https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/OSX/libsecurity_codesigning/lib/SecCodeSigner.h)
+  and implementation at the same revision define exported signing SPI, not stable public API.
+  Explicit timestamp false avoids a TSA; Apple creates embedded signatures, not project-written CMS.
+- [Apple's codesign signing source](https://github.com/apple-oss-distributions/security_systemkeychain/blob/218eea5c6db7b10e9c26193d16878b6a32e213c7/src/cs_sign.cpp)
+  establishes the native service boundary; it is historical source, not current CLI lookup proof.
+- [Code Signing In Depth](https://developer.apple.com/library/archive/technotes/tn2206/_index.html)
+  distinguishes explicit certificate requirements from OS trust. Native verifier requirement source
+  uses `=anchor "<authenticated-certificate>"`, not an implicitly interpreted filename.
+
+No upstream implementation was copied. These API facts do not establish hosted signing success;
+real native verification, wrong-signer/tamper rejection and extracted-byte acceptance remain gates.
+
+## Historical protocol and Node implementation references
+
 Checked2026-10-03. Interfaces and test patterns only; no third-party implementation copied.
 Resume: SDKv2.3.0 release/protocol-versions documentation read; same direct stdio API and Apache-2.0
 package licensing. Google thinking/signature and OpenRouter endpoint descriptor docs refreshed.

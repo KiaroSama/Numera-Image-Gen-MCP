@@ -1,0 +1,20 @@
+{
+  "baseline": "fc7da25c3b470199949b1b4c67127d77afa0c34a",
+  "source_suites": 50,
+  "source_cases": 470,
+  "mapping_complete": true,
+  "collection_evidence": {
+    "sha": "3c5958f259462ea077dbec757bc9f5ccc2cde65c",
+    "run_id": 38367053960,
+    "url": "https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/38367053960",
+    "test_bodies_executed": false,
+    "platforms": ["win32", "linux", "darwin"]
+  },
+  "files": ["unit.jsonl", "contract.jsonl", "integration.jsonl"],
+  "acceptance_evidence": {
+    "sha": "49dde41cdabbf4ccc1c5ecdf58e9808da812b891",
+    "run_id": 39451614262,
+    "url": "https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/39451614262",
+    "execution_binding_sha256": "fddde06a2da2930e6e8eb6a2c3e643dbb2687fb77715a8983310f6a7bf1a0efb"
+  }
+}

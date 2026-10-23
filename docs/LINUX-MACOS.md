@@ -1,53 +1,53 @@
 # Linux and macOS setup
 
-Node24.21.0 or newer24.x/npm required. Install the native Node build for your OS/architecture using
-the official https://nodejs.org/en/download distribution. Numera does not install a runtime itself.
+The native target is a ready executable, not a source-build prerequisite. Retirement-tree parity
+and internal archive execution passed on all six targets at `b513884` / run `39519759155`. Publisher
+signatures and a verified Release remain pending; do not switch a live client until that archive exists.
 
-In the checkout, install and build once:
+1. Download the matching Linux/macOS x86_64 or ARM64 archive and `.sha256` from this repository's
+   Release. Verify the checksum, then extract into a writable installation folder.
+2. Copy `.env.example` to `.env` in the extracted root (parent of `bin/`) only if no private config exists.
+   Set API_ENDPOINT, API_KEY and exact MODEL_1_ID/MODEL_1_NAME; preserve existing data/config.
+3. Register the absolute native executable with `bridge`; the host starts it automatically, without
+   a launcher or separately running service.
 
-```bash
-npm ci
-```
-
-```bash
-npm run build
-```
-
-Save .env next to package.json, using the public root .env.example as a template. Only
-API_ENDPOINT, API_KEY and MODEL_1_ID/MODEL_1_NAME are required. Use your actual image API prefix and exact
-model IDs; no Windows paths. Default profile openai-images; explicit omniroute/9router or openai-responses with separate
-ORCHESTRATION_MODEL. Optional per-model OUTPUT_FORMAT/SIZE/QUALITY need no code edit.
-First model is default, display names do not change native IDs. Outputs/state/logs/inputs are local
-folders beside the file. Keep plaintext API key private, never commit/sync/share it:
+No Node/npm/Rust/Python installation or local build is needed for normal usage. The tar archive
+preserves the binary's executable bit. Private plaintext configuration remains owner-only:
 
 ```bash
 chmod 600 .env
 ```
 
-For Claude Code, register once from the checkout (CLI writes a host entry, not an API key):
+Claude Code registration from the extracted root:
 
 ```bash
-claude mcp add --transport stdio --scope user numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js"
+claude mcp add --transport stdio --scope user numera-image-gen -- "$PWD/bin/numera-image-gen-mcp" bridge
 ```
 
-For Codex, register once:
+Codex registration:
 
 ```bash
-codex mcp add numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js"
+codex mcp add numera-image-gen -- "$PWD/bin/numera-image-gen-mcp" bridge
 ```
 
-For Claude Desktop, merge only mcpServers.numera-image-gen into its actual config using the example
-entry; replace Windows command/args with the absolute native Node and checkout dist/index.js paths.
-Do not replace existing settings. Existing scripts/register.mjs supports entry-scoped JSON/TOML edits
-with explicit targets/backups; Windows PowerShell setup is optional, not a Linux/macOS dependency.
-Set Codex tool_timeout_sec=360 when using long image requests; preserve unrelated settings.
+Claude Desktop uses the absolute native POSIX command and `args: ["bridge"]` in only Numera's entry.
+Linux server support does not establish Desktop application support on Linux. An explicit absolute
+NUMERA_CONFIG can point to an existing private file; otherwise discovery is installation-relative,
+never caller CWD. API keys never go in host settings. Keep long-operation timeouts appropriately sized.
 
-Saved config changes reload on the next tool call. Ask it to call health_check/list_connections/
-list_models first; configured catalog is offline and is not entitlement proof. refresh:true contacts
-the selected backend read-only. Do not run dist/index.js expecting a browser UI: it speaks stdio MCP.
-The host must launch it with pipes. A config file alone cannot register a tool in an arbitrary host.
+After reconnect call `health_check`, `list_connections`, `list_models` and model capabilities before
+approving generation. Passing a probe does not prove account/model entitlement. Saved settings reload
+without a new submission; storage/security policy changes require restart.
 
-Hosted CI includes macos-latest (Apple Silicon), Ubuntu and Windows native dependencies, real stdio
-fixtures, coverage and clean packed installation. Exact successful evidence lives in TEST-RESULTS.md;
-Intel Mac/live account/actual GUI/GPU behavior must not be inferred from an Apple Silicon fixture.
-DPAPI is Windows-only; compact plaintext key or advanced private/env sources work cross-platform.
+Managed temp/cache stays in the installation root; output/state/log/input defaults stay beside the
+selected private config. Preserve originals, receipts/journals and migration snapshots. Keep the old
+runtime until the owner has switched configuration and verified the actual native connection; then
+remove only inspected obsolete project-local dependencies/build/temp/cache, never global caches.
+
+Optional native `menu` provides direct HTTP start, port changes and connection guidance on both
+Linux and macOS. `http` defaults to `127.0.0.1:1969/mcp`, requires a private local Bearer token, and
+runs in foreground; Ctrl+C stops it. It is separate from automatic stdio `bridge` startup.
+[HTTP/menu details](HTTP.md) describe the verified internal target and safe client authentication;
+final signed Release and actual owner reconnection remain separate gates.
+
+[Installation](../README.md#installation-and-setup) · [Claude clients](CLAUDE.md) · [Codex](CODEX.md).

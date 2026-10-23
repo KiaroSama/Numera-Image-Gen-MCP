@@ -13,3 +13,5 @@ state
 logs
 .ignoreme
 LICENSE
+# Exact signed fixture bytes; changing whitespace invalidates their signatures.
+tests/fixtures/native-signing

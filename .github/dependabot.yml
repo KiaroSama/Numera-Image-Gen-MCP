@@ -1,15 +1,9 @@
 version: 2
 updates:
-  - package-ecosystem: npm
+  - package-ecosystem: cargo
     directory: /
     schedule:
       interval: daily
-    groups:
-      mcp-sdk:
-        patterns:
-          - "@modelcontextprotocol/*"
-      development:
-        dependency-type: development
   - package-ecosystem: github-actions
     directory: /
     schedule:

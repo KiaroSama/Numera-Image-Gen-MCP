@@ -6,17 +6,17 @@
 
 [![CI](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/workflows/ci.yml/badge.svg)](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/workflows/ci.yml)
 [![License GPL-3.0-only](https://img.shields.io/badge/license-GPL--3.0--only-blue)](LICENSE)
-[![Node 24](https://img.shields.io/badge/Node.js-24-43853d)](package.json)
-[![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178c6)](tsconfig.json)
-[![ESM](https://img.shields.io/badge/modules-ESM-blue)](package.json)
+[![Rust 1.99](https://img.shields.io/badge/Rust-1.99-CE422B)](rust-toolchain.toml)
+[![Rust edition 2024](https://img.shields.io/badge/edition-2024-CE422B)](Cargo.toml)
+[![Native executable](https://img.shields.io/badge/distribution-native_binary-blue)](Cargo.toml)
 [![MCP stdio](https://img.shields.io/badge/MCP-stdio-7651a8)](docs/ARCHITECTURE.md)
 [![Windows target](https://img.shields.io/badge/target-Windows_11-0078d4)](docs/WINDOWS-WSL.md)
 [![Linux CI](https://img.shields.io/badge/CI_matrix-Linux-555)](.github/workflows/ci.yml)
-[![Zod schema](https://img.shields.io/badge/schema-Zod-3068b7)](schemas/config.schema.json)
-[![Sharp image validation](https://img.shields.io/badge/images-Sharp-99cc00)](src/files/images.ts)
-[![SQLite receipts](https://img.shields.io/badge/receipts-SQLite-003b57)](src/jobs/store.ts)
+[![JSON Schema](https://img.shields.io/badge/config-JSON_Schema-3068b7)](schemas/config.schema.json)
+[![PNG JPEG WebP](https://img.shields.io/badge/images-PNG_JPEG_WebP-99cc00)](native/files/images.rs)
+[![SQLite receipts](https://img.shields.io/badge/receipts-SQLite-003b57)](native/jobs/store.rs)
 [![Documentation](https://img.shields.io/badge/docs-Markdown-blue)](docs/CONFIGURATION.md)
-[![npm lockfile](https://img.shields.io/badge/install-npm_ci-cb3837)](package-lock.json)
+[![RMCP SDK](https://img.shields.io/badge/SDK-RMCP-7651a8)](Cargo.toml)
 [![Support donations](https://img.shields.io/badge/Support-donations-d04a9a)](#donate)
 
 </div>
@@ -26,55 +26,79 @@ image work is an explicitly selected tool operation. Named connections, separate
 profiles, native image protocols and configured GPU ComfyUI workflows. No paid POST retries, hidden
 uploads, prompt enhancement or automatic provider/model fallback.
 
-**Status:** published offline-tested implementation on Windows, Linux and macOS.
-Windows332 tests pass/3 POSIX-only skipped; Linux/macOS334 pass/1 Windows-only DPAPI skipped.
-Runtime coverage: at least90.22 percent statements and88.68 percent branches.
-See [test evidence](docs/TEST-RESULTS.md);
-no npm publication, all-model support, GUI integration or production-readiness claim.
-One owner-authorized real generation also succeeded on2026-10-03 through the configured Images API:
-JPEG1024×1024, saved bytes/hash verified. This is one model/generation, not editing/all-provider proof.
+**Migration status:** all 470 frozen baseline cases and 50 suites have reviewed native assertion
+mappings and applicable hosted execution. The retirement tree `b513884` passed
+[run `39519759155`](https://github.com/KiaroSama/Numera-Image-Gen-MCP/actions/runs/39519759155):
+all six native targets, strict quality checks and internal packaged SDK execution; coverage was
+85.81% regions / 83.41% branches, above the unchanged 85% / 80% floors.
+The tracked production implementation is Rust; Node is used only for the frozen CI oracle and SDK tests.
+No native Release is published yet. Owner-authorized signing custody is restricted to the migration
+branch; signing proceeds without a separate deployment review after validation. The six-target native signing and final signed-package checks must pass their own
+exact-SHA CI before delivery; current internal artifacts are not final signed builds. The owner's working Node installation stays intact
+until they change the host entry and verify the native connection.
+See [migration acceptance](docs/testing/MIGRATION-MATRIX.md) and [historical test evidence](docs/TEST-RESULTS.md).
+
+The native target also adds an optional direct HTTP MCP endpoint at `http://127.0.0.1:1969/mcp`,
+a configurable port and a cross-platform native menu. It reuses Numera's own tools, not a remote MCP
+proxy. Local authentication is separate from provider keys; `bridge` remains launcher-free.
+[HTTP and menu setup](docs/HTTP.md) has provider-free hosted SDK/CLI verification; actual owner
+registration and interactive GUI use remain unverified.
 
 ## Installation and setup
 
-### 1. Install prerequisites and get the project
+### 1. Download the ready native build
 
-Install [Node.js](https://nodejs.org/en/download) >=24.21.0 and <25, npm (bundled with Node), and
-[Git](https://git-scm.com/downloads). Use the native build for Windows, Linux or macOS.
-PowerShell7 is needed only for optional Windows setup/DPAPI scripts. There is no published npm
-release: use this repository rather than an unverified similarly named npm package.
+Once the native Release passes all gates, use this repository's
+[Releases page](https://github.com/KiaroSama/Numera-Image-Gen-MCP/releases).
+Normal usage needs **no Node.js, npm, Rust toolchain, Python, compiler or local build**.
+Your MCP client runs the executable directly. ComfyUI remains an optional separately installed backend,
+not a bundled runtime.
 
-```bash
-git clone https://github.com/KiaroSama/Numera-Image-Gen-MCP.git
+Choose the archive for your actual OS/CPU:
+
+| OS      | CPU                       | Archive suffix                                                         |
+| ------- | ------------------------- | ---------------------------------------------------------------------- |
+| Windows | Intel/AMD 64-bit          | `x86_64-pc-windows-msvc.zip`                                           |
+| Windows | ARM64                     | `aarch64-pc-windows-msvc.zip`                                          |
+| Linux   | Intel/AMD 64-bit or ARM64 | `x86_64-unknown-linux-gnu.tar.gz` / `aarch64-unknown-linux-gnu.tar.gz` |
+| macOS   | Intel or Apple Silicon    | `x86_64-apple-darwin.tar.gz` / `aarch64-apple-darwin.tar.gz`           |
+
+Published compatibility and minimum OS versions must match that Release's actual native CI evidence.
+A Linux binary is not proof that Claude Desktop itself supports Linux.
+
+### 2. Verify and extract
+
+Download the archive **and its `.sha256` sidecar** from the same Release. Match the SHA-256 before
+extracting. The archive contains `bin/numera-image-gen-mcp` (Windows: `.exe`), license/notices,
+configuration templates, schemas and examples. Extract into a writable installation folder you own;
+do not overwrite an existing private configuration or outputs.
+
+Windows PowerShell, replacing the downloaded filename:
+
+```powershell
+Get-FileHash -Algorithm SHA256 -LiteralPath './numera-image-gen-mcp-0.2.0-x86_64-pc-windows-msvc.zip'
 ```
 
-```bash
-cd Numera-Image-Gen-MCP
-```
-
-Confirm Node reports a supported24.x version:
+Linux, from the download folder:
 
 ```bash
-node --version
+sha256sum -c numera-image-gen-mcp-0.2.0-x86_64-unknown-linux-gnu.tar.gz.sha256
 ```
 
-### 2. Install dependencies and build
-
-Run from the checkout on Windows, Linux or macOS:
+macOS, replacing the archive filename for Intel if necessary:
 
 ```bash
-npm ci
+shasum -a 256 -c numera-image-gen-mcp-0.2.0-aarch64-apple-darwin.tar.gz.sha256
 ```
 
-```bash
-npm run build
-```
-
-The compiled entry point is dist/index.js. It is a stdio MCP server, not a web page; your MCP client
-launches it with pipes. Do not run it expecting an interactive menu or browser UI.
+Use your OS archive extractor. On Linux/macOS the tar archive preserves the executable permission.
+Do not bypass an OS security warning blindly: verify origin/checksum and follow your platform's
+normal permission process. Managed temporary files and caches stay inside the installation folder;
+a non-writable managed path fails instead of falling back to a global temporary directory.
 
 ### 3. Create your private configuration
 
-Copy [.env.example](.env.example) to .env next to package.json. Do not overwrite an existing private config.
+Copy [.env.example](.env.example) to .env in the extracted installation root (the parent of `bin/`). Do not overwrite an existing private config.
 
 Windows PowerShell:
 
@@ -194,311 +218,126 @@ Do not enable this example blindly on a gateway. `edit_region` and `target_langu
 [advanced configuration](docs/CONFIGURATION.md) explain route limits and additional JSON settings.
 Save .env and call `list_models` again to apply a valid change; no image is submitted just by saving.
 
-### 4. Register Numera in your MCP client
+### 4. Register with your MCP client
 
-Choose one client below. Registration happens once; saving application config alone does not register
-a server. Use absolute native paths. Never put the API key in the host entry.
+Registration is one-time. Preserve unrelated settings and back up the host file before merging only
+Numera's entry. After registration **no launcher needs to be opened**: the host runs the executable
+with `args: ["bridge"]`, which starts MCP over stdin/stdout. No background daemon or listening port
+must be started first.
 
-#### Claude Desktop (Windows example)
+#### Claude Desktop
 
-Open **Settings → Developer → Edit Config**. Add this member inside the existing mcpServers object,
-keeping every other server. These are neutral example paths; replace them with your actual absolute paths. Forward slashes work in Windows JSON and avoid backslash escaping.
-
-```json
-    "numera-image-gen": {
-      "command": "C:/tools/node/node.exe",
-      "args": [
-        "C:/projects/numera-image-gen-mcp/dist/index.js",
-        "--config",
-        "C:/projects/numera-image-gen-mcp/.env"
-      ]
-    },
-```
-
-This is an inner member, not a complete JSON file. Keep the comma only when another member follows;
-the preceding server also needs a comma. If this is your first server, the complete shape is:
+Merge this into the actual `claude_desktop_config.json`; the paths are examples, not your machine's
+installation. Keep every other `mcpServers` member unchanged:
 
 ```json
 {
   "mcpServers": {
     "numera-image-gen": {
-      "command": "ABSOLUTE_PATH_TO_NODE",
-      "args": [
-        "ABSOLUTE_PATH_TO_NUMERA/dist/index.js",
-        "--config",
-        "ABSOLUTE_PATH_TO_NUMERA/.env"
-      ]
+      "command": "C:/tools/numera-image-gen-mcp/bin/numera-image-gen-mcp.exe",
+      "args": ["bridge"]
     }
   }
 }
 ```
 
-On macOS use absolute POSIX paths; do not reuse Windows paths. Use Edit Config to find the actual
-Desktop settings file (packaged Windows installations can use a different location). Save, fully quit
-Claude Desktop and reopen it. Numera should appear among its local MCP tools. Desktop availability is
-separate from the native Linux server support. See [Claude clients](docs/CLAUDE.md).
+The executable finds `.env` first, then `config.local.json`, in its installation root (parent of `bin/`),
+not Claude's working directory. Existing user-config fallback and an explicit absolute `NUMERA_CONFIG`
+remain supported. If private configuration is elsewhere, add only this entry's `env`:
+
+```json
+{
+  "NUMERA_CONFIG": "C:/private/numera/.env"
+}
+```
+
+Never put the API key in host settings or arguments. On macOS use an actual absolute POSIX executable
+path, such as `/Users/your-name/tools/numera/bin/numera-image-gen-mcp`; `args` stays `["bridge"]`.
+Use Desktop's Edit Config to locate its actual settings, fully quit/reopen the app and call
+`health_check` plus `list_connections` to confirm the selected configuration.
+[Claude clients](docs/CLAUDE.md) has the registration and reconnect details.
 
 #### Claude Code
 
-From the built checkout on Linux/macOS:
+Linux/macOS, from the extracted installation root:
 
 ```bash
-claude mcp add --transport stdio --scope user numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/.env"
+claude mcp add --transport stdio --scope user numera-image-gen -- "$PWD/bin/numera-image-gen-mcp" bridge
 ```
 
-Windows PowerShell, using neutral example paths (replace them for your installation):
+Windows PowerShell, with your actual executable:
 
 ```powershell
-claude mcp add --transport stdio --scope user numera-image-gen -- 'C:/tools/node/node.exe' 'C:/projects/numera-image-gen-mcp/dist/index.js' --config 'C:/projects/numera-image-gen-mcp/.env'
+claude mcp add --transport stdio --scope user numera-image-gen -- 'C:/tools/numera/bin/numera-image-gen-mcp.exe' bridge
 ```
 
-Project-scoped JSON alternative: [Claude project entry](examples/claude-project.json). Do not replace
-the whole .mcp.json or unrelated host settings.
+Project JSON alternative: [Claude project entry](examples/claude-project.json). Do not replace the
+whole `.mcp.json`. Save endpoint/key/models in the private application config and call `list_models`
+again; accepted reloads retain operation snapshots and never resubmit existing image work.
 
-#### Codex
+#### Codex and other local MCP clients
 
-From the built checkout on Linux/macOS:
+Merge [Codex TOML](examples/codex.toml), changing its absolute executable/config paths and retaining
+the long-operation timeout. Codex command registration from the extracted POSIX installation:
 
 ```bash
-codex mcp add numera-image-gen -- "$(command -v node)" "$PWD/dist/index.js" --config "$PWD/.env"
+codex mcp add numera-image-gen -- "$PWD/bin/numera-image-gen-mcp" bridge
 ```
 
-For Windows or manual TOML configuration, merge [the Codex entry](examples/codex.toml) into your
-existing config, replace the paths and keep tool_timeout_sec=360 for long image operations.
-See [Codex setup](docs/CODEX.md).
+Cursor/Windsurf use their local `mcpServers` configuration. Kiro uses `mcpServers` with its `disabled`
+flag. Hermes uses `mcp_servers`. VS Code-native `.vscode/mcp.json` uses `servers` and `type: "stdio"`.
+For those clients set `command` to the native binary and `args` to `["bridge"]`; optionally add the
+absolute private `NUMERA_CONFIG` in that member's `env`. Do not translate top-level keys between
+clients blindly. OpenCode uses `mcp` with `type: "local"` and a command array containing the binary
+and `"bridge"`. Existing host trust/approval and installation support remain the host's responsibility.
 
-#### Codex: manual configuration
-
-Add this table to ~/.codex/config.toml (or a trusted project's .codex/config.toml), preserving existing
-tables. All paths below are neutral examples; replace them with your actual paths:
-
-```toml
-[mcp_servers.numera-image-gen]
-command = "C:/tools/node/node.exe"
-args = ["C:/projects/numera-image-gen-mcp/dist/index.js", "--config", "C:/projects/numera-image-gen-mcp/.env"]
-startup_timeout_sec = 10
-tool_timeout_sec = 360
-```
-
-Codex CLI, desktop and IDE extension share host configuration. Check with `codex mcp list` and start
-a new session. [Official Codex MCP documentation](https://developers.openai.com/codex/mcp).
-
-#### Kiro
-
-Merge the following into .kiro/settings/mcp.json for the workspace, or ~/.kiro/settings/mcp.json for
-all workspaces. Enable MCP support in Kiro settings, save and check that the server reconnects:
-
-```json
-{
-  "mcpServers": {
-    "numera-image-gen": {
-      "command": "C:/tools/node/node.exe",
-      "args": [
-        "C:/projects/numera-image-gen-mcp/dist/index.js",
-        "--config",
-        "C:/projects/numera-image-gen-mcp/.env"
-      ],
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
-
-Keep generation/edit approvals enabled; do not auto-approve all tools just to connect.
-[Official Kiro configuration](https://kiro.dev/docs/mcp/configuration/).
-
-#### Cursor
-
-Merge this into .cursor/mcp.json for the project or ~/.cursor/mcp.json globally. Enable the server in
-Cursor's Customize/MCP page and check its tool list:
-
-```json
-{
-  "mcpServers": {
-    "numera-image-gen": {
-      "type": "stdio",
-      "command": "C:/tools/node/node.exe",
-      "args": [
-        "C:/projects/numera-image-gen-mcp/dist/index.js",
-        "--config",
-        "C:/projects/numera-image-gen-mcp/.env"
-      ]
-    }
-  }
-}
-```
-
-[Official Cursor MCP documentation](https://cursor.com/docs/context/mcp).
-
-#### Hermes Agent
-
-Add this server under the existing mcp_servers map in ~/.hermes/config.yaml. This is Hermes Agent
-by Nous Research, not an unrelated product named Hermes:
-
-```yaml
-mcp_servers:
-  numera-image-gen:
-    command: "C:/tools/node/node.exe"
-    args:
-      - "C:/projects/numera-image-gen-mcp/dist/index.js"
-      - "--config"
-      - "C:/projects/numera-image-gen-mcp/.env"
-```
-
-Restart the Hermes session/gateway that should load it, or use its supported /reload-mcp command.
-Ask for list_models before authorizing generation. Do not paste the private API key into Hermes config.
-[Official Hermes MCP documentation](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp/).
-
-#### OpenCode
-
-Merge this into project opencode.json/opencode.jsonc or global ~/.config/opencode/opencode.json.
-OpenCode uses a command array under mcp, not a Claude-style mcpServers object:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "numera-image-gen": {
-      "type": "local",
-      "command": [
-        "C:/tools/node/node.exe",
-        "C:/projects/numera-image-gen-mcp/dist/index.js",
-        "--config",
-        "C:/projects/numera-image-gen-mcp/.env"
-      ],
-      "enabled": true,
-      "timeout": 10000
-    }
-  }
-}
-```
-
-The shown timeout bounds tool discovery, not image-generation duration. Check `opencode mcp list`.
-[Official MCP guide](https://opencode.ai/docs/mcp-servers/) and [config locations](https://opencode.ai/docs/config/).
-
-#### VS Code / GitHub Copilot
-
-The current portable workspace format is .mcp.json, using mcpServers; reuse the complete Claude Code
-project entry with neutral paths. User-wide portable configuration is ~/.copilot/mcp-config.json.
-For existing VS Code-native .vscode/mcp.json, the top-level key is servers instead:
-
-```json
-{
-  "servers": {
-    "numera-image-gen": {
-      "type": "stdio",
-      "command": "C:/tools/node/node.exe",
-      "args": [
-        "C:/projects/numera-image-gen-mcp/dist/index.js",
-        "--config",
-        "C:/projects/numera-image-gen-mcp/.env"
-      ]
-    }
-  }
-}
-```
-
-Use MCP: Add Server or MCP: Open User Configuration, trust the reviewed local executable, start the
-server and enable its tools in Agent chat. Remote workspaces run the command on their configured host:
-Windows paths cannot launch a process on a Linux container.
-[Official VS Code guide](https://code.visualstudio.com/docs/copilot/customization/mcp-servers).
-
-#### Gemini CLI
-
-For Gemini CLI installations, add a server to ~/.gemini/settings.json (user) or .gemini/settings.json
-(project). Availability of Gemini CLI versus newer Antigravity tooling depends on your account:
-
-```json
-{
-  "mcpServers": {
-    "numera-image-gen": {
-      "command": "C:/tools/node/node.exe",
-      "args": [
-        "C:/projects/numera-image-gen-mcp/dist/index.js",
-        "--config",
-        "C:/projects/numera-image-gen-mcp/.env"
-      ],
-      "timeout": 360000,
-      "trust": false
-    }
-  }
-}
-```
-
-Restart/reconnect and inspect /mcp; keep trust:false so billable operations require approval.
-[Official Gemini CLI MCP documentation](https://geminicli.com/docs/tools/mcp-server/).
-
-These are configuration instructions verified against official documentation, not claims that every
-client GUI was practically tested. On Linux/macOS replace the example Windows Node/project paths with
-absolute POSIX paths. Do not set an MCP URL to the provider's api_endpoint: Numera's transport is stdio.
-
-### 5. Verify the connection and generate your first image
-
-In your client ask: **Call Numera health_check, list_connections and list_models. Do not generate yet.**
-Ask: **Show the image models configured in Numera as a table of display name and exact model ID.
-Call list_models with refresh=false; do not generate.**
-
-The agent receives the configured id/name pairs through MCP and can display them to you without
-reading the private key or config file. Pass limit/offset to list_models when the list spans pages.
-Configured models are listed offline; refresh:true additionally queries the selected catalog and can
-include unconfigured provider models. A listed ID does not prove account entitlement.
-For a direct read-only check from the checkout on Linux/macOS:
+Optional native entry-scoped registration (never automatic at startup):
 
 ```bash
-node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config "$PWD/.env" --probe
+./bin/numera-image-gen-mcp register --client ClaudeDesktop --host-config /absolute/claude_desktop_config.json --config /absolute/numera/.env --dry-run
 ```
 
-Windows PowerShell:
+Review the dry run first. Removing `--dry-run` deliberately updates only Numera with an exact-byte
+backup and concurrent-change protection. `--remove` removes only that member, never user images or
+application data. Ambiguous TOML, links, active registration locks and invalid host JSON are rejected.
+These instructions are not registration performed by this repository task.
 
-```powershell
-node scripts/bounded.mjs 90000 20000 scripts/readiness.mjs --config (Join-Path $PWD '.env') --probe
+### 5. Verify the connection before approving an image
+
+In the host call `health_check`, `list_connections`, `list_models`, then `get_model_capabilities`
+with the exact selected model ID. Readiness is not account entitlement or a successful generation.
+An optional native read-only diagnosis is available:
+
+```bash
+./bin/numera-image-gen-mcp readiness --config /absolute/numera/.env --probe
 ```
 
-Exit0 means local configuration/storage/credentials and the requested read-only catalog check are
-ready; it does not prove image-generation entitlement. A gateway without a catalog can still have an
-image route: inspect the explicit blocker rather than treating discovery as generation proof.
+The report distinguishes local configuration/storage/credentials from a read-only provider catalog;
+it never submits an image. Logs go to stderr/files, never MCP stdout.
 
-When you approve a potentially billable request, ask your client: **Use Numera generate_image once
-to create a blue mug beside an orange. count=1; request_id=my-first-image-001.** Use the configured
-default model or provide its exact native ID. Reuse that ID only for the same logical request; use
-a new ID for a deliberately new image. Never retry an outcome_unknown request with a new ID.
+When you explicitly approve potentially billable work, ask: **Use Numera generate_image once to create
+a blue mug beside an orange. count=1; request_id=my-first-image-001.** Reuse that ID for the same
+logical request only. Never give an unknown outcome a new ID just to retry it.
 
-Images are saved beneath outputs/ beside your private config, with actual dimensions/MIME/hash in
-the receipt. Open the returned path locally; cloud clients cannot inherently read your local files.
-return_mode=files_and_preview adds a bounded preview when the host supports image tool results.
+Outputs keep the provider's original bytes and verified MIME/dimensions/hash. A bounded preview is
+optional; a remote/cloud host cannot inherently read local paths or launch a local stdio executable.
 
 ### Update and troubleshoot
 
-Before updating, close the MCP server and preserve your private config and outputs. If your checkout
-has local source changes, resolve those first; never use destructive reset/clean commands.
+Download the next verified Release and checksum into this project's own download/work directory.
+Preserve private config, originals, receipts/journals and migration snapshots. Quit/reconnect the MCP
+host around replacing the executable; never replace data folders with a fresh empty installation.
+Keep the old executable until the new host connection actually succeeds. Only then remove reviewed
+obsolete project-local runtime/dependency/temp/cache paths. Never clear another project's or a
+system/global cache.
 
-```bash
-git pull --ff-only
-```
-
-```bash
-npm ci
-```
-
-```bash
-npm run build
-```
-
-Reconnect after rebuilding. The ignored config is not replaced by an update. Common problems:
-
-| Problem                            | Check                                                                                                                              |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Server absent in Claude            | Correct inner mcpServers entry, valid JSON/no trailing final comma, absolute existing Node/dist/config paths, full Desktop restart |
-| Startup fails                      | Supported Node24, npm ci/build completed, nonempty private key/model IDs, writable config-directory storage                        |
-| API401/403                         | Selected endpoint/key/account; never paste keys or read another application's credential store                                     |
-| Route404 or unsupported parameters | Correct API prefix/profile, exact model and supported size/quality/format; no full operation URL                                   |
-| Timeout or uncertain outcome       | Inspect get_job with the original request_id; no automatic resubmission or provider fallback                                       |
-
-Stdout is exclusively MCP traffic; logs go stderr/files. npm run smoke checks local handshake/tools/
-health without a provider. Optional Windows [setup.ps1](scripts/setup.ps1) supports -WhatIf and explicit
-entry-scoped registration with backups. Read-only readiness and real-test prerequisites:
-[Practical testing](docs/PRACTICAL-TESTING.md). Missing declared credentials fails with exit2.
+| Problem              | Check                                                                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------- |
+| Server not visible   | Actual absolute binary path, `args: ["bridge"]`, correct host file and trust/reconnect                   |
+| Startup exits        | Private config validity, writable project-contained scratch and configured storage; inspect redacted log |
+| No configured models | At least one enabled model with exact ID and readable name                                               |
+| Catalog/probe fails  | Selected route, API prefix, credentials and account; this is not generation failure proof                |
+| Unknown outcome      | Inspect the same receipt with `get_job`; do not submit a replacement automatically                       |
 
 ## Protocols and tools
 

@@ -1,0 +1,12 @@
+{
+  "trust": "self-signed; not public OS trust, Apple Developer ID or notarization",
+  "publisher": "KiaroSama",
+  "public_key_sha256": "31ccb588ae7e529535dcccd94f06d8d39ae1b8847b7003e884ad8f44cd340c80",
+  "not_after": "2027-10-17T20:17:22.0000000Z",
+  "certificate_thumbprint": "390AD915AE2ECD7DE897FE60D2D066AF7D278311",
+  "algorithm": "rsa-pkcs1-sha256",
+  "product": "Numera Image-Gen MCP",
+  "not_before": "2026-10-17T20:07:22.0000000Z",
+  "timestamp": "none; verification requires current certificate validity",
+  "certificate_sha256": "657dd7869e90e2bf9a49942d5098e1e3a82e22cf84add51aa958e3dfd0af937f"
+}

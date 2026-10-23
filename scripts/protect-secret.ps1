@@ -12,12 +12,13 @@ try {
         try {
             $encrypted = $secret | ConvertFrom-SecureString
             [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($Path)) | Out-Null
-            $file = [IO.File]::Open($Path, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+            $security = [Security.AccessControl.FileSecurity]::new()
+            $security.SetAccessRuleProtection($true, $false)
+            $security.AddAccessRule([Security.AccessControl.FileSystemAccessRule]::new([Security.Principal.WindowsIdentity]::GetCurrent().User, [Security.AccessControl.FileSystemRights]::FullControl, [Security.AccessControl.AccessControlType]::Allow))
+            # Apply the complete DACL at creation; disabling inheritance alone retains default-token grants.
+            $file = [IO.FileSystemAclExtensions]::Create([IO.FileInfo]::new($Path), [IO.FileMode]::CreateNew, [Security.AccessControl.FileSystemRights]::Write, [IO.FileShare]::None, 4096, [IO.FileOptions]::None, $security)
             try { $bytes = [Text.UTF8Encoding]::new($false).GetBytes($encrypted); $file.Write($bytes, 0, $bytes.Length) }
             finally { $file.Dispose() }
-            $identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
-            & icacls $Path /inheritance:r /grant:r "${identity}:(F)" 2>$null | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw 'Secret encryption succeeded but ACL restriction failed; restrict access before use.' }
             Write-NumeraLog INFO AUTH 'DPAPI secret created for the current Windows user; value not logged.'
         } finally { $secret.Dispose(); $encrypted = $null }
     } else { Write-NumeraLog INFO AUTH 'Secret protection not executed; no secret requested or file created.' }
